@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceManagementInstallSoftwarePackage() *schema.Resource {
@@ -29,7 +29,8 @@ func resourceManagementInstallSoftwarePackage() *schema.Resource {
 				},
 			},
 			"cluster_installation_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Installation settings for cluster.",
 				ForceNew:    true,
@@ -77,17 +78,22 @@ func createManagementInstallSoftwarePackage(d *schema.ResourceData, m interface{
 		payload["targets"] = v.(*schema.Set).List()
 	}
 
-	if _, ok := d.GetOk("cluster_installation_settings"); ok {
+	if v, ok := d.GetOk("cluster_installation_settings"); ok {
 
-		res := make(map[string]interface{})
+		clusterInstallationSettingsList := v.([]interface{})
 
-		if v, ok := d.GetOk("cluster_installation_settings.cluster_delay"); ok {
-			res["cluster-delay"] = v
+		if len(clusterInstallationSettingsList) > 0 {
+
+			clusterInstallationSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("cluster_installation_settings.0.cluster_delay"); ok {
+				clusterInstallationSettingsPayload["cluster-delay"] = v.(int)
+			}
+			if v, ok := d.GetOk("cluster_installation_settings.0.cluster_strategy"); ok {
+				clusterInstallationSettingsPayload["cluster-strategy"] = v.(string)
+			}
+			payload["cluster-installation-settings"] = clusterInstallationSettingsPayload
 		}
-		if v, ok := d.GetOk("cluster_installation_settings.cluster_strategy"); ok {
-			res["cluster-strategy"] = v.(string)
-		}
-		payload["cluster-installation-settings"] = res
 	}
 
 	if v, ok := d.GetOk("concurrency_limit"); ok {

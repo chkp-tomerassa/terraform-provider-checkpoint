@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceManagementDefaultAdministratorSettings() *schema.Resource {
@@ -29,7 +29,6 @@ func dataSourceManagementDefaultAdministratorSettings() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Expiration date for new administrator in YYYY-MM-DD format. <font color=\"red\">Required only when</font> 'expiration-type' is set to 'expiration date'.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"iso_8601": {

@@ -3,10 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -78,7 +76,7 @@ func dataSourceManagementUser() *schema.Resource {
 				Description: "Allow users connect until hour.",
 			},
 			"allowed_locations": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "User allowed locations.",
 				Elem: &schema.Resource{
@@ -103,7 +101,7 @@ func dataSourceManagementUser() *schema.Resource {
 				},
 			},
 			"encryption": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "User encryption.",
 				Elem: &schema.Resource{
@@ -236,20 +234,120 @@ func dataSourceManagementUserRead(d *schema.ResourceData, m interface{}) error {
 
 		allowedLocationsMapToReturn := make(map[string]interface{})
 
-		if v, _ := allowedLocationsMap["destinations"]; v != nil {
-			allowedLocationsMapToReturn["destinations"] = v
-		}
-		if v, _ := allowedLocationsMap["sources"]; v != nil {
-			allowedLocationsMapToReturn["sources"] = v
+		if v := allowedLocationsMap["destinations"]; v != nil {
+
+			destinationsList := v.([]interface{})
+
+			if len(destinationsList) > 0 {
+
+				var destinationsListToReturn []map[string]interface{}
+
+				for i := range destinationsList {
+
+					destinationsMap := destinationsList[i].(map[string]interface{})
+
+					destinationsMapToAdd := make(map[string]interface{})
+
+					if v := destinationsMap["name"]; v != nil {
+						destinationsMapToAdd["name"] = v
+					}
+					if v := destinationsMap["type"]; v != nil {
+						destinationsMapToAdd["type"] = v
+					}
+					if v := destinationsMap["color"]; v != nil {
+						destinationsMapToAdd["color"] = v
+					}
+					if v := destinationsMap["domain"]; v != nil {
+
+						domainMap := v.(map[string]interface{})
+
+						domainMapToReturn := make(map[string]interface{})
+
+						if v := domainMap["name"]; v != nil {
+							domainMapToReturn["name"] = v
+						}
+						if v := domainMap["domain-type"]; v != nil {
+							domainMapToReturn["domain_type"] = v
+						}
+						if v := domainMap["uid"]; v != nil {
+							domainMapToReturn["uid"] = v
+						}
+
+						destinationsMapToAdd["domain"] = []interface{}{domainMapToReturn}
+					}
+
+					if v := destinationsMap["icon"]; v != nil {
+						destinationsMapToAdd["icon"] = v
+					}
+					if v := destinationsMap["uid"]; v != nil {
+						destinationsMapToAdd["uid"] = v
+					}
+
+					destinationsListToReturn = append(destinationsListToReturn, destinationsMapToAdd)
+				}
+
+				allowedLocationsMapToReturn["destinations"] = destinationsListToReturn
+			}
 		}
 
-		_, allowedLocationsInConf := d.GetOk("allowed_locations")
-		defaultAllowedLocations := map[string]interface{}{"sources": "['97aeb369-9aea-11d5-bd16-0090272ccb30']", "destinations": "['97aeb369-9aea-11d5-bd16-0090272ccb30']"}
-		if reflect.DeepEqual(defaultAllowedLocations, allowedLocationsMapToReturn) && !allowedLocationsInConf {
-			_ = d.Set("allowed_locations", map[string]interface{}{})
-		} else {
-			_ = d.Set("allowed_locations", allowedLocationsMapToReturn)
+		if v := allowedLocationsMap["sources"]; v != nil {
+
+			sourcesList := v.([]interface{})
+
+			if len(sourcesList) > 0 {
+
+				var sourcesListToReturn []map[string]interface{}
+
+				for i := range sourcesList {
+
+					sourcesMap := sourcesList[i].(map[string]interface{})
+
+					sourcesMapToAdd := make(map[string]interface{})
+
+					if v := sourcesMap["name"]; v != nil {
+						sourcesMapToAdd["name"] = v
+					}
+					if v := sourcesMap["type"]; v != nil {
+						sourcesMapToAdd["type"] = v
+					}
+					if v := sourcesMap["color"]; v != nil {
+						sourcesMapToAdd["color"] = v
+					}
+					if v := sourcesMap["domain"]; v != nil {
+
+						domainMap := v.(map[string]interface{})
+
+						domainMapToReturn := make(map[string]interface{})
+
+						if v := domainMap["name"]; v != nil {
+							domainMapToReturn["name"] = v
+						}
+						if v := domainMap["domain-type"]; v != nil {
+							domainMapToReturn["domain_type"] = v
+						}
+						if v := domainMap["uid"]; v != nil {
+							domainMapToReturn["uid"] = v
+						}
+
+						sourcesMapToAdd["domain"] = []interface{}{domainMapToReturn}
+					}
+
+					if v := sourcesMap["icon"]; v != nil {
+						sourcesMapToAdd["icon"] = v
+					}
+					if v := sourcesMap["uid"]; v != nil {
+						sourcesMapToAdd["uid"] = v
+					}
+
+					sourcesListToReturn = append(sourcesListToReturn, sourcesMapToAdd)
+				}
+
+				allowedLocationsMapToReturn["sources"] = sourcesListToReturn
+			}
 		}
+
+		_ = d.Set("allowed_locations", []interface{}{allowedLocationsMapToReturn})
+
 	} else {
 		_ = d.Set("allowed_locations", nil)
 	}
@@ -260,23 +358,18 @@ func dataSourceManagementUserRead(d *schema.ResourceData, m interface{}) error {
 
 		encryptionMapToReturn := make(map[string]interface{})
 
-		if v, _ := encryptionMap["ike"]; v != nil {
-			encryptionMapToReturn["enable_ike"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["ike"]; v != nil {
+			encryptionMapToReturn["ike"] = v
 		}
-		if v, _ := encryptionMap["public-key"]; v != nil {
-			encryptionMapToReturn["enable_public_key"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["public-key"]; v != nil {
+			encryptionMapToReturn["public_key"] = v
 		}
-		if v, _ := encryptionMap["shared-secret"]; v != nil {
-			encryptionMapToReturn["enable_shared_secret"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["shared-secret"]; v != nil {
+			encryptionMapToReturn["shared_secret"] = v
 		}
 
-		_, encryptionInConf := d.GetOk("encryption")
-		defaultEncryption := map[string]interface{}{"enable_ike": "true", "enable_public_key": "true", "enable_shared_secret": "false"}
-		if reflect.DeepEqual(defaultEncryption, encryptionMapToReturn) && !encryptionInConf {
-			_ = d.Set("encryption", map[string]interface{}{})
-		} else {
-			_ = d.Set("encryption", encryptionMapToReturn)
-		}
+		_ = d.Set("encryption", []interface{}{encryptionMapToReturn})
+
 	} else {
 		_ = d.Set("encryption", nil)
 	}

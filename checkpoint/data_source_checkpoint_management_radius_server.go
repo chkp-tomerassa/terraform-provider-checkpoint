@@ -3,10 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"reflect"
-	"strconv"
 )
 
 func dataSourceManagementRadiusServer() *schema.Resource {
@@ -55,7 +53,7 @@ func dataSourceManagementRadiusServer() *schema.Resource {
 				Description: "The priority of the RADIUS Server in case it is a member of a RADIUS Group.",
 			},
 			"accounting": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Accounting settings.",
 				Elem: &schema.Resource{
@@ -154,25 +152,59 @@ func dataSourceManagementRadiusServerRead(d *schema.ResourceData, m interface{})
 	}
 
 	if radiusServer["accounting"] != nil {
+
 		accountingMap := radiusServer["accounting"].(map[string]interface{})
 
 		accountingMapToReturn := make(map[string]interface{})
 
-		if v, _ := accountingMap["enable-ip-pool-management"]; v != nil {
-			accountingMapToReturn["enable_ip_pool_management"] = strconv.FormatBool(v.(bool))
+		if v := accountingMap["enable-ip-pool-management"]; v != nil {
+			accountingMapToReturn["enable_ip_pool_management"] = v
+		}
+		if v := accountingMap["accounting-service"]; v != nil {
+
+			accountingServiceMap := v.(map[string]interface{})
+
+			accountingServiceMapToReturn := make(map[string]interface{})
+
+			if v := accountingServiceMap["name"]; v != nil {
+				accountingServiceMapToReturn["name"] = v
+			}
+			if v := accountingServiceMap["type"]; v != nil {
+				accountingServiceMapToReturn["type"] = v
+			}
+			if v := accountingServiceMap["color"]; v != nil {
+				accountingServiceMapToReturn["color"] = v
+			}
+			if v := accountingServiceMap["domain"]; v != nil {
+
+				domainMap := v.(map[string]interface{})
+
+				domainMapToReturn := make(map[string]interface{})
+
+				if v := domainMap["name"]; v != nil {
+					domainMapToReturn["name"] = v
+				}
+				if v := domainMap["domain-type"]; v != nil {
+					domainMapToReturn["domain_type"] = v
+				}
+				if v := domainMap["uid"]; v != nil {
+					domainMapToReturn["uid"] = v
+				}
+
+				accountingServiceMapToReturn["domain"] = []interface{}{domainMapToReturn}
+			}
+
+			if v := accountingServiceMap["icon"]; v != nil {
+				accountingServiceMapToReturn["icon"] = v
+			}
+			if v := accountingServiceMap["uid"]; v != nil {
+				accountingServiceMapToReturn["uid"] = v
+			}
+
+			accountingMapToReturn["accounting_service"] = []interface{}{accountingServiceMapToReturn}
 		}
 
-		if v, _ := accountingMap["accounting-service"]; v != "" && v != nil {
-			accountingMapToReturn["accounting_service"] = v
-		}
-
-		_, accountingInConf := d.GetOk("accounting")
-		defaultAccounting := map[string]interface{}{"enable_ip_pool_management": "false"}
-		if reflect.DeepEqual(defaultAccounting, accountingMapToReturn) && !accountingInConf {
-			_ = d.Set("accounting", map[string]interface{}{})
-		} else {
-			_ = d.Set("accounting", accountingMapToReturn)
-		}
+		_ = d.Set("accounting", []interface{}{accountingMapToReturn})
 
 	} else {
 		_ = d.Set("accounting", nil)

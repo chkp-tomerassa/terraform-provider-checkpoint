@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -68,7 +68,6 @@ func dataSourceManagementLsmGateway() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "IPv4 Address range.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"from_ipv4_address": {
@@ -101,7 +100,7 @@ func dataSourceManagementLsmGateway() *schema.Resource {
 				Description: "Device platform operating system.",
 			},
 			"provisioning_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Provisioning settings.",
 				Elem: &schema.Resource{
@@ -121,7 +120,7 @@ func dataSourceManagementLsmGateway() *schema.Resource {
 			},
 
 			"sic": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Secure Internal Communication.",
 				Elem: &schema.Resource{
@@ -161,7 +160,6 @@ func dataSourceManagementLsmGateway() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Topology.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"manual_vpn_domain": {
@@ -355,10 +353,12 @@ func dataSourceManagementLsmGatewayRead(d *schema.ResourceData, m interface{}) e
 
 		provisioningSettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := provisioningSettingsMap["provisioning-profile"]; v != nil {
+		if v := provisioningSettingsMap["provisioning-profile"]; v != nil {
 			provisioningSettingsMapToReturn["provisioning_profile"] = v
 		}
-		_ = d.Set("provisioning_settings", provisioningSettingsMapToReturn)
+
+		_ = d.Set("provisioning_settings", []interface{}{provisioningSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("provisioning_settings", nil)
 	}

@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -66,7 +66,8 @@ func resourceManagementResourceSmtp() *schema.Resource {
 				Default:     "None",
 			},
 			"match": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Set the Match properties for the SMTP resource.",
 				Elem: &schema.Resource{
@@ -330,17 +331,22 @@ func createManagementResourceSmtp(d *schema.ResourceData, m interface{}) error {
 		resourceSmtp["exception-track"] = v
 	}
 
-	if _, ok := d.GetOk("match"); ok {
+	if v, ok := d.GetOk("match"); ok {
 
-		res := make(map[string]interface{})
+		matchList := v.([]interface{})
 
-		if v, ok := d.GetOk("match.sender"); ok {
-			res["sender"] = v.(string)
+		if len(matchList) > 0 {
+
+			matchPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("match.0.sender"); ok {
+				matchPayload["sender"] = v.(string)
+			}
+			if v, ok := d.GetOk("match.0.recipient"); ok {
+				matchPayload["recipient"] = v.(string)
+			}
+			resourceSmtp["match"] = matchPayload
 		}
-		if v, ok := d.GetOk("match.recipient"); ok {
-			res["recipient"] = v.(string)
-		}
-		resourceSmtp["match"] = res
 	}
 
 	if v, ok := d.GetOk("action_1"); ok {
@@ -569,13 +575,14 @@ func readManagementResourceSmtp(d *schema.ResourceData, m interface{}) error {
 
 		matchMapToReturn := make(map[string]interface{})
 
-		if v, _ := matchMap["sender"]; v != nil {
+		if v := matchMap["sender"]; v != nil {
 			matchMapToReturn["sender"] = v
 		}
-		if v, _ := matchMap["recipient"]; v != nil {
+		if v := matchMap["recipient"]; v != nil {
 			matchMapToReturn["recipient"] = v
 		}
-		_ = d.Set("match", matchMapToReturn)
+		_ = d.Set("match", []interface{}{matchMapToReturn})
+
 	} else {
 		_ = d.Set("match", nil)
 	}
@@ -789,17 +796,22 @@ func updateManagementResourceSmtp(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("match") {
 
-		if _, ok := d.GetOk("match"); ok {
+		if v, ok := d.GetOk("match"); ok {
 
-			res := make(map[string]interface{})
+			matchList := v.([]interface{})
 
-			if d.HasChange("match.sender") {
-				res["sender"] = d.Get("match.sender")
+			if len(matchList) > 0 {
+
+				matchPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("match.0.sender"); ok {
+					matchPayload["sender"] = v.(string)
+				}
+				if v, ok := d.GetOk("match.0.recipient"); ok {
+					matchPayload["recipient"] = v.(string)
+				}
+				resourceSmtp["match"] = matchPayload
 			}
-			if d.HasChange("match.recipient") {
-				res["recipient"] = d.Get("match.recipient")
-			}
-			resourceSmtp["match"] = res
 		}
 	}
 

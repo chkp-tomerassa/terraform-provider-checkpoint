@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 )
@@ -760,7 +760,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 				Description: "Hide internal networks behind the Gateway's external IP.",
 			},
 			"nat_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "NAT settings.",
 				Elem: &schema.Resource{
@@ -893,7 +894,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 				},
 			},
 			"proxy_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Proxy Server for Gateway.",
 				Elem: &schema.Resource{
@@ -1084,7 +1086,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							Default:     true,
 						},
 						"anti_spoofing_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Anti spoofing settings",
 							Elem: &schema.Resource{
@@ -1114,7 +1117,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							Default:     false,
 						},
 						"security_zone_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Security zone settings.",
 							Elem: &schema.Resource{
@@ -1139,7 +1143,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							Default:     "automatic",
 						},
 						"topology_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Topology settings.",
 							Elem: &schema.Resource{
@@ -1295,7 +1300,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 				Description: "Firewall blade enabled.",
 			},
 			"firewall_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Firewall settings.",
 				Elem: &schema.Resource{
@@ -1489,13 +1495,14 @@ func resourceManagementSimpleCluster() *schema.Resource {
 				Description: "VPN blade enabled.",
 			},
 			"vpn_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Gateway VPN settings.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"authentication": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Authentication.",
 							Elem: &schema.Resource{
@@ -1512,7 +1519,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							},
 						},
 						"link_selection": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Link Selection.",
 							Elem: &schema.Resource{
@@ -1547,7 +1555,7 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							Description: "Maximum concurrent tunnels",
 						},
 						"office_mode": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Office Mode. Notation Wide Impact - Office Mode apply IPSec VPN Software Blade clients and to the Mobile Access Software Blade clients.",
 							Elem: &schema.Resource{
@@ -1564,7 +1572,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 										Description: "Group. Identified by name or UID. Must be set when \"office-mode-permissions\" was selected to be \"group\".",
 									},
 									"allocate_ip_address_from": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
+										MaxItems:    1,
 										Optional:    true,
 										Description: "Allocate IP address Method. Allocate IP address by sequentially trying the given methods until success.",
 										Elem: &schema.Resource{
@@ -1609,7 +1618,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 													Default:     "per-machine",
 												},
 												"optional_parameters": {
-													Type:        schema.TypeMap,
+													Type:        schema.TypeList,
+													MaxItems:    1,
 													Optional:    true,
 													Description: "This configuration applies to all Office Mode methods except Automatic (using DHCP) and ipassignment.conf entries which contain this data.",
 													Elem: &schema.Resource{
@@ -1718,7 +1728,8 @@ func resourceManagementSimpleCluster() *schema.Resource {
 							},
 						},
 						"remote_access": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Remote Access.",
 							Elem: &schema.Resource{
@@ -2076,29 +2087,34 @@ func createManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 		cluster["nat-hide-internal-interfaces"] = v.(bool)
 	}
 
-	if _, ok := d.GetOk("nat_settings"); ok {
+	if v, ok := d.GetOk("nat_settings"); ok {
 
-		res := make(map[string]interface{})
+		natSettingsList := v.([]interface{})
 
-		if v, ok := d.GetOk("nat_settings.auto_rule"); ok {
-			res["auto-rule"] = v
+		if len(natSettingsList) > 0 {
+
+			natSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("nat_settings.0.auto_rule"); ok {
+				natSettingsPayload["auto-rule"] = v.(bool)
+			}
+			if v, ok := d.GetOk("nat_settings.0.ipv4_address"); ok {
+				natSettingsPayload["ipv4-address"] = v.(string)
+			}
+			if v, ok := d.GetOk("nat_settings.0.ipv6_address"); ok {
+				natSettingsPayload["ipv6-address"] = v.(string)
+			}
+			if v, ok := d.GetOk("nat_settings.0.hide_behind"); ok {
+				natSettingsPayload["hide-behind"] = v.(string)
+			}
+			if v, ok := d.GetOk("nat_settings.0.install_on"); ok {
+				natSettingsPayload["install-on"] = v.(string)
+			}
+			if v, ok := d.GetOk("nat_settings.0.method"); ok {
+				natSettingsPayload["method"] = v.(string)
+			}
+			cluster["nat-settings"] = natSettingsPayload
 		}
-		if v, ok := d.GetOk("nat_settings.ipv4_address"); ok {
-			res["ipv4-address"] = v.(string)
-		}
-		if v, ok := d.GetOk("nat_settings.ipv6_address"); ok {
-			res["ipv6-address"] = v.(string)
-		}
-		if v, ok := d.GetOk("nat_settings.hide_behind"); ok {
-			res["hide-behind"] = v.(string)
-		}
-		if v, ok := d.GetOk("nat_settings.install_on"); ok {
-			res["install-on"] = v.(string)
-		}
-		if v, ok := d.GetOk("nat_settings.method"); ok {
-			res["method"] = v.(string)
-		}
-		cluster["nat-settings"] = res
 	}
 
 	if v, ok := d.GetOk("platform_portal_settings"); ok {
@@ -2149,20 +2165,25 @@ func createManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 		}
 	}
 
-	if _, ok := d.GetOk("proxy_settings"); ok {
+	if v, ok := d.GetOk("proxy_settings"); ok {
 
-		res := make(map[string]interface{})
+		proxySettingsList := v.([]interface{})
 
-		if v, ok := d.GetOk("proxy_settings.use_custom_proxy"); ok {
-			res["use-custom-proxy"] = v
+		if len(proxySettingsList) > 0 {
+
+			proxySettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("proxy_settings.0.use_custom_proxy"); ok {
+				proxySettingsPayload["use-custom-proxy"] = v.(bool)
+			}
+			if v, ok := d.GetOk("proxy_settings.0.proxy_server"); ok {
+				proxySettingsPayload["proxy-server"] = v.(string)
+			}
+			if v, ok := d.GetOk("proxy_settings.0.port"); ok {
+				proxySettingsPayload["port"] = v.(int)
+			}
+			cluster["proxy-settings"] = proxySettingsPayload
 		}
-		if v, ok := d.GetOk("proxy_settings.proxy_server"); ok {
-			res["proxy-server"] = v.(string)
-		}
-		if v, ok := d.GetOk("proxy_settings.port"); ok {
-			res["port"] = v
-		}
-		cluster["proxy-settings"] = res
 	}
 
 	if v, ok := d.GetOkExists("qos"); ok {
@@ -2483,195 +2504,430 @@ func createManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 		cluster["firewall"] = v
 	}
 
-	if _, ok := d.GetOk("firewall_settings"); ok {
-		firewallSettings := make(map[string]interface{})
-		if v, ok := d.GetOkExists("firewall_settings.auto_calculate_connections_hash_table_size_and_memory_pool"); ok {
-			firewallSettings["auto-calculate-connections-hash-table-size-and-memory-pool"] = v
+	if v, ok := d.GetOk("firewall_settings"); ok {
+
+		firewallSettingsList := v.([]interface{})
+
+		if len(firewallSettingsList) > 0 {
+
+			firewallSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("firewall_settings.0.auto_calculate_connections_hash_table_size_and_memory_pool"); ok {
+				firewallSettingsPayload["auto-calculate-connections-hash-table-size-and-memory-pool"] = v.(bool)
+			}
+			if v, ok := d.GetOk("firewall_settings.0.auto_maximum_limit_for_concurrent_connections"); ok {
+				firewallSettingsPayload["auto-maximum-limit-for-concurrent-connections"] = v.(bool)
+			}
+			if v, ok := d.GetOk("firewall_settings.0.connections_hash_size"); ok {
+				firewallSettingsPayload["connections-hash-size"] = v.(int)
+			}
+			if v, ok := d.GetOk("firewall_settings.0.maximum_limit_for_concurrent_connections"); ok {
+				firewallSettingsPayload["maximum-limit-for-concurrent-connections"] = v.(int)
+			}
+			if v, ok := d.GetOk("firewall_settings.0.maximum_memory_pool_size"); ok {
+				firewallSettingsPayload["maximum-memory-pool-size"] = v.(int)
+			}
+			if v, ok := d.GetOk("firewall_settings.0.memory_pool_size"); ok {
+				firewallSettingsPayload["memory-pool-size"] = v.(int)
+			}
+			cluster["firewall-settings"] = firewallSettingsPayload
 		}
-		if v, ok := d.GetOkExists("firewall_settings.auto_maximum_limit_for_concurrent_connections"); ok {
-			firewallSettings["auto-maximum-limit-for-concurrent-connections"] = v
-		}
-		if v, ok := d.GetOk("firewall_settings.connections_hash_size"); ok {
-			firewallSettings["connections-hash-size"] = v.(int)
-		}
-		if v, ok := d.GetOk("firewall_settings.maximum_limit_for_concurrent_connections"); ok {
-			firewallSettings["maximum-limit-for-concurrent-connections"] = v.(int)
-		}
-		if v, ok := d.GetOk("firewall_settings.maximum_memory_pool_size"); ok {
-			firewallSettings["maximum-memory-pool-size"] = v.(int)
-		}
-		if v, ok := d.GetOk("firewall_settings.memory_pool_size"); ok {
-			firewallSettings["memory-pool-size"] = v.(int)
-		}
-		cluster["firewall-settings"] = firewallSettings
 	}
 
 	// VPN settings
-	if _, ok := d.GetOk("vpn_settings"); ok {
-		vpnSettings := make(map[string]interface{})
+	if v, ok := d.GetOk("vpn_settings"); ok {
 
-		if _, ok := d.GetOk("vpn_settings.authentication"); ok {
-			authentication := make(map[string]interface{})
-			if v, ok := d.GetOk("vpn_settings.authentication.authentication_clients"); ok {
-				authentication["authentication-clients"] = v.(*schema.Set).List()
-			}
-			vpnSettings["authentication"] = authentication
-		}
+		vpnSettingsList := v.([]interface{})
 
-		if _, ok := d.GetOk("vpn_settings.link_selection"); ok {
-			linkSelection := make(map[string]interface{})
-			if v, ok := d.GetOk("vpn_settings.link_selection.ip_selection"); ok {
-				linkSelection["ip-selection"] = v.(string)
-			}
-			if v, ok := d.GetOk("vpn_settings.link_selection.dns_resolving_hostname"); ok {
-				linkSelection["dns-resolving-hostname"] = v.(string)
-			}
-			if v, ok := d.GetOk("vpn_settings.link_selection.ip_address"); ok {
-				linkSelection["ip-address"] = v.(string)
-			}
-			vpnSettings["link-selection"] = linkSelection
-		}
+		if len(vpnSettingsList) > 0 {
 
-		if v, ok := d.GetOk("vpn_settings.maximum_concurrent_ike_negotiations"); ok {
-			vpnSettings["maximum-concurrent-ike-negotiations"] = v.(int)
-		}
-		if v, ok := d.GetOk("vpn_settings.maximum_concurrent_tunnels"); ok {
-			vpnSettings["maximum-concurrent-tunnels"] = v.(int)
-		}
+			vpnSettingsPayload := make(map[string]interface{})
 
-		if _, ok := d.GetOk("vpn_settings.office_mode"); ok {
-			officeMode := make(map[string]interface{})
-			if v, ok := d.GetOk("vpn_settings.office_mode.mode"); ok {
-				officeMode["mode"] = v.(string)
-			}
-			if v, ok := d.GetOk("vpn_settings.office_mode.group"); ok {
-				officeMode["group"] = v.(string)
-			}
-			if v, ok := d.GetOkExists("vpn_settings.office_mode.support_multiple_interfaces"); ok {
-				officeMode["support-multiple-interfaces"] = v
-			}
-			if v, ok := d.GetOkExists("vpn_settings.office_mode.perform_anti_spoofing"); ok {
-				officeMode["perform-anti-spoofing"] = v
-			}
-			if v, ok := d.GetOk("vpn_settings.office_mode.anti_spoofing_additional_addresses"); ok {
-				officeMode["anti-spoofing-additional-addresses"] = v.(string)
-			}
-			if _, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from"); ok {
-				allocateIpAddressFrom := make(map[string]interface{})
-				if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.radius_server"); ok {
-					allocateIpAddressFrom["radius-server"] = v
-				}
-				if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.use_allocate_method"); ok {
-					allocateIpAddressFrom["use-allocate-method"] = v
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.allocate_method"); ok {
-					allocateIpAddressFrom["allocate-method"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.manual_network"); ok {
-					allocateIpAddressFrom["manual-network"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.dhcp_server"); ok {
-					allocateIpAddressFrom["dhcp-server"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.virtual_ip_address"); ok {
-					allocateIpAddressFrom["virtual-ip-address"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.dhcp_mac_address"); ok {
-					allocateIpAddressFrom["dhcp-mac-address"] = v.(string)
-				}
-				if _, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters"); ok {
-					optionalParameters := make(map[string]interface{})
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_primary_dns_server"); ok {
-						optionalParameters["use-primary-dns-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.primary_dns_server"); ok {
-						optionalParameters["primary-dns-server"] = v.(string)
-					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_first_backup_dns_server"); ok {
-						optionalParameters["use-first-backup-dns-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.first_backup_dns_server"); ok {
-						optionalParameters["first-backup-dns-server"] = v.(string)
-					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_second_backup_dns_server"); ok {
-						optionalParameters["use-second-backup-dns-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.second_backup_dns_server"); ok {
-						optionalParameters["second-backup-dns-server"] = v.(string)
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.dns_suffixes"); ok {
-						optionalParameters["dns-suffixes"] = v.(string)
-					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_primary_wins_server"); ok {
-						optionalParameters["use-primary-wins-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.primary_wins_server"); ok {
-						optionalParameters["primary-wins-server"] = v.(string)
-					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_first_backup_wins_server"); ok {
-						optionalParameters["use-first-backup-wins-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.first_backup_wins_server"); ok {
-						optionalParameters["first-backup-wins-server"] = v.(string)
-					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_second_backup_wins_server"); ok {
-						optionalParameters["use-second-backup-wins-server"] = v
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.second_backup_wins_server"); ok {
-						optionalParameters["second-backup-wins-server"] = v.(string)
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.ip_lease_duration"); ok {
-						optionalParameters["ip-lease-duration"] = v.(int)
-					}
-					allocateIpAddressFrom["optional-parameters"] = optionalParameters
-				}
-				officeMode["allocate-ip-address-from"] = allocateIpAddressFrom
-			}
-			vpnSettings["office-mode"] = officeMode
-		}
+			if _, ok := d.GetOk("vpn_settings.0.advanced"); ok {
 
-		if _, ok := d.GetOk("vpn_settings.remote_access"); ok {
-			remoteAccess := make(map[string]interface{})
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.support_l2tp"); ok {
-				remoteAccess["support-l2tp"] = v
-			}
-			if v, ok := d.GetOk("vpn_settings.remote_access.l2tp_auth_method"); ok {
-				remoteAccess["l2tp-auth-method"] = v.(string)
-			}
-			if v, ok := d.GetOk("vpn_settings.remote_access.l2tp_certificate"); ok {
-				remoteAccess["l2tp-certificate"] = v.(string)
-			}
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.allow_vpn_clients_to_route_traffic"); ok {
-				remoteAccess["allow-vpn-clients-to-route-traffic"] = v
-			}
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.support_nat_traversal_mechanism"); ok {
-				remoteAccess["support-nat-traversal-mechanism"] = v
-			}
-			if v, ok := d.GetOk("vpn_settings.remote_access.nat_traversal_service"); ok {
-				remoteAccess["nat-traversal-service"] = v.(string)
-			}
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.support_visitor_mode"); ok {
-				remoteAccess["support-visitor-mode"] = v
-			}
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.visitor_mode_service"); ok {
-				remoteAccess["visitor-mode-service"] = v.(string)
-			}
-			if v, ok := d.GetOkExists("vpn_settings.remote_access.visitor_mode_interface"); ok {
-				remoteAccess["visitor-mode-interface"] = v.(string)
-			}
-			vpnSettings["remote-access"] = remoteAccess
-		}
+				advancedPayload := make(map[string]interface{})
 
-		if v, ok := d.GetOk("vpn_settings.vpn_domain"); ok {
-			vpnSettings["vpn-domain"] = v.(string)
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.tunnel_sharing_mode"); ok {
+					advancedPayload["tunnel-sharing-mode"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.shutdown_on_gateway_restart"); ok {
+					advancedPayload["shutdown-on-gateway-restart"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.enable_wire_mode"); ok {
+					advancedPayload["enable-wire-mode"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.wire_mode_interfaces"); ok {
+					advancedPayload["wire-mode-interfaces"] = v.(*schema.Set).List()
+				}
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.enable_wire_mode_log_traffic"); ok {
+					advancedPayload["enable-wire-mode-log-traffic"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.advanced.0.enable_nat_traversal"); ok {
+					advancedPayload["enable-nat-traversal"] = strconv.FormatBool(v.(bool))
+				}
+				vpnSettingsPayload["advanced"] = advancedPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.authentication"); ok {
+
+				authenticationPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.authentication.0.authentication_clients"); ok {
+					authenticationPayload["authentication-clients"] = v.(*schema.Set).List()
+				}
+				vpnSettingsPayload["authentication"] = authenticationPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.certificates"); ok {
+
+				certificatesPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.certificates.0.name"); ok {
+					certificatesPayload["name"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.certificates.0.certificate_authority"); ok {
+					certificatesPayload["certificate-authority"] = v.(string)
+				}
+				if _, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment"); ok {
+
+					enrollmentPayload := make(map[string]interface{})
+
+					if _, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings"); ok {
+
+						enrollmentSettingsPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.distinguished_name"); ok {
+							enrollmentSettingsPayload["distinguished-name"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names"); ok {
+
+							alternateNamesList := v.([]interface{})
+
+							if len(alternateNamesList) > 0 {
+
+								var alternateNamesPayload []map[string]interface{}
+
+								for j := range alternateNamesList {
+
+									alternateNamesMapToAdd := make(map[string]interface{})
+
+									if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names." + strconv.Itoa(j) + ".name_type"); ok {
+										alternateNamesMapToAdd["name-type"] = v.(string)
+									}
+									if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names." + strconv.Itoa(j) + ".value"); ok {
+										alternateNamesMapToAdd["value"] = v.(string)
+									}
+									alternateNamesPayload = append(alternateNamesPayload, alternateNamesMapToAdd)
+								}
+								enrollmentSettingsPayload["alternate-names"] = alternateNamesPayload
+							}
+						}
+						enrollmentPayload["enrollment-settings"] = enrollmentSettingsPayload
+					}
+					if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_type"); ok {
+						enrollmentPayload["enrollment-type"] = v.(string)
+					}
+					certificatesPayload["enrollment"] = enrollmentPayload
+				}
+				if v, ok := d.GetOk("vpn_settings.0.certificates.0.stored_at"); ok {
+					certificatesPayload["stored-at"] = v.(string)
+				}
+				vpnSettingsPayload["certificates"] = certificatesPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.exported_routes"); ok {
+
+				exportedRoutesPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.exported_routes.0.internal_interfaces"); ok {
+					exportedRoutesPayload["internal-interfaces"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.exported_routes.0.static_routes"); ok {
+					exportedRoutesPayload["static-routes"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.exported_routes.0.custom_routes"); ok {
+					exportedRoutesPayload["custom-routes"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.exported_routes.0.custom_routes_object"); ok {
+					exportedRoutesPayload["custom-routes-object"] = v.(string)
+				}
+				vpnSettingsPayload["exported-routes"] = exportedRoutesPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.link_selection"); ok {
+
+				linkSelectionPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.ip_selection"); ok {
+					linkSelectionPayload["ip-selection"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.ip_address"); ok {
+					linkSelectionPayload["ip-address"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.dns_resolving_hostname"); ok {
+					linkSelectionPayload["dns-resolving-hostname"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.route_selection_method"); ok {
+					linkSelectionPayload["route-selection-method"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.responding_traffic"); ok {
+					linkSelectionPayload["responding-traffic"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.source_ip_selection"); ok {
+					linkSelectionPayload["source-ip-selection"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.selected_ip"); ok {
+					linkSelectionPayload["selected-ip"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.link_selection.0.outgoing_link_tracking"); ok {
+					linkSelectionPayload["outgoing-link-tracking"] = v.(string)
+				}
+				vpnSettingsPayload["link-selection"] = linkSelectionPayload
+			}
+			if v, ok := d.GetOk("vpn_settings.0.maximum_concurrent_ike_negotiations"); ok {
+				vpnSettingsPayload["maximum-concurrent-ike-negotiations"] = v.(int)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.maximum_concurrent_tunnels"); ok {
+				vpnSettingsPayload["maximum-concurrent-tunnels"] = v.(int)
+			}
+			if _, ok := d.GetOk("vpn_settings.0.office_mode"); ok {
+
+				officeModePayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.office_mode.0.mode"); ok {
+					officeModePayload["mode"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.office_mode.0.group"); ok {
+					officeModePayload["group"] = v.(string)
+				}
+				if _, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from"); ok {
+
+					allocateIpAddressFromPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.radius_server"); ok {
+						allocateIpAddressFromPayload["radius-server"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.use_allocate_method"); ok {
+						allocateIpAddressFromPayload["use-allocate-method"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.allocate_method"); ok {
+						allocateIpAddressFromPayload["allocate-method"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.manual_network"); ok {
+						allocateIpAddressFromPayload["manual-network"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.dhcp_server"); ok {
+						allocateIpAddressFromPayload["dhcp-server"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.virtual_ip_address"); ok {
+						allocateIpAddressFromPayload["virtual-ip-address"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.dhcp_mac_address"); ok {
+						allocateIpAddressFromPayload["dhcp-mac-address"] = v.(string)
+					}
+					if _, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters"); ok {
+
+						optionalParametersPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_primary_dns_server"); ok {
+							optionalParametersPayload["use-primary-dns-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.primary_dns_server"); ok {
+							optionalParametersPayload["primary-dns-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_first_backup_dns_server"); ok {
+							optionalParametersPayload["use-first-backup-dns-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.first_backup_dns_server"); ok {
+							optionalParametersPayload["first-backup-dns-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_second_backup_dns_server"); ok {
+							optionalParametersPayload["use-second-backup-dns-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.second_backup_dns_server"); ok {
+							optionalParametersPayload["second-backup-dns-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.dns_suffixes"); ok {
+							optionalParametersPayload["dns-suffixes"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_primary_wins_server"); ok {
+							optionalParametersPayload["use-primary-wins-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.primary_wins_server"); ok {
+							optionalParametersPayload["primary-wins-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_first_backup_wins_server"); ok {
+							optionalParametersPayload["use-first-backup-wins-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.first_backup_wins_server"); ok {
+							optionalParametersPayload["first-backup-wins-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_second_backup_wins_server"); ok {
+							optionalParametersPayload["use-second-backup-wins-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.second_backup_wins_server"); ok {
+							optionalParametersPayload["second-backup-wins-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.ip_lease_duration"); ok {
+							optionalParametersPayload["ip-lease-duration"] = v
+						}
+						allocateIpAddressFromPayload["optional-parameters"] = optionalParametersPayload
+					}
+					officeModePayload["allocate-ip-address-from"] = allocateIpAddressFromPayload
+				}
+				if v, ok := d.GetOk("vpn_settings.0.office_mode.0.support_multiple_interfaces"); ok {
+					officeModePayload["support-multiple-interfaces"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.office_mode.0.perform_anti_spoofing"); ok {
+					officeModePayload["perform-anti-spoofing"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.office_mode.0.anti_spoofing_additional_addresses"); ok {
+					officeModePayload["anti-spoofing-additional-addresses"] = v.(string)
+				}
+				vpnSettingsPayload["office-mode"] = officeModePayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.remote_access"); ok {
+
+				remoteAccessPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.support_l2tp"); ok {
+					remoteAccessPayload["support-l2tp"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.l2tp_auth_method"); ok {
+					remoteAccessPayload["l2tp-auth-method"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.l2tp_certificate"); ok {
+					remoteAccessPayload["l2tp-certificate"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.allow_vpn_clients_to_route_traffic"); ok {
+					remoteAccessPayload["allow-vpn-clients-to-route-traffic"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.support_nat_traversal_mechanism"); ok {
+					remoteAccessPayload["support-nat-traversal-mechanism"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.nat_traversal_service"); ok {
+					remoteAccessPayload["nat-traversal-service"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.support_visitor_mode"); ok {
+					remoteAccessPayload["support-visitor-mode"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.visitor_mode_service"); ok {
+					remoteAccessPayload["visitor-mode-service"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.remote_access.0.visitor_mode_interface"); ok {
+					remoteAccessPayload["visitor-mode-interface"] = v.(string)
+				}
+				vpnSettingsPayload["remote-access"] = remoteAccessPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings"); ok {
+
+				samlPortalSettingsPayload := make(map[string]interface{})
+
+				if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings"); ok {
+
+					portalWebSettingsPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.aliases"); ok {
+						portalWebSettingsPayload["aliases"] = v.(*schema.Set).List()
+					}
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.ip_address"); ok {
+						portalWebSettingsPayload["ip-address"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.main_url"); ok {
+						portalWebSettingsPayload["main-url"] = v.(string)
+					}
+					samlPortalSettingsPayload["portal-web-settings"] = portalWebSettingsPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings"); ok {
+
+					certificateSettingsPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings.0.base64_certificate"); ok {
+						certificateSettingsPayload["base64-certificate"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings.0.base64_password"); ok {
+						certificateSettingsPayload["base64-password"] = v.(string)
+					}
+					samlPortalSettingsPayload["certificate-settings"] = certificateSettingsPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility"); ok {
+
+					accessibilityPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.allow_access_from"); ok {
+						accessibilityPayload["allow-access-from"] = v.(string)
+					}
+					if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings"); ok {
+
+						internalAccessSettingsPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.undefined"); ok {
+							internalAccessSettingsPayload["undefined"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.dmz"); ok {
+							internalAccessSettingsPayload["dmz"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.vpn"); ok {
+							internalAccessSettingsPayload["vpn"] = strconv.FormatBool(v.(bool))
+						}
+						accessibilityPayload["internal-access-settings"] = internalAccessSettingsPayload
+					}
+					samlPortalSettingsPayload["accessibility"] = accessibilityPayload
+				}
+				vpnSettingsPayload["saml-portal-settings"] = samlPortalSettingsPayload
+			}
+			if _, ok := d.GetOk("vpn_settings.0.vpn_clients"); ok {
+
+				vpnClientsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.enable_endpoint_security_vpn"); ok {
+					vpnClientsPayload["enable-endpoint-security-vpn"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.enable_cp_mobile_for_windows"); ok {
+					vpnClientsPayload["enable-cp-mobile-for-windows"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.enable_secu_remote"); ok {
+					vpnClientsPayload["enable-secu-remote"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.enable_capsule_vpn_connect"); ok {
+					vpnClientsPayload["enable-capsule-vpn-connect"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.enable_ssl_network_extender"); ok {
+					vpnClientsPayload["enable-ssl-network-extender"] = strconv.FormatBool(v.(bool))
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.gateway_authentication_certificate"); ok {
+					vpnClientsPayload["gateway-authentication-certificate"] = v.(string)
+				}
+				vpnSettingsPayload["vpn-clients"] = vpnClientsPayload
+			}
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain"); ok {
+				vpnSettingsPayload["vpn-domain"] = v.(string)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain_exclude_external_ip_addresses"); ok {
+				vpnSettingsPayload["vpn-domain-exclude-external-ip-addresses"] = v.(bool)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain_type"); ok {
+				vpnSettingsPayload["vpn-domain-type"] = v.(string)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.enable_clientless_vpn"); ok {
+				vpnSettingsPayload["enable-clientless-vpn"] = v.(bool)
+			}
+			if _, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings"); ok {
+
+				clientlessVpnSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.certificate_gateway_authentication"); ok {
+					clientlessVpnSettingsPayload["certificate-gateway-authentication"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.client_authentication"); ok {
+					clientlessVpnSettingsPayload["client-authentication"] = v.(string)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.concurrent_servers_or_processes"); ok {
+					clientlessVpnSettingsPayload["concurrent-servers-or-processes"] = v
+				}
+				if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.accept_only_3des"); ok {
+					clientlessVpnSettingsPayload["accept-only-3des"] = strconv.FormatBool(v.(bool))
+				}
+				vpnSettingsPayload["clientless-vpn-settings"] = clientlessVpnSettingsPayload
+			}
+			cluster["vpn-settings"] = vpnSettingsPayload
 		}
-		if v, ok := d.GetOk("vpn_settings.vpn_domain_type"); ok {
-			vpnSettings["vpn-domain-type"] = v.(string)
-		}
-		if v, ok := d.GetOkExists("vpn_settings.vpn_domain_exclude_external_ip_addresses"); ok {
-			vpnSettings["vpn-domain-exclude-external-ip-addresses"] = v
-		}
-		cluster["vpn-settings"] = vpnSettings
 	}
 
 	// Logs
@@ -3070,25 +3326,26 @@ func readManagementSimpleCluster(d *schema.ResourceData, m interface{}) error {
 
 		natSettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := natSettingsMap["auto-rule"]; v != nil {
-			natSettingsMapToReturn["auto_rule"] = strconv.FormatBool(v.(bool))
+		if v := natSettingsMap["auto-rule"]; v != nil {
+			natSettingsMapToReturn["auto_rule"] = v
 		}
-		if v, _ := natSettingsMap["ipv4-address"]; v != nil && v != "" {
+		if v := natSettingsMap["ipv4-address"]; v != nil {
 			natSettingsMapToReturn["ipv4_address"] = v
 		}
-		if v, _ := natSettingsMap["ipv6-address"]; v != nil && v != "" {
+		if v := natSettingsMap["ipv6-address"]; v != nil {
 			natSettingsMapToReturn["ipv6_address"] = v
 		}
-		if v, _ := natSettingsMap["hide-behind"]; v != nil {
+		if v := natSettingsMap["hide-behind"]; v != nil {
 			natSettingsMapToReturn["hide_behind"] = v
 		}
-		if v, _ := natSettingsMap["install-on"]; v != nil {
+		if v := natSettingsMap["install-on"]; v != nil {
 			natSettingsMapToReturn["install_on"] = v
 		}
-		if v, _ := natSettingsMap["method"]; v != nil {
+		if v := natSettingsMap["method"]; v != nil {
 			natSettingsMapToReturn["method"] = v
 		}
-		_ = d.Set("nat_settings", natSettingsMapToReturn)
+		_ = d.Set("nat_settings", []interface{}{natSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("nat_settings", nil)
 	}
@@ -3158,16 +3415,17 @@ func readManagementSimpleCluster(d *schema.ResourceData, m interface{}) error {
 
 		proxySettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := proxySettingsMap["use-custom-proxy"]; v != nil {
-			proxySettingsMapToReturn["use_custom_proxy"] = strconv.FormatBool(v.(bool))
+		if v := proxySettingsMap["use-custom-proxy"]; v != nil {
+			proxySettingsMapToReturn["use_custom_proxy"] = v
 		}
-		if v, _ := proxySettingsMap["proxy-server"]; v != nil {
+		if v := proxySettingsMap["proxy-server"]; v != nil {
 			proxySettingsMapToReturn["proxy_server"] = v
 		}
-		if v, _ := proxySettingsMap["port"]; v != nil {
+		if v := proxySettingsMap["port"]; v != nil {
 			proxySettingsMapToReturn["port"] = v
 		}
-		_ = d.Set("proxy_settings", proxySettingsMapToReturn)
+		_ = d.Set("proxy_settings", []interface{}{proxySettingsMapToReturn})
+
 	} else {
 		_ = d.Set("proxy_settings", nil)
 	}
@@ -4056,29 +4314,34 @@ func updateManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 
 	if d.HasChange("nat_settings") {
 
-		if _, ok := d.GetOk("nat_settings"); ok {
+		if v, ok := d.GetOk("nat_settings"); ok {
 
-			res := make(map[string]interface{})
+			natSettingsList := v.([]interface{})
 
-			if v, ok := d.GetOk("nat_settings.auto_rule"); ok {
-				res["auto-rule"] = v
+			if len(natSettingsList) > 0 {
+
+				natSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("nat_settings.0.auto_rule"); ok {
+					natSettingsPayload["auto-rule"] = v.(bool)
+				}
+				if v, ok := d.GetOk("nat_settings.0.ipv4_address"); ok {
+					natSettingsPayload["ipv4-address"] = v.(string)
+				}
+				if v, ok := d.GetOk("nat_settings.0.ipv6_address"); ok {
+					natSettingsPayload["ipv6-address"] = v.(string)
+				}
+				if v, ok := d.GetOk("nat_settings.0.hide_behind"); ok {
+					natSettingsPayload["hide-behind"] = v.(string)
+				}
+				if v, ok := d.GetOk("nat_settings.0.install_on"); ok {
+					natSettingsPayload["install-on"] = v.(string)
+				}
+				if v, ok := d.GetOk("nat_settings.0.method"); ok {
+					natSettingsPayload["method"] = v.(string)
+				}
+				cluster["nat-settings"] = natSettingsPayload
 			}
-			if v, ok := d.GetOk("nat_settings.ipv4_address"); ok {
-				res["ipv4-address"] = v.(string)
-			}
-			if v, ok := d.GetOk("nat_settings.ipv6_address"); ok {
-				res["ipv6-address"] = v.(string)
-			}
-			if v, ok := d.GetOk("nat_settings.hide_behind"); ok {
-				res["hide-behind"] = v
-			}
-			if v, ok := d.GetOk("nat_settings.install_on"); ok {
-				res["install-on"] = v
-			}
-			if v, ok := d.GetOk("nat_settings.method"); ok {
-				res["method"] = v
-			}
-			cluster["nat-settings"] = res
 		}
 	}
 
@@ -4135,20 +4398,25 @@ func updateManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 
 	if d.HasChange("proxy_settings") {
 
-		if _, ok := d.GetOk("proxy_settings"); ok {
+		if v, ok := d.GetOk("proxy_settings"); ok {
 
-			res := make(map[string]interface{})
+			proxySettingsList := v.([]interface{})
 
-			if v, ok := d.GetOk("proxy_settings.use_custom_proxy"); ok {
-				res["use-custom-proxy"] = v
+			if len(proxySettingsList) > 0 {
+
+				proxySettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("proxy_settings.0.use_custom_proxy"); ok {
+					proxySettingsPayload["use-custom-proxy"] = v.(bool)
+				}
+				if v, ok := d.GetOk("proxy_settings.0.proxy_server"); ok {
+					proxySettingsPayload["proxy-server"] = v.(string)
+				}
+				if v, ok := d.GetOk("proxy_settings.0.port"); ok {
+					proxySettingsPayload["port"] = v.(int)
+				}
+				cluster["proxy-settings"] = proxySettingsPayload
 			}
-			if v, ok := d.GetOk("proxy_settings.proxy_server"); ok {
-				res["proxy-server"] = v
-			}
-			if v, ok := d.GetOk("proxy_settings.port"); ok {
-				res["port"] = v
-			}
-			cluster["proxy-settings"] = res
 		}
 	}
 
@@ -4532,214 +4800,432 @@ func updateManagementSimpleCluster(d *schema.ResourceData, m interface{}) error 
 	}
 
 	if ok := d.HasChange("firewall_settings"); ok {
-		if _, ok := d.GetOk("firewall_settings"); ok {
-			firewallSettings := make(map[string]interface{})
-			if v, ok := d.GetOkExists("firewall_settings.auto_calculate_connections_hash_table_size_and_memory_pool"); ok {
-				firewallSettings["auto-calculate-connections-hash-table-size-and-memory-pool"] = v
+		if v, ok := d.GetOk("firewall_settings"); ok {
+
+			firewallSettingsList := v.([]interface{})
+
+			if len(firewallSettingsList) > 0 {
+
+				firewallSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("firewall_settings.0.auto_calculate_connections_hash_table_size_and_memory_pool"); ok {
+					firewallSettingsPayload["auto-calculate-connections-hash-table-size-and-memory-pool"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("firewall_settings.0.auto_maximum_limit_for_concurrent_connections"); ok {
+					firewallSettingsPayload["auto-maximum-limit-for-concurrent-connections"] = v.(bool)
+				}
+				if v, ok := d.GetOk("firewall_settings.0.connections_hash_size"); ok {
+					firewallSettingsPayload["connections-hash-size"] = v.(int)
+				}
+				if v, ok := d.GetOk("firewall_settings.0.maximum_limit_for_concurrent_connections"); ok {
+					firewallSettingsPayload["maximum-limit-for-concurrent-connections"] = v.(int)
+				}
+				if v, ok := d.GetOk("firewall_settings.0.maximum_memory_pool_size"); ok {
+					firewallSettingsPayload["maximum-memory-pool-size"] = v.(int)
+				}
+				if v, ok := d.GetOk("firewall_settings.0.memory_pool_size"); ok {
+					firewallSettingsPayload["memory-pool-size"] = v.(int)
+				}
+				cluster["firewall-settings"] = firewallSettingsPayload
 			}
-			if v, ok := d.GetOkExists("firewall_settings.auto_maximum_limit_for_concurrent_connections"); ok {
-				firewallSettings["auto-maximum-limit-for-concurrent-connections"] = v
-			}
-			if v, ok := d.GetOk("firewall_settings.connections_hash_size"); ok {
-				firewallSettings["connections-hash-size"] = v
-			}
-			if v, ok := d.GetOk("firewall_settings.maximum_limit_for_concurrent_connections"); ok {
-				firewallSettings["maximum-limit-for-concurrent-connections"] = v
-			}
-			if v, ok := d.GetOk("firewall_settings.maximum_memory_pool_size"); ok {
-				firewallSettings["maximum-memory-pool-size"] = v
-			}
-			if v, ok := d.GetOk("firewall_settings.memory_pool_size"); ok {
-				firewallSettings["memory-pool-size"] = v
-			}
-			cluster["firewall-settings"] = firewallSettings
 		}
 	}
 
 	// VPN settings
 	if ok := d.HasChange("vpn_settings"); ok {
-		if _, ok := d.GetOk("vpn_settings"); ok {
-			vpnSettings := make(map[string]interface{})
+		if v, ok := d.GetOk("vpn_settings"); ok {
 
-			if _, ok := d.GetOk("vpn_settings.authentication"); ok {
-				if ok := d.HasChange("vpn_settings.authentication.authentication_clients"); ok {
-					authentication := make(map[string]interface{})
-					if v, ok := d.GetOk("vpn_settings.authentication.authentication_clients"); ok {
-						authentication["authentication-clients"] = v.(*schema.Set).List()
+			vpnSettingsList := v.([]interface{})
+
+			if len(vpnSettingsList) > 0 {
+
+				vpnSettingsPayload := make(map[string]interface{})
+
+				if _, ok := d.GetOk("vpn_settings.0.advanced"); ok {
+
+					advancedPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.advanced.0.tunnel_sharing_mode"); ok {
+						advancedPayload["tunnel-sharing-mode"] = v.(string)
 					}
-					//else {
-					//	oldValues, _ := d.GetChange("vpn_settings.authentication.authentication_clients")
-					//	if oldValues != nil {
-					//		authentication["authentication-clients"] = map[string]interface{}{"remove": oldValues.(*schema.Set).List()}
-					//	}
-					//}
-					vpnSettings["authentication"] = authentication
-				}
-			}
-
-			if _, ok := d.GetOk("vpn_settings.link_selection"); ok {
-				linkSelection := make(map[string]interface{})
-				if v, ok := d.GetOk("vpn_settings.link_selection.ip_selection"); ok {
-					linkSelection["ip-selection"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.link_selection.dns_resolving_hostname"); ok {
-					linkSelection["dns-resolving-hostname"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.link_selection.ip_address"); ok {
-					linkSelection["ip-address"] = v.(string)
-				}
-				vpnSettings["link-selection"] = linkSelection
-			}
-
-			if ok := d.HasChange("vpn_settings.maximum_concurrent_ike_negotiations"); ok {
-				if v, ok := d.GetOk("vpn_settings.maximum_concurrent_ike_negotiations"); ok {
-					vpnSettings["maximum-concurrent-ike-negotiations"] = v.(int)
-				}
-			}
-
-			if ok := d.HasChange("vpn_settings.maximum_concurrent_tunnels"); ok {
-				if v, ok := d.GetOk("vpn_settings.maximum_concurrent_tunnels"); ok {
-					vpnSettings["maximum-concurrent-tunnels"] = v.(int)
-				}
-			}
-
-			if _, ok := d.GetOk("vpn_settings.office_mode"); ok {
-				officeMode := make(map[string]interface{})
-
-				if v, ok := d.GetOk("vpn_settings.office_mode.mode"); ok {
-					officeMode["mode"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.group"); ok {
-					officeMode["group"] = v.(string)
-				}
-				if v, ok := d.GetOkExists("vpn_settings.office_mode.support_multiple_interfaces"); ok {
-					officeMode["support-multiple-interfaces"] = v
-				}
-				if v, ok := d.GetOkExists("vpn_settings.office_mode.perform_anti_spoofing"); ok {
-					officeMode["perform-anti-spoofing"] = v
-				}
-				if v, ok := d.GetOk("vpn_settings.office_mode.anti_spoofing_additional_addresses"); ok {
-					officeMode["anti-spoofing-additional-addresses"] = v.(string)
-				}
-				if _, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from"); ok {
-					allocateIpAddressFrom := make(map[string]interface{})
-
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.radius_server"); ok {
-						allocateIpAddressFrom["radius-server"] = v
+					if v, ok := d.GetOkExists("vpn_settings.0.advanced.0.shutdown_on_gateway_restart"); ok {
+						advancedPayload["shutdown-on-gateway-restart"] = strconv.FormatBool(v.(bool))
 					}
-					if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.use_allocate_method"); ok {
-						allocateIpAddressFrom["use-allocate-method"] = v
+					if v, ok := d.GetOkExists("vpn_settings.0.advanced.0.enable_wire_mode"); ok {
+						advancedPayload["enable-wire-mode"] = strconv.FormatBool(v.(bool))
 					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.allocate_method"); ok {
-						allocateIpAddressFrom["allocate-method"] = v.(string)
+					if v, ok := d.GetOk("vpn_settings.0.advanced.0.wire_mode_interfaces"); ok {
+						advancedPayload["wire-mode-interfaces"] = v.(*schema.Set).List()
 					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.manual_network"); ok {
-						allocateIpAddressFrom["manual-network"] = v.(string)
+					if v, ok := d.GetOkExists("vpn_settings.0.advanced.0.enable_wire_mode_log_traffic"); ok {
+						advancedPayload["enable-wire-mode-log-traffic"] = strconv.FormatBool(v.(bool))
 					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.dhcp_server"); ok {
-						allocateIpAddressFrom["dhcp-server"] = v.(string)
+					if v, ok := d.GetOkExists("vpn_settings.0.advanced.0.enable_nat_traversal"); ok {
+						advancedPayload["enable-nat-traversal"] = strconv.FormatBool(v.(bool))
 					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.virtual_ip_address"); ok {
-						allocateIpAddressFrom["virtual-ip-address"] = v.(string)
-					}
-					if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.dhcp_mac_address"); ok {
-						allocateIpAddressFrom["dhcp-mac-address"] = v.(string)
-					}
+					vpnSettingsPayload["advanced"] = advancedPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.authentication"); ok {
 
-					if _, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters"); ok {
-						optionalParameters := make(map[string]interface{})
+					authenticationPayload := make(map[string]interface{})
 
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_primary_dns_server"); ok {
-							optionalParameters["use-primary-dns-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.primary_dns_server"); ok {
-							optionalParameters["primary-dns-server"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_first_backup_dns_server"); ok {
-							optionalParameters["use-first-backup-dns-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.first_backup_dns_server"); ok {
-							optionalParameters["first-backup-dns-server"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_second_backup_dns_server"); ok {
-							optionalParameters["use-second-backup-dns-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.second_backup_dns_server"); ok {
-							optionalParameters["second-backup-dns-server"] = v.(string)
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.dns_suffixes"); ok {
-							optionalParameters["dns-suffixes"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_primary_wins_server"); ok {
-							optionalParameters["use-primary-wins-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.primary_wins_server"); ok {
-							optionalParameters["primary-wins-server"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_first_backup_wins_server"); ok {
-							optionalParameters["use-first-backup-wins-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.first_backup_wins_server"); ok {
-							optionalParameters["first-backup-wins-server"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.use_second_backup_wins_server"); ok {
-							optionalParameters["use-second-backup-wins-server"] = v
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.second_backup_wins_server"); ok {
-							optionalParameters["second-backup-wins-server"] = v.(string)
-						}
-						if v, ok := d.GetOk("vpn_settings.office_mode.allocate_ip_address_from.optional_parameters.ip_lease_duration"); ok {
-							optionalParameters["ip-lease-duration"] = v.(int)
-						}
-						allocateIpAddressFrom["optional-parameters"] = optionalParameters
+					if v, ok := d.GetOk("vpn_settings.0.authentication.0.authentication_clients"); ok {
+						authenticationPayload["authentication-clients"] = v.(*schema.Set).List()
 					}
-					officeMode["allocate-ip-address-from"] = allocateIpAddressFrom
+					vpnSettingsPayload["authentication"] = authenticationPayload
 				}
-				vpnSettings["office-mode"] = officeMode
-			}
+				if _, ok := d.GetOk("vpn_settings.0.certificates"); ok {
 
-			if _, ok := d.GetOk("vpn_settings.remote_access"); ok {
-				remoteAccess := make(map[string]interface{})
-				if v, ok := d.GetOkExists("vpn_settings.remote_access.support_l2tp"); ok {
-					remoteAccess["support-l2tp"] = v
-				}
-				if v, ok := d.GetOk("vpn_settings.remote_access.l2tp_auth_method"); ok {
-					remoteAccess["l2tp-auth-method"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.remote_access.l2tp_certificate"); ok {
-					remoteAccess["l2tp-certificate"] = v.(string)
-				}
-				if v, ok := d.GetOkExists("vpn_settings.remote_access.allow_vpn_clients_to_route_traffic"); ok {
-					remoteAccess["allow-vpn-clients-to-route-traffic"] = v
-				}
-				if v, ok := d.GetOkExists("vpn_settings.remote_access.support_nat_traversal_mechanism"); ok {
-					remoteAccess["support-nat-traversal-mechanism"] = v
-				}
-				if v, ok := d.GetOk("vpn_settings.remote_access.nat_traversal_service"); ok {
-					remoteAccess["nat-traversal-service"] = v.(string)
-				}
-				if v, ok := d.GetOkExists("vpn_settings.remote_access.support_visitor_mode"); ok {
-					remoteAccess["support-visitor-mode"] = v
-				}
-				if v, ok := d.GetOk("vpn_settings.remote_access.visitor_mode_service"); ok {
-					remoteAccess["visitor-mode-service"] = v.(string)
-				}
-				if v, ok := d.GetOk("vpn_settings.remote_access.visitor_mode_interface"); ok {
-					remoteAccess["visitor-mode-interface"] = v.(string)
-				}
-				vpnSettings["remote-access"] = remoteAccess
-			}
+					certificatesPayload := make(map[string]interface{})
 
-			if v, ok := d.GetOk("vpn_settings.vpn_domain"); ok {
-				vpnSettings["vpn-domain"] = v.(string)
+					if v, ok := d.GetOk("vpn_settings.0.certificates.0.name"); ok {
+						certificatesPayload["name"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.certificates.0.certificate_authority"); ok {
+						certificatesPayload["certificate-authority"] = v.(string)
+					}
+					if _, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment"); ok {
+
+						enrollmentPayload := make(map[string]interface{})
+
+						if _, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings"); ok {
+
+							enrollmentSettingsPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.distinguished_name"); ok {
+								enrollmentSettingsPayload["distinguished-name"] = v.(string)
+							}
+							if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names"); ok {
+
+								alternateNamesList := v.([]interface{})
+
+								if len(alternateNamesList) > 0 {
+
+									var alternateNamesPayload []map[string]interface{}
+
+									for j := range alternateNamesList {
+
+										alternateNamesMapToAdd := make(map[string]interface{})
+
+										if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names." + strconv.Itoa(j) + ".name_type"); ok {
+											alternateNamesMapToAdd["name-type"] = v.(string)
+										}
+										if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_settings.0.alternate_names." + strconv.Itoa(j) + ".value"); ok {
+											alternateNamesMapToAdd["value"] = v.(string)
+										}
+										alternateNamesPayload = append(alternateNamesPayload, alternateNamesMapToAdd)
+									}
+									enrollmentSettingsPayload["alternate-names"] = alternateNamesPayload
+								}
+							}
+							enrollmentPayload["enrollment-settings"] = enrollmentSettingsPayload
+						}
+						if v, ok := d.GetOk("vpn_settings.0.certificates.0.enrollment.0.enrollment_type"); ok {
+							enrollmentPayload["enrollment-type"] = v.(string)
+						}
+						certificatesPayload["enrollment"] = enrollmentPayload
+					}
+					if v, ok := d.GetOk("vpn_settings.0.certificates.0.stored_at"); ok {
+						certificatesPayload["stored-at"] = v.(string)
+					}
+					vpnSettingsPayload["certificates"] = certificatesPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.exported_routes"); ok {
+
+					exportedRoutesPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOkExists("vpn_settings.0.exported_routes.0.internal_interfaces"); ok {
+						exportedRoutesPayload["internal-interfaces"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.exported_routes.0.static_routes"); ok {
+						exportedRoutesPayload["static-routes"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.exported_routes.0.custom_routes"); ok {
+						exportedRoutesPayload["custom-routes"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.exported_routes.0.custom_routes_object"); ok {
+						exportedRoutesPayload["custom-routes-object"] = v.(string)
+					}
+					vpnSettingsPayload["exported-routes"] = exportedRoutesPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.link_selection"); ok {
+
+					linkSelectionPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.ip_selection"); ok {
+						linkSelectionPayload["ip-selection"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.ip_address"); ok {
+						linkSelectionPayload["ip-address"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.dns_resolving_hostname"); ok {
+						linkSelectionPayload["dns-resolving-hostname"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.route_selection_method"); ok {
+						linkSelectionPayload["route-selection-method"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.responding_traffic"); ok {
+						linkSelectionPayload["responding-traffic"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.source_ip_selection"); ok {
+						linkSelectionPayload["source-ip-selection"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.selected_ip"); ok {
+						linkSelectionPayload["selected-ip"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.link_selection.0.outgoing_link_tracking"); ok {
+						linkSelectionPayload["outgoing-link-tracking"] = v.(string)
+					}
+					vpnSettingsPayload["link-selection"] = linkSelectionPayload
+				}
+				if v, ok := d.GetOk("vpn_settings.0.maximum_concurrent_ike_negotiations"); ok {
+					vpnSettingsPayload["maximum-concurrent-ike-negotiations"] = v.(int)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.maximum_concurrent_tunnels"); ok {
+					vpnSettingsPayload["maximum-concurrent-tunnels"] = v.(int)
+				}
+				if _, ok := d.GetOk("vpn_settings.0.office_mode"); ok {
+
+					officeModePayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.mode"); ok {
+						officeModePayload["mode"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.group"); ok {
+						officeModePayload["group"] = v.(string)
+					}
+					if _, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from"); ok {
+
+						allocateIpAddressFromPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.radius_server"); ok {
+							allocateIpAddressFromPayload["radius-server"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.use_allocate_method"); ok {
+							allocateIpAddressFromPayload["use-allocate-method"] = strconv.FormatBool(v.(bool))
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.allocate_method"); ok {
+							allocateIpAddressFromPayload["allocate-method"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.manual_network"); ok {
+							allocateIpAddressFromPayload["manual-network"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.dhcp_server"); ok {
+							allocateIpAddressFromPayload["dhcp-server"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.virtual_ip_address"); ok {
+							allocateIpAddressFromPayload["virtual-ip-address"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.dhcp_mac_address"); ok {
+							allocateIpAddressFromPayload["dhcp-mac-address"] = v.(string)
+						}
+						if _, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters"); ok {
+
+							optionalParametersPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_primary_dns_server"); ok {
+								optionalParametersPayload["use-primary-dns-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.primary_dns_server"); ok {
+								optionalParametersPayload["primary-dns-server"] = v.(string)
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_first_backup_dns_server"); ok {
+								optionalParametersPayload["use-first-backup-dns-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.first_backup_dns_server"); ok {
+								optionalParametersPayload["first-backup-dns-server"] = v.(string)
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_second_backup_dns_server"); ok {
+								optionalParametersPayload["use-second-backup-dns-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.second_backup_dns_server"); ok {
+								optionalParametersPayload["second-backup-dns-server"] = v.(string)
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.dns_suffixes"); ok {
+								optionalParametersPayload["dns-suffixes"] = v.(string)
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_primary_wins_server"); ok {
+								optionalParametersPayload["use-primary-wins-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.primary_wins_server"); ok {
+								optionalParametersPayload["primary-wins-server"] = v.(string)
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_first_backup_wins_server"); ok {
+								optionalParametersPayload["use-first-backup-wins-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.first_backup_wins_server"); ok {
+								optionalParametersPayload["first-backup-wins-server"] = v.(string)
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.use_second_backup_wins_server"); ok {
+								optionalParametersPayload["use-second-backup-wins-server"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.second_backup_wins_server"); ok {
+								optionalParametersPayload["second-backup-wins-server"] = v.(string)
+							}
+							if v, ok := d.GetOk("vpn_settings.0.office_mode.0.allocate_ip_address_from.0.optional_parameters.0.ip_lease_duration"); ok {
+								optionalParametersPayload["ip-lease-duration"] = v
+							}
+							allocateIpAddressFromPayload["optional-parameters"] = optionalParametersPayload
+						}
+						officeModePayload["allocate-ip-address-from"] = allocateIpAddressFromPayload
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.support_multiple_interfaces"); ok {
+						officeModePayload["support-multiple-interfaces"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.office_mode.0.perform_anti_spoofing"); ok {
+						officeModePayload["perform-anti-spoofing"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.office_mode.0.anti_spoofing_additional_addresses"); ok {
+						officeModePayload["anti-spoofing-additional-addresses"] = v.(string)
+					}
+					vpnSettingsPayload["office-mode"] = officeModePayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.remote_access"); ok {
+
+					remoteAccessPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOkExists("vpn_settings.0.remote_access.0.support_l2tp"); ok {
+						remoteAccessPayload["support-l2tp"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.remote_access.0.l2tp_auth_method"); ok {
+						remoteAccessPayload["l2tp-auth-method"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.remote_access.0.l2tp_certificate"); ok {
+						remoteAccessPayload["l2tp-certificate"] = v.(string)
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.remote_access.0.allow_vpn_clients_to_route_traffic"); ok {
+						remoteAccessPayload["allow-vpn-clients-to-route-traffic"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.remote_access.0.support_nat_traversal_mechanism"); ok {
+						remoteAccessPayload["support-nat-traversal-mechanism"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.remote_access.0.nat_traversal_service"); ok {
+						remoteAccessPayload["nat-traversal-service"] = v.(string)
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.remote_access.0.support_visitor_mode"); ok {
+						remoteAccessPayload["support-visitor-mode"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.remote_access.0.visitor_mode_service"); ok {
+						remoteAccessPayload["visitor-mode-service"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.remote_access.0.visitor_mode_interface"); ok {
+						remoteAccessPayload["visitor-mode-interface"] = v.(string)
+					}
+					vpnSettingsPayload["remote-access"] = remoteAccessPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings"); ok {
+
+					samlPortalSettingsPayload := make(map[string]interface{})
+
+					if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings"); ok {
+
+						portalWebSettingsPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.aliases"); ok {
+							portalWebSettingsPayload["aliases"] = v.(*schema.Set).List()
+						}
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.ip_address"); ok {
+							portalWebSettingsPayload["ip-address"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.portal_web_settings.0.main_url"); ok {
+							portalWebSettingsPayload["main-url"] = v.(string)
+						}
+						samlPortalSettingsPayload["portal-web-settings"] = portalWebSettingsPayload
+					}
+					if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings"); ok {
+
+						certificateSettingsPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings.0.base64_certificate"); ok {
+							certificateSettingsPayload["base64-certificate"] = v.(string)
+						}
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.certificate_settings.0.base64_password"); ok {
+							certificateSettingsPayload["base64-password"] = v.(string)
+						}
+						samlPortalSettingsPayload["certificate-settings"] = certificateSettingsPayload
+					}
+					if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility"); ok {
+
+						accessibilityPayload := make(map[string]interface{})
+
+						if v, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.allow_access_from"); ok {
+							accessibilityPayload["allow-access-from"] = v.(string)
+						}
+						if _, ok := d.GetOk("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings"); ok {
+
+							internalAccessSettingsPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.undefined"); ok {
+								internalAccessSettingsPayload["undefined"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.dmz"); ok {
+								internalAccessSettingsPayload["dmz"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("vpn_settings.0.saml_portal_settings.0.accessibility.0.internal_access_settings.0.vpn"); ok {
+								internalAccessSettingsPayload["vpn"] = strconv.FormatBool(v.(bool))
+							}
+							accessibilityPayload["internal-access-settings"] = internalAccessSettingsPayload
+						}
+						samlPortalSettingsPayload["accessibility"] = accessibilityPayload
+					}
+					vpnSettingsPayload["saml-portal-settings"] = samlPortalSettingsPayload
+				}
+				if _, ok := d.GetOk("vpn_settings.0.vpn_clients"); ok {
+
+					vpnClientsPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOkExists("vpn_settings.0.vpn_clients.0.enable_endpoint_security_vpn"); ok {
+						vpnClientsPayload["enable-endpoint-security-vpn"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.vpn_clients.0.enable_cp_mobile_for_windows"); ok {
+						vpnClientsPayload["enable-cp-mobile-for-windows"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.vpn_clients.0.enable_secu_remote"); ok {
+						vpnClientsPayload["enable-secu-remote"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.vpn_clients.0.enable_capsule_vpn_connect"); ok {
+						vpnClientsPayload["enable-capsule-vpn-connect"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.vpn_clients.0.enable_ssl_network_extender"); ok {
+						vpnClientsPayload["enable-ssl-network-extender"] = strconv.FormatBool(v.(bool))
+					}
+					if v, ok := d.GetOk("vpn_settings.0.vpn_clients.0.gateway_authentication_certificate"); ok {
+						vpnClientsPayload["gateway-authentication-certificate"] = v.(string)
+					}
+					vpnSettingsPayload["vpn-clients"] = vpnClientsPayload
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_domain"); ok {
+					vpnSettingsPayload["vpn-domain"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("vpn_settings.0.vpn_domain_exclude_external_ip_addresses"); ok {
+					vpnSettingsPayload["vpn-domain-exclude-external-ip-addresses"] = v.(bool)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_domain_type"); ok {
+					vpnSettingsPayload["vpn-domain-type"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("vpn_settings.0.enable_clientless_vpn"); ok {
+					vpnSettingsPayload["enable-clientless-vpn"] = v.(bool)
+				}
+				if _, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings"); ok {
+
+					clientlessVpnSettingsPayload := make(map[string]interface{})
+
+					if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.certificate_gateway_authentication"); ok {
+						clientlessVpnSettingsPayload["certificate-gateway-authentication"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.client_authentication"); ok {
+						clientlessVpnSettingsPayload["client-authentication"] = v.(string)
+					}
+					if v, ok := d.GetOk("vpn_settings.0.clientless_vpn_settings.0.concurrent_servers_or_processes"); ok {
+						clientlessVpnSettingsPayload["concurrent-servers-or-processes"] = v
+					}
+					if v, ok := d.GetOkExists("vpn_settings.0.clientless_vpn_settings.0.accept_only_3des"); ok {
+						clientlessVpnSettingsPayload["accept-only-3des"] = strconv.FormatBool(v.(bool))
+					}
+					vpnSettingsPayload["clientless-vpn-settings"] = clientlessVpnSettingsPayload
+				}
+				cluster["vpn-settings"] = vpnSettingsPayload
 			}
-			if v, ok := d.GetOk("vpn_settings.vpn_domain_type"); ok {
-				vpnSettings["vpn-domain-type"] = v.(string)
-			}
-			if v, ok := d.GetOkExists("vpn_settings.vpn_domain_exclude_external_ip_addresses"); ok {
-				vpnSettings["vpn-domain-exclude-external-ip-addresses"] = v
-			}
-			cluster["vpn-settings"] = vpnSettings
 		}
 	}
 

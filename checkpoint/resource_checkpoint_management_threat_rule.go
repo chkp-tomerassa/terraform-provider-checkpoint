@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"reflect"
 	"strings"
@@ -33,7 +33,8 @@ func resourceManagementThreatRule() *schema.Resource {
 				Description: "Layer that the rule belongs to identified by the name or UID.",
 			},
 			"position": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Required:    true,
 				Description: "Position in the rulebase.",
 				Elem: &schema.Resource{
@@ -149,7 +150,8 @@ func resourceManagementThreatRule() *schema.Resource {
 				Default:     "Log",
 			},
 			"track_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Threat rule track settings.",
 				Elem: &schema.Resource{
@@ -200,31 +202,8 @@ func createManagementThreatRule(d *schema.ResourceData, m interface{}) error {
 	if v, ok := d.GetOk("layer"); ok {
 		threatRule["layer"] = v.(string)
 	}
-	if _, ok := d.GetOk("position"); ok {
-
-		if v, ok := d.GetOk("position.top"); ok {
-			if v.(string) == "top" {
-				threatRule["position"] = "top" // entire rule-base
-			} else {
-				threatRule["position"] = map[string]interface{}{"top": v.(string)} // section-name
-			}
-		}
-
-		if v, ok := d.GetOk("position.above"); ok {
-			threatRule["position"] = map[string]interface{}{"above": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.below"); ok {
-			threatRule["position"] = map[string]interface{}{"below": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.bottom"); ok {
-			if v.(string) == "bottom" {
-				threatRule["position"] = "bottom" // entire rule-base
-			} else {
-				threatRule["position"] = map[string]interface{}{"bottom": v.(string)} // section-name
-			}
-		}
+	if v, ok := d.GetOk("position"); ok {
+		threatRule["position"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("name"); ok {
@@ -279,12 +258,22 @@ func createManagementThreatRule(d *schema.ResourceData, m interface{}) error {
 		threatRule["track"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("track_settings"); ok {
-		trackSettings := make(map[string]interface{})
-		if v, ok := d.GetOkExists("track_settings.packet_capture"); ok {
-			trackSettings["packet-capture"] = v.(bool)
+	if v, ok := d.GetOk("track_settings"); ok {
+
+		trackSettingsList := v.([]interface{})
+
+		if len(trackSettingsList) > 0 {
+
+			trackSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("track_settings.0.forensics"); ok {
+				trackSettingsPayload["forensics"] = v.(bool)
+			}
+			if v, ok := d.GetOk("track_settings.0.packet_capture"); ok {
+				trackSettingsPayload["packet-capture"] = v.(bool)
+			}
+			threatRule["track-settings"] = trackSettingsPayload
 		}
-		threatRule["track-settings"] = trackSettings
 	}
 
 	if v, ok := d.GetOk("comments"); ok {
@@ -501,29 +490,17 @@ func updateManagementThreatRule(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("position") {
 		if _, ok := d.GetOk("position"); ok {
-
-			if v, ok := d.GetOk("position.top"); ok {
-				if v.(string) == "top" {
-					threatRule["new-position"] = "top" // entire rule-base
-				} else {
-					threatRule["new-position"] = map[string]interface{}{"top": v.(string)} // specific section-name
-				}
+			if _, ok := d.GetOk("position.top"); ok {
+				threatRule["new-position"] = "top"
 			}
-
 			if v, ok := d.GetOk("position.above"); ok {
 				threatRule["new-position"] = map[string]interface{}{"above": v.(string)}
 			}
-
 			if v, ok := d.GetOk("position.below"); ok {
 				threatRule["new-position"] = map[string]interface{}{"below": v.(string)}
 			}
-
-			if v, ok := d.GetOk("position.bottom"); ok {
-				if v.(string) == "bottom" {
-					threatRule["new-position"] = "bottom" // entire rule-base
-				} else {
-					threatRule["new-position"] = map[string]interface{}{"bottom": v.(string)} // specific section-name
-				}
+			if _, ok := d.GetOk("position.bottom"); ok {
+				threatRule["new-position"] = "bottom"
 			}
 		}
 	}
@@ -605,8 +582,23 @@ func updateManagementThreatRule(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if d.HasChange("track_settings") {
-		if v, ok := d.GetOkExists("track_settings.packet_capture"); ok {
-			threatRule["track-settings"] = map[string]interface{}{"packet-capture": v}
+
+		if v, ok := d.GetOk("track_settings"); ok {
+
+			trackSettingsList := v.([]interface{})
+
+			if len(trackSettingsList) > 0 {
+
+				trackSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("track_settings.0.forensics"); ok {
+					trackSettingsPayload["forensics"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("track_settings.0.packet_capture"); ok {
+					trackSettingsPayload["packet-capture"] = v.(bool)
+				}
+				threatRule["track-settings"] = trackSettingsPayload
+			}
 		}
 	}
 

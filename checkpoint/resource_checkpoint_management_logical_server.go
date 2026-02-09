@@ -1,19 +1,21 @@
 package checkpoint
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceManagementLogicalServer() *schema.Resource {
 	return &schema.Resource{
-		Create: createManagementLogicalServer,
-		Read:   readManagementLogicalServer,
-		Update: updateManagementLogicalServer,
-		Delete: deleteManagementLogicalServer,
+		CreateContext: createManagementLogicalServer,
+		ReadContext:   readManagementLogicalServer,
+		UpdateContext: updateManagementLogicalServer,
+		DeleteContext: deleteManagementLogicalServer,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -94,7 +96,7 @@ func resourceManagementLogicalServer() *schema.Resource {
 	}
 }
 
-func createManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
+func createManagementLogicalServer(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	client := m.(*checkpoint.ApiClient)
 
 	logicalServer := make(map[string]interface{})
@@ -156,17 +158,17 @@ func createManagementLogicalServer(d *schema.ResourceData, m interface{}) error 
 	addLogicalServerRes, err := client.ApiCall("add-logical-server", logicalServer, client.GetSessionID(), true, client.IsProxyUsed())
 	if err != nil || !addLogicalServerRes.Success {
 		if addLogicalServerRes.ErrorMsg != "" {
-			return fmt.Errorf(addLogicalServerRes.ErrorMsg)
+			return diag.FromErr(fmt.Errorf(addLogicalServerRes.ErrorMsg))
 		}
-		return fmt.Errorf(err.Error())
+		return diag.FromErr(fmt.Errorf(err.Error()))
 	}
 
 	d.SetId(addLogicalServerRes.GetData()["uid"].(string))
 
-	return readManagementLogicalServer(d, m)
+	return readManagementLogicalServer(ctx, d, m)
 }
 
-func readManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
+func readManagementLogicalServer(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	client := m.(*checkpoint.ApiClient)
 
@@ -176,14 +178,14 @@ func readManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
 
 	showLogicalServerRes, err := client.ApiCall("show-logical-server", payload, client.GetSessionID(), true, client.IsProxyUsed())
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return diag.FromErr(fmt.Errorf(err.Error()))
 	}
 	if !showLogicalServerRes.Success {
 		if objectNotFound(showLogicalServerRes.GetData()["code"].(string)) {
 			d.SetId("")
 			return nil
 		}
-		return fmt.Errorf(showLogicalServerRes.ErrorMsg)
+		return diag.FromErr(fmt.Errorf(showLogicalServerRes.ErrorMsg))
 	}
 
 	logicalServer := showLogicalServerRes.GetData()
@@ -203,7 +205,7 @@ func readManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if v := logicalServer["server-group"]; v != nil {
-		_ = d.Set("server_group", v)
+		_ = d.Set("server_group", v.(map[string]interface{})["name"])
 	}
 
 	if v := logicalServer["server-type"]; v != nil {
@@ -258,7 +260,7 @@ func readManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
 
 }
 
-func updateManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
+func updateManagementLogicalServer(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	client := m.(*checkpoint.ApiClient)
 	logicalServer := make(map[string]interface{})
@@ -342,15 +344,15 @@ func updateManagementLogicalServer(d *schema.ResourceData, m interface{}) error 
 	updateLogicalServerRes, err := client.ApiCall("set-logical-server", logicalServer, client.GetSessionID(), true, client.IsProxyUsed())
 	if err != nil || !updateLogicalServerRes.Success {
 		if updateLogicalServerRes.ErrorMsg != "" {
-			return fmt.Errorf(updateLogicalServerRes.ErrorMsg)
+			return diag.FromErr(fmt.Errorf(updateLogicalServerRes.ErrorMsg))
 		}
-		return fmt.Errorf(err.Error())
+		return diag.FromErr(fmt.Errorf(err.Error()))
 	}
 
-	return readManagementLogicalServer(d, m)
+	return readManagementLogicalServer(ctx, d, m)
 }
 
-func deleteManagementLogicalServer(d *schema.ResourceData, m interface{}) error {
+func deleteManagementLogicalServer(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
 	client := m.(*checkpoint.ApiClient)
 
@@ -363,9 +365,9 @@ func deleteManagementLogicalServer(d *schema.ResourceData, m interface{}) error 
 	deleteLogicalServerRes, err := client.ApiCall("delete-logical-server", logicalServerPayload, client.GetSessionID(), true, client.IsProxyUsed())
 	if err != nil || !deleteLogicalServerRes.Success {
 		if deleteLogicalServerRes.ErrorMsg != "" {
-			return fmt.Errorf(deleteLogicalServerRes.ErrorMsg)
+			return diag.FromErr(fmt.Errorf(deleteLogicalServerRes.ErrorMsg))
 		}
-		return fmt.Errorf(err.Error())
+		return diag.FromErr(fmt.Errorf(err.Error()))
 	}
 	d.SetId("")
 

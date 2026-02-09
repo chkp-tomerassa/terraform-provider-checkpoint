@@ -3,9 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"reflect"
 	"strconv"
 )
 
@@ -32,7 +31,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Encrypted traffic settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -70,7 +68,7 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				},
 			},
 			"ike_phase_1": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Ike Phase 1 settings. Only applicable when the encryption-suite is set to [custom].",
 				Elem: &schema.Resource{
@@ -99,7 +97,7 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				},
 			},
 			"ike_phase_2": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Ike Phase 2 settings. Only applicable when the encryption-suite is set to [custom].",
 				Elem: &schema.Resource{
@@ -256,7 +254,7 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 							Description: "The encryption suite to be used.",
 						},
 						"ike_phase_1": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Ike Phase 1 settings. Only applicable when the encryption-suite is set to [custom].",
 							Elem: &schema.Resource{
@@ -285,7 +283,7 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 							},
 						},
 						"ike_phase_2": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Ike Phase 2 settings. Only applicable when the encryption-suite is set to [custom].",
 							Elem: &schema.Resource{
@@ -294,7 +292,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The hash algorithm to be used.",
-										Default:     "sha1",
 									},
 									"encryption_algorithm": {
 										Type:        schema.TypeString,
@@ -326,7 +323,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Permanent tunnels properties.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"set_permanent_tunnels": {
@@ -401,7 +397,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Route Injection Mechanism settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -439,7 +434,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "VPN Community Wire mode properties.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allow_uninspected_encrypted_traffic": {
@@ -464,7 +458,6 @@ func dataSourceManagementVpnCommunityMeshed() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Advanced properties.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"support_ip_compression": {
@@ -610,25 +603,235 @@ func dataSourceManagementVpnCommunityMeshedRead(d *schema.ResourceData, m interf
 
 		ikePhase1MapToReturn := make(map[string]interface{})
 
-		if v, _ := ikePhase1Map["data-integrity"]; v != nil {
-			ikePhase1MapToReturn["data_integrity"] = v
-		}
-		if v, _ := ikePhase1Map["diffie-hellman-group"]; v != nil {
-			ikePhase1MapToReturn["diffie_hellman_group"] = v
-		}
-		if v, _ := ikePhase1Map["encryption-algorithm"]; v != nil {
+		if v := ikePhase1Map["encryption-algorithm"]; v != nil {
 			ikePhase1MapToReturn["encryption_algorithm"] = v
 		}
+		if v := ikePhase1Map["data-integrity"]; v != nil {
+			ikePhase1MapToReturn["data_integrity"] = v
+		}
+		if v := ikePhase1Map["diffie-hellman-group"]; v != nil {
+			ikePhase1MapToReturn["diffie_hellman_group"] = v
+		}
+		if v := ikePhase1Map["use-standard-proposal"]; v != nil {
+			ikePhase1MapToReturn["use_standard_proposal"] = v
+		}
+		if v := ikePhase1Map["use-multiple-key-exchanges"]; v != nil {
+			ikePhase1MapToReturn["use_multiple_key_exchanges"] = v
+		}
+		if v := ikePhase1Map["multiple-key-exchanges"]; v != nil {
+
+			multipleKeyExchangesMap := v.(map[string]interface{})
+
+			multipleKeyExchangesMapToReturn := make(map[string]interface{})
+
+			if v := multipleKeyExchangesMap["name"]; v != nil {
+				multipleKeyExchangesMapToReturn["name"] = v
+			}
+			if v := multipleKeyExchangesMap["type"]; v != nil {
+				multipleKeyExchangesMapToReturn["type"] = v
+			}
+			if v := multipleKeyExchangesMap["key-exchange-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["key_exchange_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-1-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_1_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-2-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_2_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-3-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_3_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-4-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_4_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-5-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_5_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-6-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_6_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-7-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_7_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["color"]; v != nil {
+				multipleKeyExchangesMapToReturn["color"] = v
+			}
+			if v := multipleKeyExchangesMap["comments"]; v != nil {
+				multipleKeyExchangesMapToReturn["comments"] = v
+			}
+			if v := multipleKeyExchangesMap["domain"]; v != nil {
+
+				domainMap := v.(map[string]interface{})
+
+				domainMapToReturn := make(map[string]interface{})
+
+				if v := domainMap["name"]; v != nil {
+					domainMapToReturn["name"] = v
+				}
+				if v := domainMap["domain-type"]; v != nil {
+					domainMapToReturn["domain_type"] = v
+				}
+				if v := domainMap["uid"]; v != nil {
+					domainMapToReturn["uid"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["domain"] = []interface{}{domainMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["icon"]; v != nil {
+				multipleKeyExchangesMapToReturn["icon"] = v
+			}
+			if v := multipleKeyExchangesMap["meta-info"]; v != nil {
+
+				metaInfoMap := v.(map[string]interface{})
+
+				metaInfoMapToReturn := make(map[string]interface{})
+
+				if v := metaInfoMap["creation-time"]; v != nil {
+
+					creationTimeMap := v.(map[string]interface{})
+
+					creationTimeMapToReturn := make(map[string]interface{})
+
+					if v := creationTimeMap["iso-8601"]; v != nil {
+						creationTimeMapToReturn["iso_8601"] = v
+					}
+					if v := creationTimeMap["posix"]; v != nil {
+						creationTimeMapToReturn["posix"] = v
+					}
+
+					metaInfoMapToReturn["creation_time"] = []interface{}{creationTimeMapToReturn}
+				}
+
+				if v := metaInfoMap["creator"]; v != nil {
+					metaInfoMapToReturn["creator"] = v
+				}
+				if v := metaInfoMap["last-modifier"]; v != nil {
+					metaInfoMapToReturn["last_modifier"] = v
+				}
+				if v := metaInfoMap["last-modify-time"]; v != nil {
+
+					lastModifyTimeMap := v.(map[string]interface{})
+
+					lastModifyTimeMapToReturn := make(map[string]interface{})
+
+					if v := lastModifyTimeMap["iso-8601"]; v != nil {
+						lastModifyTimeMapToReturn["iso_8601"] = v
+					}
+					if v := lastModifyTimeMap["posix"]; v != nil {
+						lastModifyTimeMapToReturn["posix"] = v
+					}
+
+					metaInfoMapToReturn["last_modify_time"] = []interface{}{lastModifyTimeMapToReturn}
+				}
+
+				if v := metaInfoMap["lock"]; v != nil {
+					metaInfoMapToReturn["lock"] = v
+				}
+				if v := metaInfoMap["locking-admin"]; v != nil {
+					metaInfoMapToReturn["locking_admin"] = v
+				}
+				if v := metaInfoMap["locking-session-id"]; v != nil {
+					metaInfoMapToReturn["locking_session_id"] = v
+				}
+				if v := metaInfoMap["validation-state"]; v != nil {
+					metaInfoMapToReturn["validation_state"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["meta_info"] = []interface{}{metaInfoMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["read-only"]; v != nil {
+				multipleKeyExchangesMapToReturn["read_only"] = v
+			}
+			if v := multipleKeyExchangesMap["tags"]; v != nil {
+
+				tagsList := v.([]interface{})
+
+				if len(tagsList) > 0 {
+
+					var tagsListToReturn []map[string]interface{}
+
+					for i := range tagsList {
+
+						tagsMap := tagsList[i].(map[string]interface{})
+
+						tagsMapToAdd := make(map[string]interface{})
+
+						if v := tagsMap["name"]; v != nil {
+							tagsMapToAdd["name"] = v
+						}
+						if v := tagsMap["type"]; v != nil {
+							tagsMapToAdd["type"] = v
+						}
+						if v := tagsMap["color"]; v != nil {
+							tagsMapToAdd["color"] = v
+						}
+						if v := tagsMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							tagsMapToAdd["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := tagsMap["icon"]; v != nil {
+							tagsMapToAdd["icon"] = v
+						}
+						if v := tagsMap["uid"]; v != nil {
+							tagsMapToAdd["uid"] = v
+						}
+
+						tagsListToReturn = append(tagsListToReturn, tagsMapToAdd)
+					}
+
+					multipleKeyExchangesMapToReturn["tags"] = tagsListToReturn
+				}
+			}
+
+			if v := multipleKeyExchangesMap["available-actions"]; v != nil {
+
+				availableActionsMap := v.(map[string]interface{})
+
+				availableActionsMapToReturn := make(map[string]interface{})
+
+				if v := availableActionsMap["clone"]; v != nil {
+					availableActionsMapToReturn["clone"] = v
+				}
+				if v := availableActionsMap["delete"]; v != nil {
+					availableActionsMapToReturn["delete"] = v
+				}
+				if v := availableActionsMap["edit"]; v != nil {
+					availableActionsMapToReturn["edit"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["available_actions"] = []interface{}{availableActionsMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["uid"]; v != nil {
+				multipleKeyExchangesMapToReturn["uid"] = v
+			}
+
+			ikePhase1MapToReturn["multiple_key_exchanges"] = []interface{}{multipleKeyExchangesMapToReturn}
+		}
+
 		if v := ikePhase1Map["ike-p1-rekey-time"]; v != nil {
-			ikePhase1MapToReturn["ike_p1_rekey_time"] = strconv.Itoa(int(v.(float64)))
+			ikePhase1MapToReturn["ike_p1_rekey_time"] = v
 		}
-		_, ikePhase1InConf := d.GetOk("ike_phase_1")
-		defaultIkePhase1 := map[string]interface{}{"encryption_algorithm": "aes-256", "diffie_hellman_group": "group-2", "data_integrity": "sha1"}
-		if reflect.DeepEqual(defaultIkePhase1, ikePhase1MapToReturn) && !ikePhase1InConf {
-			_ = d.Set("ike_phase_1", map[string]interface{}{})
-		} else {
-			_ = d.Set("ike_phase_1", ikePhase1MapToReturn)
-		}
+
+		_ = d.Set("ike_phase_1", []interface{}{ikePhase1MapToReturn})
 
 	} else {
 		_ = d.Set("ike_phase_1", nil)
@@ -640,28 +843,238 @@ func dataSourceManagementVpnCommunityMeshedRead(d *schema.ResourceData, m interf
 
 		ikePhase2MapToReturn := make(map[string]interface{})
 
-		if v, _ := ikePhase2Map["data-integrity"]; v != nil {
-			ikePhase2MapToReturn["data_integrity"] = v
-		}
-		if v, _ := ikePhase2Map["encryption-algorithm"]; v != nil {
+		if v := ikePhase2Map["encryption-algorithm"]; v != nil {
 			ikePhase2MapToReturn["encryption_algorithm"] = v
 		}
+		if v := ikePhase2Map["data-integrity"]; v != nil {
+			ikePhase2MapToReturn["data_integrity"] = v
+		}
 		if v := ikePhase2Map["ike-p2-use-pfs"]; v != nil {
-			ikePhase2MapToReturn["ike_p2_use_pfs"] = strconv.FormatBool(v.(bool))
+			ikePhase2MapToReturn["ike_p2_use_pfs"] = v
 		}
 		if v := ikePhase2Map["ike-p2-pfs-dh-grp"]; v != nil {
 			ikePhase2MapToReturn["ike_p2_pfs_dh_grp"] = v
 		}
+		if v := ikePhase2Map["use-standard-proposal"]; v != nil {
+			ikePhase2MapToReturn["use_standard_proposal"] = v
+		}
+		if v := ikePhase2Map["use-multiple-key-exchanges"]; v != nil {
+			ikePhase2MapToReturn["use_multiple_key_exchanges"] = v
+		}
+		if v := ikePhase2Map["multiple-key-exchanges"]; v != nil {
+
+			multipleKeyExchangesMap := v.(map[string]interface{})
+
+			multipleKeyExchangesMapToReturn := make(map[string]interface{})
+
+			if v := multipleKeyExchangesMap["name"]; v != nil {
+				multipleKeyExchangesMapToReturn["name"] = v
+			}
+			if v := multipleKeyExchangesMap["type"]; v != nil {
+				multipleKeyExchangesMapToReturn["type"] = v
+			}
+			if v := multipleKeyExchangesMap["key-exchange-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["key_exchange_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-1-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_1_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-2-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_2_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-3-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_3_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-4-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_4_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-5-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_5_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-6-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_6_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["additional-key-exchange-7-methods"]; v != nil {
+				multipleKeyExchangesMapToReturn["additional_key_exchange_7_methods"] = v
+			}
+			if v := multipleKeyExchangesMap["color"]; v != nil {
+				multipleKeyExchangesMapToReturn["color"] = v
+			}
+			if v := multipleKeyExchangesMap["comments"]; v != nil {
+				multipleKeyExchangesMapToReturn["comments"] = v
+			}
+			if v := multipleKeyExchangesMap["domain"]; v != nil {
+
+				domainMap := v.(map[string]interface{})
+
+				domainMapToReturn := make(map[string]interface{})
+
+				if v := domainMap["name"]; v != nil {
+					domainMapToReturn["name"] = v
+				}
+				if v := domainMap["domain-type"]; v != nil {
+					domainMapToReturn["domain_type"] = v
+				}
+				if v := domainMap["uid"]; v != nil {
+					domainMapToReturn["uid"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["domain"] = []interface{}{domainMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["icon"]; v != nil {
+				multipleKeyExchangesMapToReturn["icon"] = v
+			}
+			if v := multipleKeyExchangesMap["meta-info"]; v != nil {
+
+				metaInfoMap := v.(map[string]interface{})
+
+				metaInfoMapToReturn := make(map[string]interface{})
+
+				if v := metaInfoMap["creation-time"]; v != nil {
+
+					creationTimeMap := v.(map[string]interface{})
+
+					creationTimeMapToReturn := make(map[string]interface{})
+
+					if v := creationTimeMap["iso-8601"]; v != nil {
+						creationTimeMapToReturn["iso_8601"] = v
+					}
+					if v := creationTimeMap["posix"]; v != nil {
+						creationTimeMapToReturn["posix"] = v
+					}
+
+					metaInfoMapToReturn["creation_time"] = []interface{}{creationTimeMapToReturn}
+				}
+
+				if v := metaInfoMap["creator"]; v != nil {
+					metaInfoMapToReturn["creator"] = v
+				}
+				if v := metaInfoMap["last-modifier"]; v != nil {
+					metaInfoMapToReturn["last_modifier"] = v
+				}
+				if v := metaInfoMap["last-modify-time"]; v != nil {
+
+					lastModifyTimeMap := v.(map[string]interface{})
+
+					lastModifyTimeMapToReturn := make(map[string]interface{})
+
+					if v := lastModifyTimeMap["iso-8601"]; v != nil {
+						lastModifyTimeMapToReturn["iso_8601"] = v
+					}
+					if v := lastModifyTimeMap["posix"]; v != nil {
+						lastModifyTimeMapToReturn["posix"] = v
+					}
+
+					metaInfoMapToReturn["last_modify_time"] = []interface{}{lastModifyTimeMapToReturn}
+				}
+
+				if v := metaInfoMap["lock"]; v != nil {
+					metaInfoMapToReturn["lock"] = v
+				}
+				if v := metaInfoMap["locking-admin"]; v != nil {
+					metaInfoMapToReturn["locking_admin"] = v
+				}
+				if v := metaInfoMap["locking-session-id"]; v != nil {
+					metaInfoMapToReturn["locking_session_id"] = v
+				}
+				if v := metaInfoMap["validation-state"]; v != nil {
+					metaInfoMapToReturn["validation_state"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["meta_info"] = []interface{}{metaInfoMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["read-only"]; v != nil {
+				multipleKeyExchangesMapToReturn["read_only"] = v
+			}
+			if v := multipleKeyExchangesMap["tags"]; v != nil {
+
+				tagsList := v.([]interface{})
+
+				if len(tagsList) > 0 {
+
+					var tagsListToReturn []map[string]interface{}
+
+					for i := range tagsList {
+
+						tagsMap := tagsList[i].(map[string]interface{})
+
+						tagsMapToAdd := make(map[string]interface{})
+
+						if v := tagsMap["name"]; v != nil {
+							tagsMapToAdd["name"] = v
+						}
+						if v := tagsMap["type"]; v != nil {
+							tagsMapToAdd["type"] = v
+						}
+						if v := tagsMap["color"]; v != nil {
+							tagsMapToAdd["color"] = v
+						}
+						if v := tagsMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							tagsMapToAdd["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := tagsMap["icon"]; v != nil {
+							tagsMapToAdd["icon"] = v
+						}
+						if v := tagsMap["uid"]; v != nil {
+							tagsMapToAdd["uid"] = v
+						}
+
+						tagsListToReturn = append(tagsListToReturn, tagsMapToAdd)
+					}
+
+					multipleKeyExchangesMapToReturn["tags"] = tagsListToReturn
+				}
+			}
+
+			if v := multipleKeyExchangesMap["available-actions"]; v != nil {
+
+				availableActionsMap := v.(map[string]interface{})
+
+				availableActionsMapToReturn := make(map[string]interface{})
+
+				if v := availableActionsMap["clone"]; v != nil {
+					availableActionsMapToReturn["clone"] = v
+				}
+				if v := availableActionsMap["delete"]; v != nil {
+					availableActionsMapToReturn["delete"] = v
+				}
+				if v := availableActionsMap["edit"]; v != nil {
+					availableActionsMapToReturn["edit"] = v
+				}
+
+				multipleKeyExchangesMapToReturn["available_actions"] = []interface{}{availableActionsMapToReturn}
+			}
+
+			if v := multipleKeyExchangesMap["uid"]; v != nil {
+				multipleKeyExchangesMapToReturn["uid"] = v
+			}
+
+			ikePhase2MapToReturn["multiple_key_exchanges"] = []interface{}{multipleKeyExchangesMapToReturn}
+		}
+
 		if v := ikePhase2Map["ike-p2-rekey-time"]; v != nil {
-			ikePhase2MapToReturn["ike_p2_rekey_time"] = strconv.Itoa(int(v.(float64)))
+			ikePhase2MapToReturn["ike_p2_rekey_time"] = v
 		}
-		_, ikePhase2InConf := d.GetOk("ike_phase_2")
-		defaultIkePhase2 := map[string]interface{}{"encryption_algorithm": "aes-128", "data_integrity": "sha1"}
-		if reflect.DeepEqual(defaultIkePhase2, ikePhase2MapToReturn) && !ikePhase2InConf {
-			_ = d.Set("ike_phase_2", map[string]interface{}{})
-		} else {
-			_ = d.Set("ike_phase_2", ikePhase2MapToReturn)
-		}
+
+		_ = d.Set("ike_phase_2", []interface{}{ikePhase2MapToReturn})
 
 	} else {
 		_ = d.Set("ike_phase_2", nil)

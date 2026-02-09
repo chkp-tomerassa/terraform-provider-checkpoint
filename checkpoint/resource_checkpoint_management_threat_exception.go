@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strings"
 )
@@ -41,7 +41,8 @@ func resourceManagementThreatException() *schema.Resource {
 				Description: "Layer that the rule belongs to identified by the name or UID.",
 			},
 			"position": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Required:    true,
 				Description: "Position in the rulebase.",
 				Elem: &schema.Resource{
@@ -219,31 +220,8 @@ func createManagementThreatException(d *schema.ResourceData, m interface{}) erro
 		threatException["layer"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("position"); ok {
-
-		if v, ok := d.GetOk("position.top"); ok {
-			if v.(string) == "top" {
-				threatException["position"] = "top" // entire rule-base
-			} else {
-				threatException["position"] = map[string]interface{}{"top": v.(string)} // section-name
-			}
-		}
-
-		if v, ok := d.GetOk("position.above"); ok {
-			threatException["position"] = map[string]interface{}{"above": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.below"); ok {
-			threatException["position"] = map[string]interface{}{"below": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.bottom"); ok {
-			if v.(string) == "bottom" {
-				threatException["position"] = "bottom" // entire rule-base
-			} else {
-				threatException["position"] = map[string]interface{}{"bottom": v.(string)} // section-name
-			}
-		}
+	if v, ok := d.GetOk("position"); ok {
+		threatException["position"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("exception_group_uid"); ok {
@@ -555,29 +533,17 @@ func updateManagementThreatException(d *schema.ResourceData, m interface{}) erro
 
 	if d.HasChange("position") {
 		if _, ok := d.GetOk("position"); ok {
-
-			if v, ok := d.GetOk("position.top"); ok {
-				if v.(string) == "top" {
-					threatException["new-position"] = "top" // entire rule-base
-				} else {
-					threatException["new-position"] = map[string]interface{}{"top": v.(string)} // specific section-name
-				}
+			if _, ok := d.GetOk("position.top"); ok {
+				threatException["new-position"] = "top"
 			}
-
 			if v, ok := d.GetOk("position.above"); ok {
 				threatException["new-position"] = map[string]interface{}{"above": v.(string)}
 			}
-
 			if v, ok := d.GetOk("position.below"); ok {
 				threatException["new-position"] = map[string]interface{}{"below": v.(string)}
 			}
-
-			if v, ok := d.GetOk("position.bottom"); ok {
-				if v.(string) == "bottom" {
-					threatException["new-position"] = "bottom" // entire rule-base
-				} else {
-					threatException["new-position"] = map[string]interface{}{"bottom": v.(string)} // specific section-name
-				}
+			if _, ok := d.GetOk("position.bottom"); ok {
+				threatException["new-position"] = "bottom"
 			}
 		}
 	}

@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -54,7 +54,7 @@ func resourceManagementGlobalAssignment() *schema.Resource {
 				Computed: true,
 			},
 			"assignment_up_to_date": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The time when the assignment was assigned.",
 				Elem: &schema.Resource{
@@ -183,7 +183,7 @@ func readManagementGlobalAssignment(d *schema.ResourceData, m interface{}) error
 			assignmentUpToDateMapToReturn["posix"] = v
 		}
 
-		_ = d.Set("assignment_up_to_date", assignmentUpToDateMapToReturn)
+		_ = d.Set("assignment_up_to_date", []interface{}{assignmentUpToDateMapToReturn})
 	} else {
 		_ = d.Set("assignment_up_to_date", nil)
 	}

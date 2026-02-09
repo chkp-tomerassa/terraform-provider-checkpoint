@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -31,7 +31,6 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Certificate automatic enrollment.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"automatically_enroll_certificate": {
@@ -48,7 +47,6 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Scep protocol settings. Available only if \"protocol\" is set to \"scep\".",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ca_identifier": {
@@ -68,14 +66,12 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Cmpv1 protocol settings. Available only if \"protocol\" is set to \"cmpv1\".",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"direct_tcp_settings": {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Direct tcp transport layer settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"ip_address": {
@@ -98,7 +94,6 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Cmpv2 protocol settings. Available only if \"protocol\" is set to \"cmpv1\".",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"transport_layer": {
@@ -110,7 +105,6 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Direct tcp transport layer settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"ip_address": {
@@ -130,7 +124,6 @@ func dataSourceManagementOpsecTrustedCa() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Http transport layer settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"url": {

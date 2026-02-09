@@ -2,11 +2,12 @@ package checkpoint
 
 import (
 	"fmt"
-	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"math"
 	"strconv"
+
+	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceManagementTime() *schema.Resource {
@@ -25,8 +26,9 @@ func resourceManagementTime() *schema.Resource {
 				Description: "Object name.",
 			},
 			"end": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
+				MaxItems:    1,
 				Description: "End time. Note: Each gateway may interpret this time differently according to its time zone.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -79,8 +81,9 @@ func resourceManagementTime() *schema.Resource {
 				},
 			},
 			"start": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
+				MaxItems:    1,
 				Description: "Starting time. Note: Each gateway may interpret this time differently according to its time zone.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -183,17 +186,28 @@ func createManagementTime(d *schema.ResourceData, m interface{}) error {
 		time["name"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("end"); ok {
+	if v, ok := d.GetOk("end"); ok {
 
-		res := make(map[string]interface{})
+		endList := v.([]interface{})
 
-		if v, ok := d.GetOk("end.date"); ok {
-			res["date"] = v
+		if len(endList) > 0 {
+
+			endPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("end.0.date"); ok {
+				endPayload["date"] = v.(string)
+			}
+			if v, ok := d.GetOk("end.0.iso_8601"); ok {
+				endPayload["iso-8601"] = v.(string)
+			}
+			if v, ok := d.GetOk("end.0.posix"); ok {
+				endPayload["posix"] = v.(int)
+			}
+			if v, ok := d.GetOk("end.0.time"); ok {
+				endPayload["time"] = v.(string)
+			}
+			time["end"] = endPayload
 		}
-		if v, ok := d.GetOk("end.time"); ok {
-			res["time"] = v
-		}
-		time["end"] = res
 	}
 
 	if v, ok := d.GetOkExists("end_never"); ok {
@@ -229,17 +243,28 @@ func createManagementTime(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if _, ok := d.GetOk("start"); ok {
+	if v, ok := d.GetOk("start"); ok {
 
-		res := make(map[string]interface{})
+		startList := v.([]interface{})
 
-		if v, ok := d.GetOk("start.date"); ok {
-			res["date"] = v
+		if len(startList) > 0 {
+
+			startPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("start.0.date"); ok {
+				startPayload["date"] = v.(string)
+			}
+			if v, ok := d.GetOk("start.0.iso_8601"); ok {
+				startPayload["iso-8601"] = v.(string)
+			}
+			if v, ok := d.GetOk("start.0.posix"); ok {
+				startPayload["posix"] = v.(int)
+			}
+			if v, ok := d.GetOk("start.0.time"); ok {
+				startPayload["time"] = v.(string)
+			}
+			time["start"] = startPayload
 		}
-		if v, ok := d.GetOk("start.time"); ok {
-			res["time"] = v
-		}
-		time["start"] = res
 	}
 
 	if v, ok := d.GetOkExists("start_now"); ok {
@@ -329,22 +354,27 @@ func readManagementTime(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if time["end"] != nil {
-		defaultEndMap := map[string]interface{}{
-			"date": "01-Jan-1970",
-			"time": "00:00",
-		}
+
 		endMap := time["end"].(map[string]interface{})
 
 		endMapToReturn := make(map[string]interface{})
 
-		if v, _ := endMap["date"]; v != nil && isArgDefault(v.(string), d, "end.date", defaultEndMap["date"].(string)) {
+		if v := endMap["date"]; v != nil {
 			endMapToReturn["date"] = v
 		}
-		if v, _ := endMap["time"]; v != nil && isArgDefault(v.(string), d, "end.time", defaultEndMap["time"].(string)) {
+		if v := endMap["iso-8601"]; v != nil {
+			endMapToReturn["iso_8601"] = v
+		}
+		if v := endMap["posix"]; v != nil {
+			endMapToReturn["posix"] = v
+		}
+		if v := endMap["time"]; v != nil {
 			endMapToReturn["time"] = v
 		}
+		_ = d.Set("end", []interface{}{endMapToReturn})
 
-		_ = d.Set("end", endMapToReturn)
+	} else {
+		_ = d.Set("end", nil)
 	}
 
 	if v := time["end-never"]; v != nil {
@@ -389,22 +419,26 @@ func readManagementTime(d *schema.ResourceData, m interface{}) error {
 
 	if time["start"] != nil {
 
-		defaultStartMap := map[string]interface{}{
-			"date": "01-Jan-1970",
-			"time": "00:00",
-		}
 		startMap := time["start"].(map[string]interface{})
 
 		startMapToReturn := make(map[string]interface{})
 
-		if v, _ := startMap["date"]; v != nil && isArgDefault(v.(string), d, "end.date", defaultStartMap["date"].(string)) {
+		if v := startMap["date"]; v != nil {
 			startMapToReturn["date"] = v
 		}
-		if v, _ := startMap["time"]; v != nil && isArgDefault(v.(string), d, "end.time", defaultStartMap["time"].(string)) {
+		if v := startMap["iso-8601"]; v != nil {
+			startMapToReturn["iso_8601"] = v
+		}
+		if v := startMap["posix"]; v != nil {
+			startMapToReturn["posix"] = v
+		}
+		if v := startMap["time"]; v != nil {
 			startMapToReturn["time"] = v
 		}
+		_ = d.Set("start", []interface{}{startMapToReturn})
 
-		_ = d.Set("start", startMapToReturn)
+	} else {
+		_ = d.Set("start", nil)
 	}
 
 	if v := time["start-now"]; v != nil {
@@ -505,23 +539,29 @@ func updateManagementTime(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if d.HasChange("end") {
-		defaultEndMap := map[string]interface{}{
-			"date": "01-Jan-1970",
-			"time": "00:00",
-		}
 
-		res := make(map[string]interface{})
+		if v, ok := d.GetOk("end"); ok {
 
-		if v := d.Get("end.date"); v != nil && v != "" {
-			res["date"] = d.Get("end.date")
-		}
-		if v := d.Get("end.time"); v != nil && v != "" {
-			res["time"] = d.Get("end.time")
-		}
-		if len(res) > 0 {
-			time["end"] = res
-		} else {
-			time["end"] = defaultEndMap
+			endList := v.([]interface{})
+
+			if len(endList) > 0 {
+
+				endPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("end.0.date"); ok {
+					endPayload["date"] = v.(string)
+				}
+				if v, ok := d.GetOk("end.0.iso_8601"); ok {
+					endPayload["iso-8601"] = v.(string)
+				}
+				if v, ok := d.GetOk("end.0.posix"); ok {
+					endPayload["posix"] = v.(int)
+				}
+				if v, ok := d.GetOk("end.0.time"); ok {
+					endPayload["time"] = v.(string)
+				}
+				time["end"] = endPayload
+			}
 		}
 	}
 
@@ -560,24 +600,30 @@ func updateManagementTime(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if d.HasChange("start") {
-		defaultStartMap := map[string]interface{}{
-			"date": "01-Jan-1970",
-			"time": "00:00",
-		}
-		res := make(map[string]interface{})
 
-		if v := d.Get("start.date"); v != nil && v != "" {
-			res["date"] = d.Get("start.date")
-		}
-		if v := d.Get("start.time"); v != nil && v != "" {
-			res["time"] = d.Get("start.time")
-		}
-		if len(res) > 0 {
-			time["start"] = res
-		} else {
-			time["start"] = defaultStartMap
-		}
+		if v, ok := d.GetOk("start"); ok {
 
+			startList := v.([]interface{})
+
+			if len(startList) > 0 {
+
+				startPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("start.0.date"); ok {
+					startPayload["date"] = v.(string)
+				}
+				if v, ok := d.GetOk("start.0.iso_8601"); ok {
+					startPayload["iso-8601"] = v.(string)
+				}
+				if v, ok := d.GetOk("start.0.posix"); ok {
+					startPayload["posix"] = v.(int)
+				}
+				if v, ok := d.GetOk("start.0.time"); ok {
+					startPayload["time"] = v.(string)
+				}
+				time["start"] = startPayload
+			}
+		}
 	}
 
 	if d.HasChange("start_now") {

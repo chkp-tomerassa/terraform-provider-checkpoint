@@ -3,10 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-
-	"strconv"
 )
 
 func resourceManagementOpsecApplication() *schema.Resource {
@@ -25,7 +23,8 @@ func resourceManagementOpsecApplication() *schema.Resource {
 				Description: "Object name.",
 			},
 			"cpmi": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Used to setup the CPMI client entity.",
 				Elem: &schema.Resource{
@@ -54,7 +53,8 @@ func resourceManagementOpsecApplication() *schema.Resource {
 				Description: "The host where the server is running. Pre-define the host as a network object.",
 			},
 			"lea": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Used to setup the LEA client entity.",
 				Elem: &schema.Resource{
@@ -128,40 +128,50 @@ func createManagementOpsecApplication(d *schema.ResourceData, m interface{}) err
 		opsecApplication["name"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("cpmi"); ok {
+	if v, ok := d.GetOk("cpmi"); ok {
 
-		res := make(map[string]interface{})
+		cpmiList := v.([]interface{})
 
-		if v, ok := d.GetOk("cpmi.administrator_profile"); ok {
-			res["administrator-profile"] = v.(string)
+		if len(cpmiList) > 0 {
+
+			cpmiPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("cpmi.0.administrator_profile"); ok {
+				cpmiPayload["administrator-profile"] = v.(string)
+			}
+			if v, ok := d.GetOk("cpmi.0.enabled"); ok {
+				cpmiPayload["enabled"] = v.(bool)
+			}
+			if v, ok := d.GetOk("cpmi.0.use_administrator_credentials"); ok {
+				cpmiPayload["use-administrator-credentials"] = v.(bool)
+			}
+			opsecApplication["cpmi"] = cpmiPayload
 		}
-		if v, ok := d.GetOk("cpmi.enabled"); ok {
-			res["enabled"] = v
-		}
-		if v, ok := d.GetOk("cpmi.use_administrator_credentials"); ok {
-			res["use-administrator-credentials"] = v
-		}
-		opsecApplication["cpmi"] = res
 	}
 
 	if v, ok := d.GetOk("host"); ok {
 		opsecApplication["host"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("lea"); ok {
+	if v, ok := d.GetOk("lea"); ok {
 
-		res := make(map[string]interface{})
+		leaList := v.([]interface{})
 
-		if v, ok := d.GetOk("lea.access_permissions"); ok {
-			res["access-permissions"] = v.(string)
+		if len(leaList) > 0 {
+
+			leaPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("lea.0.access_permissions"); ok {
+				leaPayload["access-permissions"] = v.(string)
+			}
+			if v, ok := d.GetOk("lea.0.administrator_profile"); ok {
+				leaPayload["administrator-profile"] = v.(string)
+			}
+			if v, ok := d.GetOk("lea.0.enabled"); ok {
+				leaPayload["enabled"] = v.(bool)
+			}
+			opsecApplication["lea"] = leaPayload
 		}
-		if v, ok := d.GetOk("lea.administrator_profile"); ok {
-			res["administrator-profile"] = v.(string)
-		}
-		if v, ok := d.GetOk("lea.enabled"); ok {
-			res["enabled"] = v
-		}
-		opsecApplication["lea"] = res
 	}
 
 	if v, ok := d.GetOk("one_time_password"); ok {
@@ -237,16 +247,17 @@ func readManagementOpsecApplication(d *schema.ResourceData, m interface{}) error
 
 		cpmiMapToReturn := make(map[string]interface{})
 
-		if v, _ := cpmiMap["administrator-profile"]; v != nil {
+		if v := cpmiMap["administrator-profile"]; v != nil {
 			cpmiMapToReturn["administrator_profile"] = v
 		}
-		if v, _ := cpmiMap["enabled"]; v != nil {
-			cpmiMapToReturn["enabled"] = strconv.FormatBool(v.(bool))
+		if v := cpmiMap["enabled"]; v != nil {
+			cpmiMapToReturn["enabled"] = v
 		}
-		if v, _ := cpmiMap["use-administrator-credentials"]; v != nil {
-			cpmiMapToReturn["use_administrator_credentials"] = strconv.FormatBool(v.(bool))
+		if v := cpmiMap["use-administrator-credentials"]; v != nil {
+			cpmiMapToReturn["use_administrator_credentials"] = v
 		}
-		_ = d.Set("cpmi", cpmiMapToReturn)
+		_ = d.Set("cpmi", []interface{}{cpmiMapToReturn})
+
 	} else {
 		_ = d.Set("cpmi", nil)
 	}
@@ -261,16 +272,17 @@ func readManagementOpsecApplication(d *schema.ResourceData, m interface{}) error
 
 		leaMapToReturn := make(map[string]interface{})
 
-		if v, _ := leaMap["access-permissions"]; v != nil {
+		if v := leaMap["access-permissions"]; v != nil {
 			leaMapToReturn["access_permissions"] = v
 		}
-		if v, _ := leaMap["administrator-profile"]; v != nil {
+		if v := leaMap["administrator-profile"]; v != nil {
 			leaMapToReturn["administrator_profile"] = v
 		}
-		if v, _ := leaMap["enabled"]; v != nil {
-			leaMapToReturn["enabled"] = strconv.FormatBool(v.(bool))
+		if v := leaMap["enabled"]; v != nil {
+			leaMapToReturn["enabled"] = v
 		}
-		_ = d.Set("lea", leaMapToReturn)
+		_ = d.Set("lea", []interface{}{leaMapToReturn})
+
 	} else {
 		_ = d.Set("lea", nil)
 	}
@@ -330,20 +342,25 @@ func updateManagementOpsecApplication(d *schema.ResourceData, m interface{}) err
 
 	if d.HasChange("cpmi") {
 
-		if _, ok := d.GetOk("cpmi"); ok {
+		if v, ok := d.GetOk("cpmi"); ok {
 
-			res := make(map[string]interface{})
+			cpmiList := v.([]interface{})
 
-			if d.HasChange("cpmi.administrator_profile") {
-				res["administrator-profile"] = d.Get("cpmi.administrator_profile")
+			if len(cpmiList) > 0 {
+
+				cpmiPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("cpmi.0.administrator_profile"); ok {
+					cpmiPayload["administrator-profile"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("cpmi.0.enabled"); ok {
+					cpmiPayload["enabled"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("cpmi.0.use_administrator_credentials"); ok {
+					cpmiPayload["use-administrator-credentials"] = v.(bool)
+				}
+				opsecApplication["cpmi"] = cpmiPayload
 			}
-			if d.HasChange("cpmi.enabled") {
-				res["enabled"] = d.Get("cpmi.enabled")
-			}
-			if d.HasChange("cpmi.use_administrator_credentials") {
-				res["use-administrator-credentials"] = d.Get("cpmi.use_administrator_credentials")
-			}
-			opsecApplication["cpmi"] = res
 		}
 	}
 
@@ -353,20 +370,25 @@ func updateManagementOpsecApplication(d *schema.ResourceData, m interface{}) err
 
 	if d.HasChange("lea") {
 
-		if _, ok := d.GetOk("lea"); ok {
+		if v, ok := d.GetOk("lea"); ok {
 
-			res := make(map[string]interface{})
+			leaList := v.([]interface{})
 
-			if d.HasChange("lea.access_permissions") {
-				res["access-permissions"] = d.Get("lea.access_permissions")
+			if len(leaList) > 0 {
+
+				leaPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("lea.0.access_permissions"); ok {
+					leaPayload["access-permissions"] = v.(string)
+				}
+				if v, ok := d.GetOk("lea.0.administrator_profile"); ok {
+					leaPayload["administrator-profile"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("lea.0.enabled"); ok {
+					leaPayload["enabled"] = v.(bool)
+				}
+				opsecApplication["lea"] = leaPayload
 			}
-			if d.HasChange("lea.administrator_profile") {
-				res["administrator-profile"] = d.Get("lea.administrator_profile")
-			}
-			if d.HasChange("lea.enabled") {
-				res["enabled"] = d.Get("lea.enabled")
-			}
-			opsecApplication["lea"] = res
 		}
 	}
 

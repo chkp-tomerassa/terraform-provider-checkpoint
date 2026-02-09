@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceManagementSetPolicySettings() *schema.Resource {
@@ -26,7 +26,8 @@ func resourceManagementSetPolicySettings() *schema.Resource {
 				Description: "'None' object behavior. Rules with object 'None' will never be matched.",
 			},
 			"security_access_defaults": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Access Policy default values.",
 				ForceNew:    true,
@@ -69,20 +70,28 @@ func createManagementSetPolicySettings(d *schema.ResourceData, m interface{}) er
 		payload["none-object-behavior"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("security_access_defaults"); ok {
+	if v, ok := d.GetOk("security_access_defaults"); ok {
 
-		res := make(map[string]interface{})
+		securityAccessDefaultsList := v.([]interface{})
 
-		if v, ok := d.GetOk("security_access_defaults.destination"); ok {
-			res["destination"] = v.(string)
+		if len(securityAccessDefaultsList) > 0 {
+
+			securityAccessDefaultsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("security_access_defaults.0.destination"); ok {
+				securityAccessDefaultsPayload["destination"] = v.(string)
+			}
+			if v, ok := d.GetOk("security_access_defaults.0.service"); ok {
+				securityAccessDefaultsPayload["service"] = v.(string)
+			}
+			if v, ok := d.GetOk("security_access_defaults.0.source"); ok {
+				securityAccessDefaultsPayload["source"] = v.(string)
+			}
+			if v, ok := d.GetOk("security_access_defaults.0.track"); ok {
+				securityAccessDefaultsPayload["track"] = v.(string)
+			}
+			payload["security-access-defaults"] = securityAccessDefaultsPayload
 		}
-		if v, ok := d.GetOk("security_access_defaults.service"); ok {
-			res["service"] = v.(string)
-		}
-		if v, ok := d.GetOk("security_access_defaults.source"); ok {
-			res["source"] = v.(string)
-		}
-		payload["security-access-defaults"] = res
 	}
 
 	SetPolicySettingsRes, _ := client.ApiCall("set-policy-settings", payload, client.GetSessionID(), true, client.IsProxyUsed())

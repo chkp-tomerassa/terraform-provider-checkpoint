@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 
 	"strconv"
@@ -118,7 +118,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"endpoint": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Endpoint permissions. Not supported for Multi-Domain Servers.<br>Only a 'Customized' permission-type profile can edit these permissions.",
 				Elem: &schema.Resource{
@@ -177,7 +178,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"events_and_reports": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Events and Reports permissions.<br>Only a 'Customized' permission-type profile can edit these permissions.",
 				Elem: &schema.Resource{
@@ -206,7 +208,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"gateways": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Gateways permissions. <br>Only a 'Customized' permission-type profile can edit these permissions.",
 				Elem: &schema.Resource{
@@ -265,7 +268,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"management": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Management permissions.",
 				Elem: &schema.Resource{
@@ -314,7 +318,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"monitoring_and_logging": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Monitoring and Logging permissions.<br>'Customized' permission-type profile can edit all these permissions. \"Read Write All\" permission-type can edit only dlp-logs-including-confidential-fields and manage-dlp-messages permissions.",
 				Elem: &schema.Resource{
@@ -378,7 +383,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"threat_prevention": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Threat Prevention permissions.<br>Only a 'Customized' permission-type profile can edit these permissions.",
 				Elem: &schema.Resource{
@@ -427,7 +433,8 @@ func resourceManagementDomainPermissionsProfile() *schema.Resource {
 				},
 			},
 			"others": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Additional permissions.<br>Only a 'Customized' permission-type profile can edit these permissions.",
 				Elem: &schema.Resource{
@@ -573,224 +580,259 @@ func createManagementDomainPermissionsProfile(d *schema.ResourceData, m interfac
 			domainPermissionsProfile["access-control"] = accessControlPayload
 		}
 	}
-	if _, ok := d.GetOk("endpoint"); ok {
+	if v, ok := d.GetOk("endpoint"); ok {
 
-		res := make(map[string]interface{})
+		endpointList := v.([]interface{})
 
-		if v, ok := d.GetOk("endpoint.manage_policies_and_software_deployment"); ok {
-			res["manage-policies-and-software-deployment"] = v
+		if len(endpointList) > 0 {
+
+			endpointPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("endpoint.0.manage_policies_and_software_deployment"); ok {
+				endpointPayload["manage-policies-and-software-deployment"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.edit_endpoint_policies"); ok {
+				endpointPayload["edit-endpoint-policies"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.policies_installation"); ok {
+				endpointPayload["policies-installation"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.edit_software_deployment"); ok {
+				endpointPayload["edit-software-deployment"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.software_deployment_installation"); ok {
+				endpointPayload["software-deployment-installation"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.allow_executing_push_operations"); ok {
+				endpointPayload["allow-executing-push-operations"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.authorize_preboot_users"); ok {
+				endpointPayload["authorize-preboot-users"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.recovery_media"); ok {
+				endpointPayload["recovery-media"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.remote_help"); ok {
+				endpointPayload["remote-help"] = v.(bool)
+			}
+			if v, ok := d.GetOk("endpoint.0.reset_computer_data"); ok {
+				endpointPayload["reset-computer-data"] = v.(bool)
+			}
+			domainPermissionsProfile["endpoint"] = endpointPayload
 		}
-		if v, ok := d.GetOk("endpoint.edit_endpoint_policies"); ok {
-			res["edit-endpoint-policies"] = v
-		}
-		if v, ok := d.GetOk("endpoint.policies_installation"); ok {
-			res["policies-installation"] = v
-		}
-		if v, ok := d.GetOk("endpoint.edit_software_deployment"); ok {
-			res["edit-software-deployment"] = v
-		}
-		if v, ok := d.GetOk("endpoint.software_deployment_installation"); ok {
-			res["software-deployment-installation"] = v
-		}
-		if v, ok := d.GetOk("endpoint.allow_executing_push_operations"); ok {
-			res["allow-executing-push-operations"] = v
-		}
-		if v, ok := d.GetOk("endpoint.authorize_preboot_users"); ok {
-			res["authorize-preboot-users"] = v
-		}
-		if v, ok := d.GetOk("endpoint.recovery_media"); ok {
-			res["recovery-media"] = v
-		}
-		if v, ok := d.GetOk("endpoint.remote_help"); ok {
-			res["remote-help"] = v
-		}
-		if v, ok := d.GetOk("endpoint.reset_computer_data"); ok {
-			res["reset-computer-data"] = v
-		}
-		domainPermissionsProfile["endpoint"] = res
 	}
 
-	if _, ok := d.GetOk("events_and_reports"); ok {
+	if v, ok := d.GetOk("events_and_reports"); ok {
 
-		res := make(map[string]interface{})
+		eventsAndReportsList := v.([]interface{})
 
-		if v, ok := d.GetOk("events_and_reports.smart_event"); ok {
-			res["smart-event"] = v.(string)
+		if len(eventsAndReportsList) > 0 {
+
+			eventsAndReportsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("events_and_reports.0.smart_event"); ok {
+				eventsAndReportsPayload["smart-event"] = v.(string)
+			}
+			if v, ok := d.GetOk("events_and_reports.0.events"); ok {
+				eventsAndReportsPayload["events"] = v.(string)
+			}
+			if v, ok := d.GetOk("events_and_reports.0.policy"); ok {
+				eventsAndReportsPayload["policy"] = v.(string)
+			}
+			if v, ok := d.GetOk("events_and_reports.0.reports"); ok {
+				eventsAndReportsPayload["reports"] = v.(bool)
+			}
+			domainPermissionsProfile["events-and-reports"] = eventsAndReportsPayload
 		}
-		if v, ok := d.GetOk("events_and_reports.events"); ok {
-			res["events"] = v.(string)
-		}
-		if v, ok := d.GetOk("events_and_reports.policy"); ok {
-			res["policy"] = v.(string)
-		}
-		if v, ok := d.GetOk("events_and_reports.reports"); ok {
-			res["reports"] = v
-		}
-		domainPermissionsProfile["events-and-reports"] = res
 	}
 
-	if _, ok := d.GetOk("gateways"); ok {
+	if v, ok := d.GetOk("gateways"); ok {
 
-		res := make(map[string]interface{})
+		gatewaysList := v.([]interface{})
 
-		if v, ok := d.GetOk("gateways.smart_update"); ok {
-			res["smart-update"] = v.(string)
+		if len(gatewaysList) > 0 {
+
+			gatewaysPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("gateways.0.smart_update"); ok {
+				gatewaysPayload["smart-update"] = v.(string)
+			}
+			if v, ok := d.GetOk("gateways.0.lsm_gw_db"); ok {
+				gatewaysPayload["lsm-gw-db"] = v.(string)
+			}
+			if v, ok := d.GetOk("gateways.0.manage_provisioning_profiles"); ok {
+				gatewaysPayload["manage-provisioning-profiles"] = v.(string)
+			}
+			if v, ok := d.GetOk("gateways.0.vsx_provisioning"); ok {
+				gatewaysPayload["vsx-provisioning"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.system_backup"); ok {
+				gatewaysPayload["system-backup"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.system_restore"); ok {
+				gatewaysPayload["system-restore"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.open_shell"); ok {
+				gatewaysPayload["open-shell"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.run_one_time_script"); ok {
+				gatewaysPayload["run-one-time-script"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.run_repository_script"); ok {
+				gatewaysPayload["run-repository-script"] = v.(bool)
+			}
+			if v, ok := d.GetOk("gateways.0.manage_repository_scripts"); ok {
+				gatewaysPayload["manage-repository-scripts"] = v.(string)
+			}
+			domainPermissionsProfile["gateways"] = gatewaysPayload
 		}
-		if v, ok := d.GetOk("gateways.lsm_gw_db"); ok {
-			res["lsm-gw-db"] = v.(string)
-		}
-		if v, ok := d.GetOk("gateways.manage_provisioning_profiles"); ok {
-			res["manage-provisioning-profiles"] = v.(string)
-		}
-		if v, ok := d.GetOk("gateways.vsx_provisioning"); ok {
-			res["vsx-provisioning"] = v
-		}
-		if v, ok := d.GetOk("gateways.system_backup"); ok {
-			res["system-backup"] = v
-		}
-		if v, ok := d.GetOk("gateways.system_restore"); ok {
-			res["system-restore"] = v
-		}
-		if v, ok := d.GetOk("gateways.open_shell"); ok {
-			res["open-shell"] = v
-		}
-		if v, ok := d.GetOk("gateways.run_one_time_script"); ok {
-			res["run-one-time-script"] = v
-		}
-		if v, ok := d.GetOk("gateways.run_repository_script"); ok {
-			res["run-repository-script"] = v
-		}
-		if v, ok := d.GetOk("gateways.manage_repository_scripts"); ok {
-			res["manage-repository-scripts"] = v.(string)
-		}
-		domainPermissionsProfile["gateways"] = res
 	}
 
-	if _, ok := d.GetOk("management"); ok {
+	if v, ok := d.GetOk("management"); ok {
 
-		res := make(map[string]interface{})
+		managementList := v.([]interface{})
 
-		if v, ok := d.GetOk("management.cme_operations"); ok {
-			res["cme-operations"] = v.(string)
+		if len(managementList) > 0 {
+
+			managementPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("management.0.cme_operations"); ok {
+				managementPayload["cme-operations"] = v.(string)
+			}
+			if v, ok := d.GetOk("management.0.manage_admins"); ok {
+				managementPayload["manage-admins"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.management_api_login"); ok {
+				managementPayload["management-api-login"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.manage_sessions"); ok {
+				managementPayload["manage-sessions"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.high_availability_operations"); ok {
+				managementPayload["high-availability-operations"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.approve_or_reject_sessions"); ok {
+				managementPayload["approve-or-reject-sessions"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.publish_sessions"); ok {
+				managementPayload["publish-sessions"] = v.(bool)
+			}
+			if v, ok := d.GetOk("management.0.manage_integration_with_cloud_services"); ok {
+				managementPayload["manage-integration-with-cloud-services"] = v.(bool)
+			}
+			domainPermissionsProfile["management"] = managementPayload
 		}
-		if v, ok := d.GetOk("management.manage_admins"); ok {
-			res["manage-admins"] = v
-		}
-		if v, ok := d.GetOk("management.management_api_login"); ok {
-			res["management-api-login"] = v
-		}
-		if v, ok := d.GetOk("management.manage_sessions"); ok {
-			res["manage-sessions"] = v
-		}
-		if v, ok := d.GetOk("management.high_availability_operations"); ok {
-			res["high-availability-operations"] = v
-		}
-		if v, ok := d.GetOk("management.approve_or_reject_sessions"); ok {
-			res["approve-or-reject-sessions"] = v
-		}
-		if v, ok := d.GetOk("management.publish_sessions"); ok {
-			res["publish-sessions"] = v
-		}
-		if v, ok := d.GetOk("management.manage_integration_with_cloud_services"); ok {
-			res["manage-integration-with-cloud-services"] = v
-		}
-		domainPermissionsProfile["management"] = res
 	}
 
-	if _, ok := d.GetOk("monitoring_and_logging"); ok {
+	if v, ok := d.GetOk("monitoring_and_logging"); ok {
 
-		res := make(map[string]interface{})
+		monitoringAndLoggingList := v.([]interface{})
 
-		if v, ok := d.GetOk("monitoring_and_logging.monitoring"); ok {
-			res["monitoring"] = v.(string)
+		if len(monitoringAndLoggingList) > 0 {
+
+			monitoringAndLoggingPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("monitoring_and_logging.0.monitoring"); ok {
+				monitoringAndLoggingPayload["monitoring"] = v.(string)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.management_logs"); ok {
+				monitoringAndLoggingPayload["management-logs"] = v.(string)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.track_logs"); ok {
+				monitoringAndLoggingPayload["track-logs"] = v.(string)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.app_and_url_filtering_logs"); ok {
+				monitoringAndLoggingPayload["app-and-url-filtering-logs"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.https_inspection_logs"); ok {
+				monitoringAndLoggingPayload["https-inspection-logs"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.packet_capture_and_forensics"); ok {
+				monitoringAndLoggingPayload["packet-capture-and-forensics"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.show_packet_capture_by_default"); ok {
+				monitoringAndLoggingPayload["show-packet-capture-by-default"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.identities"); ok {
+				monitoringAndLoggingPayload["identities"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.show_identities_by_default"); ok {
+				monitoringAndLoggingPayload["show-identities-by-default"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.dlp_logs_including_confidential_fields"); ok {
+				monitoringAndLoggingPayload["dlp-logs-including-confidential-fields"] = v.(bool)
+			}
+			if v, ok := d.GetOk("monitoring_and_logging.0.manage_dlp_messages"); ok {
+				monitoringAndLoggingPayload["manage-dlp-messages"] = v.(bool)
+			}
+			domainPermissionsProfile["monitoring-and-logging"] = monitoringAndLoggingPayload
 		}
-		if v, ok := d.GetOk("monitoring_and_logging.management_logs"); ok {
-			res["management-logs"] = v.(string)
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.track_logs"); ok {
-			res["track-logs"] = v.(string)
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.app_and_url_filtering_logs"); ok {
-			res["app-and-url-filtering-logs"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.https_inspection_logs"); ok {
-			res["https-inspection-logs"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.packet_capture_and_forensics"); ok {
-			res["packet-capture-and-forensics"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.show_packet_capture_by_default"); ok {
-			res["show-packet-capture-by-default"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.identities"); ok {
-			res["identities"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.show_identities_by_default"); ok {
-			res["show-identities-by-default"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.dlp_logs_including_confidential_fields"); ok {
-			res["dlp-logs-including-confidential-fields"] = v
-		}
-		if v, ok := d.GetOk("monitoring_and_logging.manage_dlp_messages"); ok {
-			res["manage-dlp-messages"] = v
-		}
-		domainPermissionsProfile["monitoring-and-logging"] = res
 	}
 
-	if _, ok := d.GetOk("threat_prevention"); ok {
+	if v, ok := d.GetOk("threat_prevention"); ok {
 
-		res := make(map[string]interface{})
+		threatPreventionList := v.([]interface{})
 
-		if v, ok := d.GetOk("threat_prevention.policy_layers"); ok {
-			res["policy-layers"] = v.(string)
+		if len(threatPreventionList) > 0 {
+
+			threatPreventionPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("threat_prevention.0.policy_layers"); ok {
+				threatPreventionPayload["policy-layers"] = v.(string)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.edit_layers"); ok {
+				threatPreventionPayload["edit-layers"] = v.(string)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.edit_settings"); ok {
+				threatPreventionPayload["edit-settings"] = v.(bool)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.policy_exceptions"); ok {
+				threatPreventionPayload["policy-exceptions"] = v.(string)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.profiles"); ok {
+				threatPreventionPayload["profiles"] = v.(string)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.protections"); ok {
+				threatPreventionPayload["protections"] = v.(string)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.install_policy"); ok {
+				threatPreventionPayload["install-policy"] = v.(bool)
+			}
+			if v, ok := d.GetOk("threat_prevention.0.ips_update"); ok {
+				threatPreventionPayload["ips-update"] = v.(bool)
+			}
+			domainPermissionsProfile["threat-prevention"] = threatPreventionPayload
 		}
-		if v, ok := d.GetOk("threat_prevention.edit_layers"); ok {
-			res["edit-layers"] = v.(string)
-		}
-		if v, ok := d.GetOk("threat_prevention.edit_settings"); ok {
-			res["edit-settings"] = v
-		}
-		if v, ok := d.GetOk("threat_prevention.policy_exceptions"); ok {
-			res["policy-exceptions"] = v.(string)
-		}
-		if v, ok := d.GetOk("threat_prevention.profiles"); ok {
-			res["profiles"] = v.(string)
-		}
-		if v, ok := d.GetOk("threat_prevention.protections"); ok {
-			res["protections"] = v.(string)
-		}
-		if v, ok := d.GetOk("threat_prevention.install_policy"); ok {
-			res["install-policy"] = v
-		}
-		if v, ok := d.GetOk("threat_prevention.ips_update"); ok {
-			res["ips-update"] = v
-		}
-		domainPermissionsProfile["threat-prevention"] = res
 	}
 
-	if _, ok := d.GetOk("others"); ok {
+	if v, ok := d.GetOk("others"); ok {
 
-		res := make(map[string]interface{})
+		othersList := v.([]interface{})
 
-		if v, ok := d.GetOk("others.client_certificates"); ok {
-			res["client-certificates"] = v
+		if len(othersList) > 0 {
+
+			othersPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("others.0.client_certificates"); ok {
+				othersPayload["client-certificates"] = v.(bool)
+			}
+			if v, ok := d.GetOk("others.0.edit_cp_users_db"); ok {
+				othersPayload["edit-cp-users-db"] = v.(bool)
+			}
+			if v, ok := d.GetOk("others.0.https_inspection"); ok {
+				othersPayload["https-inspection"] = v.(string)
+			}
+			if v, ok := d.GetOk("others.0.ldap_users_db"); ok {
+				othersPayload["ldap-users-db"] = v.(string)
+			}
+			if v, ok := d.GetOk("others.0.user_authority_access"); ok {
+				othersPayload["user-authority-access"] = v.(string)
+			}
+			if v, ok := d.GetOk("others.0.user_device_mgmt_conf"); ok {
+				othersPayload["user-device-mgmt-conf"] = v.(string)
+			}
+			domainPermissionsProfile["others"] = othersPayload
 		}
-		if v, ok := d.GetOk("others.edit_cp_users_db"); ok {
-			res["edit-cp-users-db"] = v
-		}
-		if v, ok := d.GetOk("others.https_inspection"); ok {
-			res["https-inspection"] = v.(string)
-		}
-		if v, ok := d.GetOk("others.ldap_users_db"); ok {
-			res["ldap-users-db"] = v.(string)
-		}
-		if v, ok := d.GetOk("others.user_authority_access"); ok {
-			res["user-authority-access"] = v.(string)
-		}
-		if v, ok := d.GetOk("others.user_device_mgmt_conf"); ok {
-			res["user-device-mgmt-conf"] = v.(string)
-		}
-		domainPermissionsProfile["others"] = res
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -943,306 +985,251 @@ func readManagementDomainPermissionsProfile(d *schema.ResourceData, m interface{
 
 		endpointMapToReturn := make(map[string]interface{})
 
-		if v, _ := endpointMap["manage-policies-and-software-deployment"]; v != nil {
-			endpointMapToReturn["manage_policies_and_software_deployment"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["manage-policies-and-software-deployment"]; v != nil {
+			endpointMapToReturn["manage_policies_and_software_deployment"] = v
 		}
-		if v, _ := endpointMap["edit-endpoint-policies"]; v != nil {
-			endpointMapToReturn["edit_endpoint_policies"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["edit-endpoint-policies"]; v != nil {
+			endpointMapToReturn["edit_endpoint_policies"] = v
 		}
-		if v, _ := endpointMap["policies-installation"]; v != nil {
-			endpointMapToReturn["policies_installation"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["policies-installation"]; v != nil {
+			endpointMapToReturn["policies_installation"] = v
 		}
-		if v, _ := endpointMap["edit-software-deployment"]; v != nil {
-			endpointMapToReturn["edit_software_deployment"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["edit-software-deployment"]; v != nil {
+			endpointMapToReturn["edit_software_deployment"] = v
 		}
-		if v, _ := endpointMap["software-deployment-installation"]; v != nil {
-			endpointMapToReturn["software_deployment_installation"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["software-deployment-installation"]; v != nil {
+			endpointMapToReturn["software_deployment_installation"] = v
 		}
-		if v, _ := endpointMap["allow-executing-push-operations"]; v != nil {
-			endpointMapToReturn["allow_executing_push_operations"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["allow-executing-push-operations"]; v != nil {
+			endpointMapToReturn["allow_executing_push_operations"] = v
 		}
-		if v, _ := endpointMap["authorize-preboot-users"]; v != nil {
-			endpointMapToReturn["authorize_preboot_users"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["authorize-preboot-users"]; v != nil {
+			endpointMapToReturn["authorize_preboot_users"] = v
 		}
-		if v, _ := endpointMap["recovery-media"]; v != nil {
-			endpointMapToReturn["recovery_media"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["recovery-media"]; v != nil {
+			endpointMapToReturn["recovery_media"] = v
 		}
-		if v, _ := endpointMap["remote-help"]; v != nil {
-			endpointMapToReturn["remote_help"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["remote-help"]; v != nil {
+			endpointMapToReturn["remote_help"] = v
 		}
-		if v, _ := endpointMap["reset-computer-data"]; v != nil {
-			endpointMapToReturn["reset_computer_data"] = strconv.FormatBool(v.(bool))
+		if v := endpointMap["reset-computer-data"]; v != nil {
+			endpointMapToReturn["reset_computer_data"] = v
 		}
-		_ = d.Set("endpoint", endpointMapToReturn)
+		_ = d.Set("endpoint", []interface{}{endpointMapToReturn})
+
 	} else {
 		_ = d.Set("endpoint", nil)
 	}
 
 	if domainPermissionsProfile["events-and-reports"] != nil {
 
-		defaultEventsAndReports := map[string]interface{}{
-			"smart-event": "custom",
-			"events":      "write",
-			"policy":      "write",
-			"reports":     "true",
-		}
-
 		eventsAndReportsMap := domainPermissionsProfile["events-and-reports"].(map[string]interface{})
 
 		eventsAndReportsMapToReturn := make(map[string]interface{})
 
-		if v, _ := eventsAndReportsMap["smart-event"]; v != nil && isArgDefault(v.(string), d, "events_and_reports.smart_event", defaultEventsAndReports["smart-event"].(string)) {
+		if v := eventsAndReportsMap["smart-event"]; v != nil {
 			eventsAndReportsMapToReturn["smart_event"] = v
 		}
-		if v, _ := eventsAndReportsMap["events"]; v != nil && isArgDefault(v.(string), d, "events_and_reports.events", defaultEventsAndReports["events"].(string)) {
+		if v := eventsAndReportsMap["events"]; v != nil {
 			eventsAndReportsMapToReturn["events"] = v
 		}
-		if v, _ := eventsAndReportsMap["policy"]; v != nil && isArgDefault(v.(string), d, "events_and_reports.policy", defaultEventsAndReports["policy"].(string)) {
+		if v := eventsAndReportsMap["policy"]; v != nil {
 			eventsAndReportsMapToReturn["policy"] = v
 		}
-		if v, _ := eventsAndReportsMap["reports"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "events_and_reports.reports", defaultEventsAndReports["reports"].(string)) {
-			eventsAndReportsMapToReturn["reports"] = strconv.FormatBool(v.(bool))
+		if v := eventsAndReportsMap["reports"]; v != nil {
+			eventsAndReportsMapToReturn["reports"] = v
 		}
-		_ = d.Set("events_and_reports", eventsAndReportsMapToReturn)
+		_ = d.Set("events_and_reports", []interface{}{eventsAndReportsMapToReturn})
+
 	} else {
 		_ = d.Set("events_and_reports", nil)
 	}
 
 	if domainPermissionsProfile["gateways"] != nil {
 
-		defaultGateways := map[string]interface{}{
-			"smart-update":                 "read",
-			"lsm-gw-db":                    "disabled",
-			"manage-provisioning-profiles": "disabled",
-			"vsx-provisioning":             "false",
-			"system-backup":                "false",
-			"system-restore":               "false",
-			"open-shell":                   "false",
-			"run-one-time-script":          "false",
-			"run-repository-script":        "false",
-			"manage-repository-scripts":    "read",
-		}
-
 		gatewaysMap := domainPermissionsProfile["gateways"].(map[string]interface{})
 
 		gatewaysMapToReturn := make(map[string]interface{})
 
-		if v, _ := gatewaysMap["smart-update"]; v != nil && isArgDefault(v.(string), d, "gateways.smart_update", defaultGateways["smart-update"].(string)) {
+		if v := gatewaysMap["smart-update"]; v != nil {
 			gatewaysMapToReturn["smart_update"] = v
 		}
-		if v, _ := gatewaysMap["lsm-gw-db"]; v != nil && isArgDefault(v.(string), d, "gateways.lsm_gw_db", defaultGateways["lsm-gw-db"].(string)) {
+		if v := gatewaysMap["lsm-gw-db"]; v != nil {
 			gatewaysMapToReturn["lsm_gw_db"] = v
 		}
-		if v, _ := gatewaysMap["manage-provisioning-profiles"]; v != nil && isArgDefault(v.(string), d, "gateways.manage_provisioning_profiles", defaultGateways["manage-provisioning-profiles"].(string)) {
+		if v := gatewaysMap["manage-provisioning-profiles"]; v != nil {
 			gatewaysMapToReturn["manage_provisioning_profiles"] = v
 		}
-		if v, _ := gatewaysMap["vsx-provisioning"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.vsx_provisioning", defaultGateways["vsx-provisioning"].(string)) {
-			gatewaysMapToReturn["vsx_provisioning"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["vsx-provisioning"]; v != nil {
+			gatewaysMapToReturn["vsx_provisioning"] = v
 		}
-		if v, _ := gatewaysMap["system-backup"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.system_backup", defaultGateways["system-backup"].(string)) {
-			gatewaysMapToReturn["system_backup"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["system-backup"]; v != nil {
+			gatewaysMapToReturn["system_backup"] = v
 		}
-		if v, _ := gatewaysMap["system-restore"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.system_restore", defaultGateways["system-restore"].(string)) {
-			gatewaysMapToReturn["system_restore"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["system-restore"]; v != nil {
+			gatewaysMapToReturn["system_restore"] = v
 		}
-		if v, _ := gatewaysMap["open-shell"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.open_shell", defaultGateways["open-shell"].(string)) {
-			gatewaysMapToReturn["open_shell"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["open-shell"]; v != nil {
+			gatewaysMapToReturn["open_shell"] = v
 		}
-		if v, _ := gatewaysMap["run-one-time-script"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.run_one_time_script", defaultGateways["run-one-time-script"].(string)) {
-			gatewaysMapToReturn["run_one_time_script"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["run-one-time-script"]; v != nil {
+			gatewaysMapToReturn["run_one_time_script"] = v
 		}
-		if v, _ := gatewaysMap["run-repository-script"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "gateways.run_repository_script", defaultGateways["run-repository-script"].(string)) {
-			gatewaysMapToReturn["run_repository_script"] = strconv.FormatBool(v.(bool))
+		if v := gatewaysMap["run-repository-script"]; v != nil {
+			gatewaysMapToReturn["run_repository_script"] = v
 		}
-		if v, _ := gatewaysMap["manage-repository-scripts"]; v != nil && isArgDefault(v.(string), d, "gateways.manage_repository_scripts", defaultGateways["manage-repository-scripts"].(string)) {
+		if v := gatewaysMap["manage-repository-scripts"]; v != nil {
 			gatewaysMapToReturn["manage_repository_scripts"] = v
 		}
-		_ = d.Set("gateways", gatewaysMapToReturn)
+		_ = d.Set("gateways", []interface{}{gatewaysMapToReturn})
+
 	} else {
 		_ = d.Set("gateways", nil)
 	}
 
 	if domainPermissionsProfile["management"] != nil {
 
-		defaultManagement := map[string]interface{}{
-			"manage-sessions":                        "false",
-			"high-availability-operations":           "true",
-			"approve-or-reject-sessions":             "false",
-			"publish-sessions":                       "true",
-			"manage-integration-with-cloud-services": "false",
-		}
-
 		managementMap := domainPermissionsProfile["management"].(map[string]interface{})
 
 		managementMapToReturn := make(map[string]interface{})
 
-		if v, _ := managementMap["cme-operations"]; v != nil {
+		if v := managementMap["cme-operations"]; v != nil {
 			managementMapToReturn["cme_operations"] = v
 		}
-		if v, _ := managementMap["manage-admins"]; v != nil {
-			managementMapToReturn["manage_admins"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["manage-admins"]; v != nil {
+			managementMapToReturn["manage_admins"] = v
 		}
-		if v, _ := managementMap["management-api-login"]; v != nil {
-			managementMapToReturn["management_api_login"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["management-api-login"]; v != nil {
+			managementMapToReturn["management_api_login"] = v
 		}
-		if v, _ := managementMap["manage-sessions"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "management.manage_sessions", defaultManagement["manage-sessions"].(string)) {
-			managementMapToReturn["manage_sessions"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["manage-sessions"]; v != nil {
+			managementMapToReturn["manage_sessions"] = v
 		}
-		if v, _ := managementMap["high-availability-operations"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "management.high_availability_operations", defaultManagement["high-availability-operations"].(string)) {
-			managementMapToReturn["high_availability_operations"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["high-availability-operations"]; v != nil {
+			managementMapToReturn["high_availability_operations"] = v
 		}
-		if v, _ := managementMap["approve-or-reject-sessions"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "management.approve_or_reject_sessions", defaultManagement["approve-or-reject-sessions"].(string)) {
-			managementMapToReturn["approve_or_reject_sessions"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["approve-or-reject-sessions"]; v != nil {
+			managementMapToReturn["approve_or_reject_sessions"] = v
 		}
-		if v, _ := managementMap["publish-sessions"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "management.publish_sessions", defaultManagement["publish-sessions"].(string)) {
-			managementMapToReturn["publish_sessions"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["publish-sessions"]; v != nil {
+			managementMapToReturn["publish_sessions"] = v
 		}
-		if v, _ := managementMap["manage-integration-with-cloud-services"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "management.manage_integration_with_cloud_services", defaultManagement["manage-integration-with-cloud-services"].(string)) {
-			managementMapToReturn["manage_integration_with_cloud_services"] = strconv.FormatBool(v.(bool))
+		if v := managementMap["manage-integration-with-cloud-services"]; v != nil {
+			managementMapToReturn["manage_integration_with_cloud_services"] = v
 		}
-		_ = d.Set("management", managementMapToReturn)
+		_ = d.Set("management", []interface{}{managementMapToReturn})
+
 	} else {
 		_ = d.Set("management", nil)
 	}
 
 	if domainPermissionsProfile["monitoring-and-logging"] != nil {
 
-		defaultMonitoring := map[string]interface{}{
-			"monitoring":                             "write",
-			"management-logs":                        "write",
-			"track-logs":                             "write",
-			"app-and-url-filtering-logs":             "true",
-			"https-inspection-logs":                  "true",
-			"packet-capture-and-forensics":           "true",
-			"show-packet-capture-by-default":         "true",
-			"identities":                             "true",
-			"show-identities-by-default":             "true",
-			"dlp-logs-including-confidential-fields": "false",
-			"manage-dlp-messages":                    "false",
-		}
-
 		monitoringAndLoggingMap := domainPermissionsProfile["monitoring-and-logging"].(map[string]interface{})
 
 		monitoringAndLoggingMapToReturn := make(map[string]interface{})
 
-		if v, _ := monitoringAndLoggingMap["monitoring"]; v != nil && isArgDefault(v.(string), d, "monitoring_and_logging.monitoring", defaultMonitoring["monitoring"].(string)) {
+		if v := monitoringAndLoggingMap["monitoring"]; v != nil {
 			monitoringAndLoggingMapToReturn["monitoring"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["management-logs"]; v != nil && isArgDefault(v.(string), d, "monitoring_and_logging.management_logs", defaultMonitoring["management-logs"].(string)) {
+		if v := monitoringAndLoggingMap["management-logs"]; v != nil {
 			monitoringAndLoggingMapToReturn["management_logs"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["track-logs"]; v != nil && isArgDefault(v.(string), d, "monitoring_and_logging.track_logs", defaultMonitoring["track-logs"].(string)) {
+		if v := monitoringAndLoggingMap["track-logs"]; v != nil {
 			monitoringAndLoggingMapToReturn["track_logs"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["app-and-url-filtering-logs"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.app_and_url_filtering_logs", defaultMonitoring["app-and-url-filtering-logs"].(string)) {
-			monitoringAndLoggingMapToReturn["app_and_url_filtering_logs"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["app-and-url-filtering-logs"]; v != nil {
+			monitoringAndLoggingMapToReturn["app_and_url_filtering_logs"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["https-inspection-logs"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.https_inspection_logs", defaultMonitoring["https-inspection-logs"].(string)) {
-			monitoringAndLoggingMapToReturn["https_inspection_logs"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["https-inspection-logs"]; v != nil {
+			monitoringAndLoggingMapToReturn["https_inspection_logs"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["packet-capture-and-forensics"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.packet_capture_and_forensics", defaultMonitoring["packet-capture-and-forensics"].(string)) {
-			monitoringAndLoggingMapToReturn["packet_capture_and_forensics"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["packet-capture-and-forensics"]; v != nil {
+			monitoringAndLoggingMapToReturn["packet_capture_and_forensics"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["show-packet-capture-by-default"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.show_packet_capture_by_default", defaultMonitoring["show-packet-capture-by-default"].(string)) {
-			monitoringAndLoggingMapToReturn["show_packet_capture_by_default"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["show-packet-capture-by-default"]; v != nil {
+			monitoringAndLoggingMapToReturn["show_packet_capture_by_default"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["identities"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.identities", defaultMonitoring["identities"].(string)) {
-			monitoringAndLoggingMapToReturn["identities"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["identities"]; v != nil {
+			monitoringAndLoggingMapToReturn["identities"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["show-identities-by-default"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.show_identities_by_default", defaultMonitoring["show-identities-by-default"].(string)) {
-			monitoringAndLoggingMapToReturn["show_identities_by_default"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["show-identities-by-default"]; v != nil {
+			monitoringAndLoggingMapToReturn["show_identities_by_default"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["dlp-logs-including-confidential-fields"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.dlp_logs_including_confidential_fields", defaultMonitoring["dlp-logs-including-confidential-fields"].(string)) {
-			monitoringAndLoggingMapToReturn["dlp_logs_including_confidential_fields"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["dlp-logs-including-confidential-fields"]; v != nil {
+			monitoringAndLoggingMapToReturn["dlp_logs_including_confidential_fields"] = v
 		}
-		if v, _ := monitoringAndLoggingMap["manage-dlp-messages"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "monitoring_and_logging.manage_dlp_messages", defaultMonitoring["manage-dlp-messages"].(string)) {
-			monitoringAndLoggingMapToReturn["manage_dlp_messages"] = strconv.FormatBool(v.(bool))
+		if v := monitoringAndLoggingMap["manage-dlp-messages"]; v != nil {
+			monitoringAndLoggingMapToReturn["manage_dlp_messages"] = v
 		}
-		_ = d.Set("monitoring_and_logging", monitoringAndLoggingMapToReturn)
+		_ = d.Set("monitoring_and_logging", []interface{}{monitoringAndLoggingMapToReturn})
+
 	} else {
 		_ = d.Set("monitoring_and_logging", nil)
 	}
 
 	if domainPermissionsProfile["threat-prevention"] != nil {
 
-		defaultThreatPrevention := map[string]interface{}{
-			"policy-layers":     "write",
-			"edit-layers":       "all",
-			"edit-settings":     "true",
-			"policy-exceptions": "write",
-			"profiles":          "write",
-			"protections":       "write",
-			"install-policy":    "true",
-			"ips-update":        "true",
-		}
-
 		threatPreventionMap := domainPermissionsProfile["threat-prevention"].(map[string]interface{})
 
 		threatPreventionMapToReturn := make(map[string]interface{})
 
-		if v, _ := threatPreventionMap["policy-layers"]; v != nil && isArgDefault(v.(string), d, "threat_prevention.policy_layers", defaultThreatPrevention["policy-layers"].(string)) {
+		if v := threatPreventionMap["policy-layers"]; v != nil {
 			threatPreventionMapToReturn["policy_layers"] = v
 		}
-		if v, _ := threatPreventionMap["edit-layers"]; v != nil && isArgDefault(v.(string), d, "threat_prevention.edit_layers", defaultThreatPrevention["edit-layers"].(string)) {
+		if v := threatPreventionMap["edit-layers"]; v != nil {
 			threatPreventionMapToReturn["edit_layers"] = v
 		}
-		if v, _ := threatPreventionMap["edit-settings"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "threat_prevention.edit_settings", defaultThreatPrevention["edit-settings"].(string)) {
-			threatPreventionMapToReturn["edit_settings"] = strconv.FormatBool(v.(bool))
+		if v := threatPreventionMap["edit-settings"]; v != nil {
+			threatPreventionMapToReturn["edit_settings"] = v
 		}
-		if v, _ := threatPreventionMap["policy-exceptions"]; v != nil && isArgDefault(v.(string), d, "threat_prevention.policy_exceptions", defaultThreatPrevention["policy-exceptions"].(string)) {
+		if v := threatPreventionMap["policy-exceptions"]; v != nil {
 			threatPreventionMapToReturn["policy_exceptions"] = v
 		}
-		if v, _ := threatPreventionMap["profiles"]; v != nil && isArgDefault(v.(string), d, "threat_prevention.profiles", defaultThreatPrevention["profiles"].(string)) {
+		if v := threatPreventionMap["profiles"]; v != nil {
 			threatPreventionMapToReturn["profiles"] = v
 		}
-		if v, _ := threatPreventionMap["protections"]; v != nil && isArgDefault(v.(string), d, "threat_prevention.protections", defaultThreatPrevention["protections"].(string)) {
+		if v := threatPreventionMap["protections"]; v != nil {
 			threatPreventionMapToReturn["protections"] = v
 		}
-		if v, _ := threatPreventionMap["install-policy"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "threat_prevention.install_policy", defaultThreatPrevention["install-policy"].(string)) {
-			threatPreventionMapToReturn["install_policy"] = strconv.FormatBool(v.(bool))
+		if v := threatPreventionMap["install-policy"]; v != nil {
+			threatPreventionMapToReturn["install_policy"] = v
 		}
-		if v, _ := threatPreventionMap["ips-update"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "threat_prevention.ips_update", defaultThreatPrevention["ips-update"].(string)) {
-			threatPreventionMapToReturn["ips_update"] = strconv.FormatBool(v.(bool))
+		if v := threatPreventionMap["ips-update"]; v != nil {
+			threatPreventionMapToReturn["ips_update"] = v
 		}
-		_ = d.Set("threat_prevention", threatPreventionMapToReturn)
+		_ = d.Set("threat_prevention", []interface{}{threatPreventionMapToReturn})
+
 	} else {
 		_ = d.Set("threat_prevention", nil)
 	}
 
 	if domainPermissionsProfile["others"] != nil {
 
-		defaultOthers := map[string]interface{}{
-			"client-certificates":   "true",
-			"edit-cp-users-db":      "true",
-			"https-inspection":      "write",
-			"ldap-users-db":         "write",
-			"user-authority-access": "write",
-			"user-device-mgmt-conf": "read",
-		}
 		othersMap := domainPermissionsProfile["others"].(map[string]interface{})
 
 		othersMapToReturn := make(map[string]interface{})
 
-		if v, _ := othersMap["client-certificates"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "others.client_certificates", defaultOthers["client-certificates"].(string)) {
-			othersMapToReturn["client_certificates"] = strconv.FormatBool(v.(bool))
+		if v := othersMap["client-certificates"]; v != nil {
+			othersMapToReturn["client_certificates"] = v
 		}
-		if v, _ := othersMap["edit-cp-users-db"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "others.edit_cp_users_db", defaultOthers["edit-cp-users-db"].(string)) {
-			othersMapToReturn["edit_cp_users_db"] = strconv.FormatBool(v.(bool))
+		if v := othersMap["edit-cp-users-db"]; v != nil {
+			othersMapToReturn["edit_cp_users_db"] = v
 		}
-		if v, _ := othersMap["https-inspection"]; v != nil && isArgDefault(v.(string), d, "others.https_inspection", defaultOthers["https-inspection"].(string)) {
+		if v := othersMap["https-inspection"]; v != nil {
 			othersMapToReturn["https_inspection"] = v
 		}
-		if v, _ := othersMap["ldap-users-db"]; v != nil && isArgDefault(v.(string), d, "others.ldap_users_db", defaultOthers["ldap-users-db"].(string)) {
+		if v := othersMap["ldap-users-db"]; v != nil {
 			othersMapToReturn["ldap_users_db"] = v
 		}
-		if v, _ := othersMap["user-authority-access"]; v != nil && isArgDefault(v.(string), d, "others.user_authority_access", defaultOthers["user-authority-access"].(string)) {
+		if v := othersMap["user-authority-access"]; v != nil {
 			othersMapToReturn["user_authority_access"] = v
 		}
-		if v, _ := othersMap["user-device-mgmt-conf"]; v != nil && isArgDefault(v.(string), d, "others.user_device_mgmt_conf", defaultOthers["user-device-mgmt-conf"].(string)) {
+		if v := othersMap["user-device-mgmt-conf"]; v != nil {
 			othersMapToReturn["user_device_mgmt_conf"] = v
 		}
+		_ = d.Set("others", []interface{}{othersMapToReturn})
 
-		_ = d.Set("others", othersMapToReturn)
 	} else {
 		_ = d.Set("others", nil)
 	}
@@ -1366,242 +1353,277 @@ func updateManagementDomainPermissionsProfile(d *schema.ResourceData, m interfac
 
 	if d.HasChange("endpoint") {
 
-		if _, ok := d.GetOk("endpoint"); ok {
+		if v, ok := d.GetOk("endpoint"); ok {
 
-			res := make(map[string]interface{})
+			endpointList := v.([]interface{})
 
-			if d.HasChange("endpoint.manage_policies_and_software_deployment") {
-				res["manage-policies-and-software-deployment"] = d.Get("endpoint.manage_policies_and_software_deployment")
+			if len(endpointList) > 0 {
+
+				endpointPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("endpoint.0.manage_policies_and_software_deployment"); ok {
+					endpointPayload["manage-policies-and-software-deployment"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.edit_endpoint_policies"); ok {
+					endpointPayload["edit-endpoint-policies"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.policies_installation"); ok {
+					endpointPayload["policies-installation"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.edit_software_deployment"); ok {
+					endpointPayload["edit-software-deployment"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.software_deployment_installation"); ok {
+					endpointPayload["software-deployment-installation"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.allow_executing_push_operations"); ok {
+					endpointPayload["allow-executing-push-operations"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.authorize_preboot_users"); ok {
+					endpointPayload["authorize-preboot-users"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.recovery_media"); ok {
+					endpointPayload["recovery-media"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.remote_help"); ok {
+					endpointPayload["remote-help"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("endpoint.0.reset_computer_data"); ok {
+					endpointPayload["reset-computer-data"] = v.(bool)
+				}
+				domainPermissionsProfile["endpoint"] = endpointPayload
 			}
-			if d.HasChange("endpoint.edit_endpoint_policies") {
-				res["edit-endpoint-policies"] = d.Get("endpoint.edit_endpoint_policies")
-			}
-			if d.HasChange("endpoint.policies_installation") {
-				res["policies-installation"] = d.Get("endpoint.policies_installation")
-			}
-			if d.HasChange("endpoint.edit_software_deployment") {
-				res["edit-software-deployment"] = d.Get("endpoint.edit_software_deployment")
-			}
-			if d.HasChange("endpoint.software_deployment_installation") {
-				res["software-deployment-installation"] = d.Get("endpoint.software_deployment_installation")
-			}
-			if d.HasChange("endpoint.allow_executing_push_operations") {
-				res["allow-executing-push-operations"] = d.Get("endpoint.allow_executing_push_operations")
-			}
-			if d.HasChange("endpoint.authorize_preboot_users") {
-				res["authorize-preboot-users"] = d.Get("endpoint.authorize_preboot_users")
-			}
-			if d.HasChange("endpoint.recovery_media") {
-				res["recovery-media"] = d.Get("endpoint.recovery_media")
-			}
-			if d.HasChange("endpoint.remote_help") {
-				res["remote-help"] = d.Get("endpoint.remote_help")
-			}
-			if d.HasChange("endpoint.reset_computer_data") {
-				res["reset-computer-data"] = d.Get("endpoint.reset_computer_data")
-			}
-			domainPermissionsProfile["endpoint"] = res
 		}
 	}
 
 	if d.HasChange("events_and_reports") {
 
-		if _, ok := d.GetOk("events_and_reports"); ok {
+		if v, ok := d.GetOk("events_and_reports"); ok {
 
-			res := make(map[string]interface{})
+			eventsAndReportsList := v.([]interface{})
 
-			if d.HasChange("events_and_reports.smart_event") {
-				res["smart-event"] = d.Get("events_and_reports.smart_event")
+			if len(eventsAndReportsList) > 0 {
+
+				eventsAndReportsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("events_and_reports.0.smart_event"); ok {
+					eventsAndReportsPayload["smart-event"] = v.(string)
+				}
+				if v, ok := d.GetOk("events_and_reports.0.events"); ok {
+					eventsAndReportsPayload["events"] = v.(string)
+				}
+				if v, ok := d.GetOk("events_and_reports.0.policy"); ok {
+					eventsAndReportsPayload["policy"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("events_and_reports.0.reports"); ok {
+					eventsAndReportsPayload["reports"] = v.(bool)
+				}
+				domainPermissionsProfile["events-and-reports"] = eventsAndReportsPayload
 			}
-			if d.HasChange("events_and_reports.events") {
-				res["events"] = d.Get("events_and_reports.events")
-			}
-			if d.HasChange("events_and_reports.policy") {
-				res["policy"] = d.Get("events_and_reports.policy")
-			}
-			if d.HasChange("events_and_reports.reports") {
-				res["reports"] = d.Get("events_and_reports.reports")
-			}
-			domainPermissionsProfile["events-and-reports"] = res
 		}
 	}
 
 	if d.HasChange("gateways") {
 
-		if _, ok := d.GetOk("gateways"); ok {
+		if v, ok := d.GetOk("gateways"); ok {
 
-			res := make(map[string]interface{})
+			gatewaysList := v.([]interface{})
 
-			if d.HasChange("gateways.smart_update") {
-				res["smart-update"] = d.Get("gateways.smart_update")
+			if len(gatewaysList) > 0 {
+
+				gatewaysPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("gateways.0.smart_update"); ok {
+					gatewaysPayload["smart-update"] = v.(string)
+				}
+				if v, ok := d.GetOk("gateways.0.lsm_gw_db"); ok {
+					gatewaysPayload["lsm-gw-db"] = v.(string)
+				}
+				if v, ok := d.GetOk("gateways.0.manage_provisioning_profiles"); ok {
+					gatewaysPayload["manage-provisioning-profiles"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("gateways.0.vsx_provisioning"); ok {
+					gatewaysPayload["vsx-provisioning"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("gateways.0.system_backup"); ok {
+					gatewaysPayload["system-backup"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("gateways.0.system_restore"); ok {
+					gatewaysPayload["system-restore"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("gateways.0.open_shell"); ok {
+					gatewaysPayload["open-shell"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("gateways.0.run_one_time_script"); ok {
+					gatewaysPayload["run-one-time-script"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("gateways.0.run_repository_script"); ok {
+					gatewaysPayload["run-repository-script"] = v.(bool)
+				}
+				if v, ok := d.GetOk("gateways.0.manage_repository_scripts"); ok {
+					gatewaysPayload["manage-repository-scripts"] = v.(string)
+				}
+				domainPermissionsProfile["gateways"] = gatewaysPayload
 			}
-			if d.HasChange("gateways.lsm_gw_db") {
-				res["lsm-gw-db"] = d.Get("gateways.lsm_gw_db")
-			}
-			if d.HasChange("gateways.manage_provisioning_profiles") {
-				res["manage-provisioning-profiles"] = d.Get("gateways.manage_provisioning_profiles")
-			}
-			if d.HasChange("gateways.vsx_provisioning") {
-				res["vsx-provisioning"] = d.Get("gateways.vsx_provisioning")
-			}
-			if d.HasChange("gateways.system_backup") {
-				res["system-backup"] = d.Get("gateways.system_backup")
-			}
-			if d.HasChange("gateways.system_restore") {
-				res["system-restore"] = d.Get("gateways.system_restore")
-			}
-			if d.HasChange("gateways.open_shell") {
-				res["open-shell"] = d.Get("gateways.open_shell")
-			}
-			if d.HasChange("gateways.run_one_time_script") {
-				res["run-one-time-script"] = d.Get("gateways.run_one_time_script")
-			}
-			if d.HasChange("gateways.run_repository_script") {
-				res["run-repository-script"] = d.Get("gateways.run_repository_script")
-			}
-			if d.HasChange("gateways.manage_repository_scripts") {
-				res["manage-repository-scripts"] = d.Get("gateways.manage_repository_scripts")
-			}
-			domainPermissionsProfile["gateways"] = res
 		}
 	}
 
 	if d.HasChange("management") {
 
-		if _, ok := d.GetOk("management"); ok {
+		if v, ok := d.GetOk("management"); ok {
 
-			res := make(map[string]interface{})
+			managementList := v.([]interface{})
 
-			if d.HasChange("management.cme_operations") {
-				res["cme-operations"] = d.Get("management.cme_operations")
+			if len(managementList) > 0 {
+
+				managementPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("management.0.cme_operations"); ok {
+					managementPayload["cme-operations"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("management.0.manage_admins"); ok {
+					managementPayload["manage-admins"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.management_api_login"); ok {
+					managementPayload["management-api-login"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.manage_sessions"); ok {
+					managementPayload["manage-sessions"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.high_availability_operations"); ok {
+					managementPayload["high-availability-operations"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.approve_or_reject_sessions"); ok {
+					managementPayload["approve-or-reject-sessions"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.publish_sessions"); ok {
+					managementPayload["publish-sessions"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("management.0.manage_integration_with_cloud_services"); ok {
+					managementPayload["manage-integration-with-cloud-services"] = v.(bool)
+				}
+				domainPermissionsProfile["management"] = managementPayload
 			}
-			if d.HasChange("management.manage_admins") {
-				res["manage-admins"] = d.Get("management.manage_admins")
-			}
-			if d.HasChange("management.management_api_login") {
-				res["management-api-login"] = d.Get("management.management_api_login")
-			}
-			if d.HasChange("management.manage_sessions") {
-				res["manage-sessions"] = d.Get("management.manage_sessions")
-			}
-			if d.HasChange("management.high_availability_operations") {
-				res["high-availability-operations"] = d.Get("management.high_availability_operations")
-			}
-			if d.HasChange("management.approve_or_reject_sessions") {
-				res["approve-or-reject-sessions"] = d.Get("management.approve_or_reject_sessions")
-			}
-			if d.HasChange("management.publish_sessions") {
-				res["publish-sessions"] = d.Get("management.publish_sessions")
-			}
-			if d.HasChange("management.manage_integration_with_cloud_services") {
-				res["manage-integration-with-cloud-services"] = d.Get("management.manage_integration_with_cloud_services")
-			}
-			domainPermissionsProfile["management"] = res
 		}
 	}
 
 	if d.HasChange("monitoring_and_logging") {
 
-		if _, ok := d.GetOk("monitoring_and_logging"); ok {
+		if v, ok := d.GetOk("monitoring_and_logging"); ok {
 
-			res := make(map[string]interface{})
+			monitoringAndLoggingList := v.([]interface{})
 
-			if d.HasChange("monitoring_and_logging.monitoring") {
-				res["monitoring"] = d.Get("monitoring_and_logging.monitoring")
+			if len(monitoringAndLoggingList) > 0 {
+
+				monitoringAndLoggingPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("monitoring_and_logging.0.monitoring"); ok {
+					monitoringAndLoggingPayload["monitoring"] = v.(string)
+				}
+				if v, ok := d.GetOk("monitoring_and_logging.0.management_logs"); ok {
+					monitoringAndLoggingPayload["management-logs"] = v.(string)
+				}
+				if v, ok := d.GetOk("monitoring_and_logging.0.track_logs"); ok {
+					monitoringAndLoggingPayload["track-logs"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.app_and_url_filtering_logs"); ok {
+					monitoringAndLoggingPayload["app-and-url-filtering-logs"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.https_inspection_logs"); ok {
+					monitoringAndLoggingPayload["https-inspection-logs"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.packet_capture_and_forensics"); ok {
+					monitoringAndLoggingPayload["packet-capture-and-forensics"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.show_packet_capture_by_default"); ok {
+					monitoringAndLoggingPayload["show-packet-capture-by-default"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.identities"); ok {
+					monitoringAndLoggingPayload["identities"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.show_identities_by_default"); ok {
+					monitoringAndLoggingPayload["show-identities-by-default"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.dlp_logs_including_confidential_fields"); ok {
+					monitoringAndLoggingPayload["dlp-logs-including-confidential-fields"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("monitoring_and_logging.0.manage_dlp_messages"); ok {
+					monitoringAndLoggingPayload["manage-dlp-messages"] = v.(bool)
+				}
+				domainPermissionsProfile["monitoring-and-logging"] = monitoringAndLoggingPayload
 			}
-			if d.HasChange("monitoring_and_logging.management_logs") {
-				res["management-logs"] = d.Get("monitoring_and_logging.management_logs")
-			}
-			if d.HasChange("monitoring_and_logging.track_logs") {
-				res["track-logs"] = d.Get("monitoring_and_logging.track_logs")
-			}
-			if d.HasChange("monitoring_and_logging.app_and_url_filtering_logs") {
-				res["app-and-url-filtering-logs"] = d.Get("monitoring_and_logging.app_and_url_filtering_logs")
-			}
-			if d.HasChange("monitoring_and_logging.https_inspection_logs") {
-				res["https-inspection-logs"] = d.Get("monitoring_and_logging.https_inspection_logs")
-			}
-			if d.HasChange("monitoring_and_logging.packet_capture_and_forensics") {
-				res["packet-capture-and-forensics"] = d.Get("monitoring_and_logging.packet_capture_and_forensics")
-			}
-			if d.HasChange("monitoring_and_logging.show_packet_capture_by_default") {
-				res["show-packet-capture-by-default"] = d.Get("monitoring_and_logging.show_packet_capture_by_default")
-			}
-			if d.HasChange("monitoring_and_logging.identities") {
-				res["identities"] = d.Get("monitoring_and_logging.identities")
-			}
-			if d.HasChange("monitoring_and_logging.show_identities_by_default") {
-				res["show-identities-by-default"] = d.Get("monitoring_and_logging.show_identities_by_default")
-			}
-			if d.HasChange("monitoring_and_logging.dlp_logs_including_confidential_fields") {
-				res["dlp-logs-including-confidential-fields"] = d.Get("monitoring_and_logging.dlp_logs_including_confidential_fields")
-			}
-			if d.HasChange("monitoring_and_logging.manage_dlp_messages") {
-				res["manage-dlp-messages"] = d.Get("monitoring_and_logging.manage_dlp_messages")
-			}
-			domainPermissionsProfile["monitoring-and-logging"] = res
 		}
 	}
 
 	if d.HasChange("threat_prevention") {
 
-		if _, ok := d.GetOk("threat_prevention"); ok {
+		if v, ok := d.GetOk("threat_prevention"); ok {
 
-			res := make(map[string]interface{})
+			threatPreventionList := v.([]interface{})
 
-			if d.HasChange("threat_prevention.policy_layers") {
-				res["policy-layers"] = d.Get("threat_prevention.policy_layers")
+			if len(threatPreventionList) > 0 {
+
+				threatPreventionPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("threat_prevention.0.policy_layers"); ok {
+					threatPreventionPayload["policy-layers"] = v.(string)
+				}
+				if v, ok := d.GetOk("threat_prevention.0.edit_layers"); ok {
+					threatPreventionPayload["edit-layers"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("threat_prevention.0.edit_settings"); ok {
+					threatPreventionPayload["edit-settings"] = v.(bool)
+				}
+				if v, ok := d.GetOk("threat_prevention.0.policy_exceptions"); ok {
+					threatPreventionPayload["policy-exceptions"] = v.(string)
+				}
+				if v, ok := d.GetOk("threat_prevention.0.profiles"); ok {
+					threatPreventionPayload["profiles"] = v.(string)
+				}
+				if v, ok := d.GetOk("threat_prevention.0.protections"); ok {
+					threatPreventionPayload["protections"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("threat_prevention.0.install_policy"); ok {
+					threatPreventionPayload["install-policy"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("threat_prevention.0.ips_update"); ok {
+					threatPreventionPayload["ips-update"] = v.(bool)
+				}
+				domainPermissionsProfile["threat-prevention"] = threatPreventionPayload
 			}
-			if d.HasChange("threat_prevention.edit_layers") {
-				res["edit-layers"] = d.Get("threat_prevention.edit_layers")
-			}
-			if d.HasChange("threat_prevention.edit_settings") {
-				res["edit-settings"] = d.Get("threat_prevention.edit_settings")
-			}
-			if d.HasChange("threat_prevention.policy_exceptions") {
-				res["policy-exceptions"] = d.Get("threat_prevention.policy_exceptions")
-			}
-			if d.HasChange("threat_prevention.profiles") {
-				res["profiles"] = d.Get("threat_prevention.profiles")
-			}
-			if d.HasChange("threat_prevention.protections") {
-				res["protections"] = d.Get("threat_prevention.protections")
-			}
-			if d.HasChange("threat_prevention.install_policy") {
-				res["install-policy"] = d.Get("threat_prevention.install_policy")
-			}
-			if d.HasChange("threat_prevention.ips_update") {
-				res["ips-update"] = d.Get("threat_prevention.ips_update")
-			}
-			domainPermissionsProfile["threat-prevention"] = res
 		}
 	}
 
 	if d.HasChange("others") {
 
-		if _, ok := d.GetOk("others"); ok {
+		if v, ok := d.GetOk("others"); ok {
 
-			res := make(map[string]interface{})
+			othersList := v.([]interface{})
 
-			if d.HasChange("others.client_certificates") {
-				res["client-certificates"] = d.Get("others.client_certificates")
+			if len(othersList) > 0 {
+
+				othersPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("others.0.client_certificates"); ok {
+					othersPayload["client-certificates"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("others.0.edit_cp_users_db"); ok {
+					othersPayload["edit-cp-users-db"] = v.(bool)
+				}
+				if v, ok := d.GetOk("others.0.https_inspection"); ok {
+					othersPayload["https-inspection"] = v.(string)
+				}
+				if v, ok := d.GetOk("others.0.ldap_users_db"); ok {
+					othersPayload["ldap-users-db"] = v.(string)
+				}
+				if v, ok := d.GetOk("others.0.user_authority_access"); ok {
+					othersPayload["user-authority-access"] = v.(string)
+				}
+				if v, ok := d.GetOk("others.0.user_device_mgmt_conf"); ok {
+					othersPayload["user-device-mgmt-conf"] = v.(string)
+				}
+				domainPermissionsProfile["others"] = othersPayload
 			}
-			if d.HasChange("others.edit_cp_users_db") {
-				res["edit-cp-users-db"] = d.Get("others.edit_cp_users_db")
-			}
-			if d.HasChange("others.https_inspection") {
-				res["https-inspection"] = d.Get("others.https_inspection")
-			}
-			if d.HasChange("others.ldap_users_db") {
-				res["ldap-users-db"] = d.Get("others.ldap_users_db")
-			}
-			if d.HasChange("others.user_authority_access") {
-				res["user-authority-access"] = d.Get("others.user_authority_access")
-			}
-			if d.HasChange("others.user_device_mgmt_conf") {
-				res["user-device-mgmt-conf"] = d.Get("others.user_device_mgmt_conf")
-			}
-			domainPermissionsProfile["others"] = res
 		}
 	}
 

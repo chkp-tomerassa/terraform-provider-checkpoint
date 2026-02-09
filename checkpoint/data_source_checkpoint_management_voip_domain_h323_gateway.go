@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -35,7 +35,6 @@ func dataSourceManagementVoipDomainH323Gateway() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The routing mode of the VoIP Domain H323 gateway.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"call_setup": {

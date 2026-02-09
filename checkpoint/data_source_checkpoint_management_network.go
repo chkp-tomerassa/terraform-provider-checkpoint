@@ -3,9 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"reflect"
-	"strconv"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceManagementNetwork() *schema.Resource {
@@ -43,7 +41,7 @@ func dataSourceManagementNetwork() *schema.Resource {
 				Description: "IPv6 network mask length.",
 			},
 			"nat_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "NAT settings.",
 				Elem: &schema.Resource{
@@ -188,38 +186,26 @@ func dataSourceManagementNetworkRead(d *schema.ResourceData, m interface{}) erro
 
 		natSettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := natSettingsMap["auto-rule"]; v != nil {
-			natSettingsMapToReturn["auto_rule"] = strconv.FormatBool(v.(bool))
+		if v := natSettingsMap["auto-rule"]; v != nil {
+			natSettingsMapToReturn["auto_rule"] = v
 		}
-
-		if v, _ := natSettingsMap["ipv4-address"]; v != "" && v != nil {
-			natSettingsMapToReturn["ipv4_address"] = v
-		}
-
-		if v, _ := natSettingsMap["ipv6-address"]; v != "" && v != nil {
-			natSettingsMapToReturn["ipv6_address"] = v
-		}
-
-		if v, _ := natSettingsMap["hide-behind"]; v != nil {
+		if v := natSettingsMap["hide-behind"]; v != nil {
 			natSettingsMapToReturn["hide_behind"] = v
 		}
-
-		if v, _ := natSettingsMap["install-on"]; v != nil {
+		if v := natSettingsMap["install-on"]; v != nil {
 			natSettingsMapToReturn["install_on"] = v
 		}
-
-		if v, _ := natSettingsMap["method"]; v != nil {
+		if v := natSettingsMap["ipv4-address"]; v != nil {
+			natSettingsMapToReturn["ipv4_address"] = v
+		}
+		if v := natSettingsMap["ipv6-address"]; v != nil {
+			natSettingsMapToReturn["ipv6_address"] = v
+		}
+		if v := natSettingsMap["method"]; v != nil {
 			natSettingsMapToReturn["method"] = v
 		}
 
-		_, natSettingInConf := d.GetOk("nat_settings")
-		defaultNatSettings := map[string]interface{}{"auto_rule": "false"}
-
-		if reflect.DeepEqual(defaultNatSettings, natSettingsMapToReturn) && !natSettingInConf {
-			_ = d.Set("nat_settings", map[string]interface{}{})
-		} else {
-			_ = d.Set("nat_settings", natSettingsMapToReturn)
-		}
+		_ = d.Set("nat_settings", []interface{}{natSettingsMapToReturn})
 
 	} else {
 		_ = d.Set("nat_settings", nil)

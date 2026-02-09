@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -98,7 +98,8 @@ func resourceManagementLsmGateway() *schema.Resource {
 				Description: "Device platform operating system.",
 			},
 			"provisioning_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Provisioning settings.",
 				Elem: &schema.Resource{
@@ -119,7 +120,8 @@ func resourceManagementLsmGateway() *schema.Resource {
 			},
 
 			"sic": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Secure Internal Communication.",
 				Elem: &schema.Resource{
@@ -309,14 +311,19 @@ func createManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 		}
 	}
 
-	if _, ok := d.GetOk("provisioning_settings"); ok {
+	if v, ok := d.GetOk("provisioning_settings"); ok {
 
-		res := make(map[string]interface{})
+		provisioningSettingsList := v.([]interface{})
 
-		if v, ok := d.GetOk("provisioning_settings.provisioning_profile"); ok {
-			res["provisioning-profile"] = v.(string)
+		if len(provisioningSettingsList) > 0 {
+
+			provisioningSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("provisioning_settings.0.provisioning_profile"); ok {
+				provisioningSettingsPayload["provisioning-profile"] = v.(string)
+			}
+			lsmGateway["provisioning-settings"] = provisioningSettingsPayload
 		}
-		lsmGateway["provisioning-settings"] = res
 	}
 
 	if v, ok := d.GetOk("provisioning_state"); ok {
@@ -327,17 +334,22 @@ func createManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 		lsmGateway["security-profile"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("sic"); ok {
+	if v, ok := d.GetOk("sic"); ok {
 
-		res := make(map[string]interface{})
+		sicList := v.([]interface{})
 
-		if v, ok := d.GetOk("sic.one_time_password"); ok {
-			res["one-time-password"] = v.(string)
+		if len(sicList) > 0 {
+
+			sicPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("sic.0.one_time_password"); ok {
+				sicPayload["one-time-password"] = v.(string)
+			}
+			if v, ok := d.GetOk("sic.0.ip_address"); ok {
+				sicPayload["ip-address"] = v.(string)
+			}
+			lsmGateway["sic"] = sicPayload
 		}
-		if v, ok := d.GetOk("ip_address"); ok {
-			res["ip-address"] = v.(string)
-		}
-		lsmGateway["sic"] = res
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -540,10 +552,11 @@ func readManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 
 		provisioningSettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := provisioningSettingsMap["provisioning-profile"]; v != nil {
+		if v := provisioningSettingsMap["provisioning-profile"]; v != nil {
 			provisioningSettingsMapToReturn["provisioning_profile"] = v
 		}
-		_ = d.Set("provisioning_settings", provisioningSettingsMapToReturn)
+		_ = d.Set("provisioning_settings", []interface{}{provisioningSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("provisioning_settings", nil)
 	}
@@ -556,15 +569,21 @@ func readManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 		_ = d.Set("security_profile", v)
 	}
 	if v, ok := d.GetOk("sic"); ok {
-		sicObj := v.(map[string]interface{})
-		sicMap := make(map[string]interface{})
-		if v := sicObj["one_time_password"]; v != nil {
-			sicMap["one_time_password"] = v
+
+		sicList := v.([]interface{})
+
+		if len(sicList) > 0 {
+
+			sicPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("sic.0.one_time_password"); ok {
+				sicPayload["one-time-password"] = v.(string)
+			}
+			if v, ok := d.GetOk("sic.0.ip_address"); ok {
+				sicPayload["ip-address"] = v.(string)
+			}
+			lsmGateway["sic"] = sicPayload
 		}
-		if v := sicObj["ip_address"]; v != nil {
-			sicMap["ip_address"] = v
-		}
-		_ = d.Set("sic", sicMap)
 	}
 	if v := lsmGateway["sic-name"]; v != nil {
 		_ = d.Set("sic_name", v)
@@ -772,14 +791,19 @@ func updateManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("provisioning_settings") {
 
-		if _, ok := d.GetOk("provisioning_settings"); ok {
+		if v, ok := d.GetOk("provisioning_settings"); ok {
 
-			res := make(map[string]interface{})
+			provisioningSettingsList := v.([]interface{})
 
-			if d.HasChange("provisioning_settings.provisioning_profile") {
-				res["provisioning-profile"] = d.Get("provisioning_settings.provisioning_profile")
+			if len(provisioningSettingsList) > 0 {
+
+				provisioningSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("provisioning_settings.0.provisioning_profile"); ok {
+					provisioningSettingsPayload["provisioning-profile"] = v.(string)
+				}
+				lsmGateway["provisioning-settings"] = provisioningSettingsPayload
 			}
-			lsmGateway["provisioning-settings"] = res
 		}
 	}
 
@@ -789,14 +813,22 @@ func updateManagementLsmGateway(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("sic") {
 
-		if _, ok := d.GetOk("sic"); ok {
+		if v, ok := d.GetOk("sic"); ok {
 
-			res := make(map[string]interface{})
+			sicList := v.([]interface{})
 
-			if v, ok := d.GetOk("sic.one_time_password"); ok {
-				res["one-time-password"] = v.(string)
+			if len(sicList) > 0 {
+
+				sicPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("sic.0.one_time_password"); ok {
+					sicPayload["one-time-password"] = v.(string)
+				}
+				if v, ok := d.GetOk("sic.0.ip_address"); ok {
+					sicPayload["ip-address"] = v.(string)
+				}
+				lsmGateway["sic"] = sicPayload
 			}
-			lsmGateway["sic"] = res
 		}
 	}
 

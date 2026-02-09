@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 )
@@ -19,7 +19,7 @@ func dataSourceManagementShowUpdatableObjectsRepositoryContent() *schema.Resourc
 				Description: "The object's unique identifier in the Updatable Objects repository.",
 			},
 			"filter": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Return results matching the specified filter.",
 				Elem: &schema.Resource{
@@ -103,7 +103,7 @@ func dataSourceManagementShowUpdatableObjectsRepositoryContent() *schema.Resourc
 							Description: "Unique identifier of the object in the Updatable Objects Repository.",
 						},
 						"additional_properties": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Additional properties on the object.",
 							Elem: &schema.Resource{
@@ -134,7 +134,6 @@ func dataSourceManagementShowUpdatableObjectsRepositoryContent() *schema.Resourc
 						"updatable_object": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							MaxItems:    1,
 							Description: "The imported management object (if exists).",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -173,22 +172,25 @@ func dataSourceManagementShowUpdatableObjectsRepositoryContentRead(d *schema.Res
 		payload["uid-in-updatable-objects-repository"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("filter"); ok {
-		filter := make(map[string]interface{})
+	if v, ok := d.GetOk("filter"); ok {
+		filterList := v.([]interface{})
+		if len(filterList) > 0 {
+			filterPayload := make(map[string]interface{})
 
-		if v, ok := d.GetOk("filter.text"); ok {
-			filter["text"] = v.(string)
+			if v, ok := d.GetOk("filter.0.text"); ok {
+				filterPayload["text"] = v.(string)
+			}
+
+			if v, ok := d.GetOk("filter.0.uri"); ok {
+				filterPayload["uri"] = v.(string)
+			}
+
+			if v, ok := d.GetOk("filter.0.parent_uid_in_updatable_objects_repository"); ok {
+				filterPayload["parent-uid-in-updatable-objects-repository"] = v.(string)
+			}
+
+			payload["filter"] = filterPayload
 		}
-
-		if v, ok := d.GetOk("filter.uri"); ok {
-			filter["uri"] = v.(string)
-		}
-
-		if v, ok := d.GetOk("filter.parent_uid_in_updatable_objects_repository"); ok {
-			filter["parent-uid-in-updatable-objects-repository"] = v.(string)
-		}
-
-		payload["filter"] = filter
 	}
 
 	if v, ok := d.GetOk("limit"); ok {
@@ -282,7 +284,7 @@ func dataSourceManagementShowUpdatableObjectsRepositoryContentRead(d *schema.Res
 						additionalPropertiesState["uri"] = v
 					}
 
-					objectState["additional_properties"] = additionalPropertiesState
+					objectState["additional_properties"] = []interface{}{additionalPropertiesState}
 				}
 
 				if v := objectJson["updatable-object"]; v != nil {

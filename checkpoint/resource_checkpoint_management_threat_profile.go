@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"reflect"
 	"strconv"
@@ -72,7 +72,7 @@ func resourceManagementThreatProfile() *schema.Resource {
 				},
 			},
 			"ips_settings": &schema.Schema{
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "IPS blade settings.",
 				Elem: &schema.Resource{
@@ -106,7 +106,7 @@ func resourceManagementThreatProfile() *schema.Resource {
 				},
 			},
 			"malicious_mail_policy_settings": &schema.Schema{
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Malicious Mail Policy for MTA Gateways.",
 				Elem: &schema.Resource{
@@ -207,7 +207,7 @@ func resourceManagementThreatProfile() *schema.Resource {
 							Description: "Tracking method for protection.",
 						},
 						"default": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Default settings.",
 							Elem: &schema.Resource{
@@ -231,7 +231,7 @@ func resourceManagementThreatProfile() *schema.Resource {
 							},
 						},
 						"final": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Final settings.",
 							Elem: &schema.Resource{
@@ -271,7 +271,7 @@ func resourceManagementThreatProfile() *schema.Resource {
 				},
 			},
 			"scan_malicious_links": &schema.Schema{
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Scans malicious links (URLs) inside email messages.",
 				Elem: &schema.Resource{
@@ -502,69 +502,79 @@ func createManagementThreatProfile(d *schema.ResourceData, m interface{}) error 
 		}
 	}
 
-	if _, ok := d.GetOk("ips_settings"); ok {
-		ipsSettingsPayload := make(map[string]interface{})
+	if v, ok := d.GetOk("ips_settings"); ok {
 
-		if v, ok := d.GetOkExists("ips_settings.exclude_protection_with_performance_impact"); ok {
-			ipsSettingsPayload["exclude-protection-with-performance-impact"] = v.(bool)
-		}
-		if v, ok := d.GetOk("ips_settings.exclude_protection_with_performance_impact_mode"); ok {
-			ipsSettingsPayload["exclude-protection-with-performance-impact-mode"] = v.(string)
-		}
-		if v, ok := d.GetOkExists("ips_settings.exclude_protection_with_severity"); ok {
-			ipsSettingsPayload["exclude-protection-with-severity"] = v.(bool)
-		}
-		if v, ok := d.GetOk("ips_settings.exclude_protection_with_severity_mode"); ok {
-			ipsSettingsPayload["exclude-protection-with-severity-mode"] = v.(string)
-		}
-		if v, ok := d.GetOk("ips_settings.newly_updated_protections"); ok {
-			ipsSettingsPayload["newly-updated-protections"] = v.(string)
-		}
+		ipsSettingsList := v.([]interface{})
 
-		threatProfile["ips-settings"] = ipsSettingsPayload
+		if len(ipsSettingsList) > 0 {
+
+			ipsSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("ips_settings.0.exclude_protection_with_performance_impact"); ok {
+				ipsSettingsPayload["exclude-protection-with-performance-impact"] = v.(bool)
+			}
+			if v, ok := d.GetOk("ips_settings.0.exclude_protection_with_performance_impact_mode"); ok {
+				ipsSettingsPayload["exclude-protection-with-performance-impact-mode"] = v.(string)
+			}
+			if v, ok := d.GetOk("ips_settings.0.exclude_protection_with_severity"); ok {
+				ipsSettingsPayload["exclude-protection-with-severity"] = v.(bool)
+			}
+			if v, ok := d.GetOk("ips_settings.0.exclude_protection_with_severity_mode"); ok {
+				ipsSettingsPayload["exclude-protection-with-severity-mode"] = v.(string)
+			}
+			if v, ok := d.GetOk("ips_settings.0.newly_updated_protections"); ok {
+				ipsSettingsPayload["newly-updated-protections"] = v.(string)
+			}
+			threatProfile["ips-settings"] = ipsSettingsPayload
+		}
 	}
 
-	if _, ok := d.GetOk("malicious_mail_policy_settings"); ok {
-		maliciousMailPolicySettingsPayload := make(map[string]interface{})
+	if v, ok := d.GetOk("malicious_mail_policy_settings"); ok {
 
-		if v, ok := d.GetOkExists("malicious_mail_policy_settings.add_customized_text_to_email_body"); ok {
-			maliciousMailPolicySettingsPayload["add-customized-text-to-email-body"] = v.(bool)
-		}
-		if v, ok := d.GetOkExists("malicious_mail_policy_settings.add_email_subject_prefix"); ok {
-			maliciousMailPolicySettingsPayload["add-email-subject-prefix"] = v.(bool)
-		}
-		if v, ok := d.GetOkExists("malicious_mail_policy_settings.add_x_header_to_email"); ok {
-			maliciousMailPolicySettingsPayload["add-x-header-to-email"] = v.(bool)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.email_action"); ok {
-			maliciousMailPolicySettingsPayload["email-action"] = v.(string)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.email_body_customized_text"); ok {
-			maliciousMailPolicySettingsPayload["email-body-customized-text"] = v.(string)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.email_subject_prefix_text"); ok {
-			maliciousMailPolicySettingsPayload["email-subject-prefix-text"] = v.(string)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.failed_to_scan_attachments_text"); ok {
-			maliciousMailPolicySettingsPayload["failed-to-scan-attachments-text"] = v.(string)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.malicious_attachments_text"); ok {
-			maliciousMailPolicySettingsPayload["malicious-attachments-text"] = v.(string)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.malicious_links_text"); ok {
-			maliciousMailPolicySettingsPayload["malicious-links-text"] = v.(string)
-		}
-		if v, ok := d.GetOkExists("malicious_mail_policy_settings.remove_attachments_and_links"); ok {
-			maliciousMailPolicySettingsPayload["remove-attachments-and-links"] = v.(bool)
-		}
-		if v, ok := d.GetOkExists("malicious_mail_policy_settings.send_copy"); ok {
-			maliciousMailPolicySettingsPayload["send-copy"] = v.(bool)
-		}
-		if v, ok := d.GetOk("malicious_mail_policy_settings.send_copy_list"); ok {
-			maliciousMailPolicySettingsPayload["send-copy-list"] = v.(*schema.Set).List()
-		}
+		maliciousMailPolicySettingsList := v.([]interface{})
 
-		threatProfile["malicious-mail-policy-settings"] = maliciousMailPolicySettingsPayload
+		if len(maliciousMailPolicySettingsList) > 0 {
+
+			maliciousMailPolicySettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.add_customized_text_to_email_body"); ok {
+				maliciousMailPolicySettingsPayload["add-customized-text-to-email-body"] = v.(bool)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.add_email_subject_prefix"); ok {
+				maliciousMailPolicySettingsPayload["add-email-subject-prefix"] = v.(bool)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.add_x_header_to_email"); ok {
+				maliciousMailPolicySettingsPayload["add-x-header-to-email"] = v.(bool)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.email_action"); ok {
+				maliciousMailPolicySettingsPayload["email-action"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.email_body_customized_text"); ok {
+				maliciousMailPolicySettingsPayload["email-body-customized-text"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.email_subject_prefix_text"); ok {
+				maliciousMailPolicySettingsPayload["email-subject-prefix-text"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.failed_to_scan_attachments_text"); ok {
+				maliciousMailPolicySettingsPayload["failed-to-scan-attachments-text"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.malicious_attachments_text"); ok {
+				maliciousMailPolicySettingsPayload["malicious-attachments-text"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.malicious_links_text"); ok {
+				maliciousMailPolicySettingsPayload["malicious-links-text"] = v.(string)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.remove_attachments_and_links"); ok {
+				maliciousMailPolicySettingsPayload["remove-attachments-and-links"] = v.(bool)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.send_copy"); ok {
+				maliciousMailPolicySettingsPayload["send-copy"] = v.(bool)
+			}
+			if v, ok := d.GetOk("malicious_mail_policy_settings.0.send_copy_list"); ok {
+				maliciousMailPolicySettingsPayload["send-copy-list"] = v
+			}
+			threatProfile["malicious-mail-policy-settings"] = maliciousMailPolicySettingsPayload
+		}
 	}
 
 	if v, ok := d.GetOk("overrides"); ok {
@@ -928,7 +938,7 @@ func readManagementThreatProfile(d *schema.ResourceData, m interface{}) error {
 					if v, _ = defaultJson["track"]; v != nil {
 						defaultState["track"] = v
 					}
-					overrideState["default"] = defaultState
+					overrideState["default"] = []interface{}{defaultState}
 				}
 
 				if v, _ := overridesJson["final"]; v != nil {
@@ -943,7 +953,7 @@ func readManagementThreatProfile(d *schema.ResourceData, m interface{}) error {
 					if v, _ = finalJson["track"]; v != nil {
 						finalState["track"] = v
 					}
-					overrideState["final"] = finalState
+					overrideState["final"] = []interface{}{finalState}
 				}
 				overridesListState = append(overridesListState, overrideState)
 			}

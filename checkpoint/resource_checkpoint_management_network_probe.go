@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -20,7 +20,8 @@ func resourceManagementNetworkProbe() *schema.Resource {
 				Description: "Object name.",
 			},
 			"http_options": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Additional options when [protocol] is set to \"http\".",
 				Elem: &schema.Resource{
@@ -34,7 +35,8 @@ func resourceManagementNetworkProbe() *schema.Resource {
 				},
 			},
 			"icmp_options": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Additional options when [protocol] is set to \"icmp\".",
 				Elem: &schema.Resource{
@@ -122,27 +124,37 @@ func createManagementNetworkProbe(d *schema.ResourceData, m interface{}) error {
 		networkProbe["name"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("http_options"); ok {
+	if v, ok := d.GetOk("http_options"); ok {
 
-		res := make(map[string]interface{})
+		httpOptionsList := v.([]interface{})
 
-		if v, ok := d.GetOk("http_options.destination"); ok {
-			res["destination"] = v.(string)
+		if len(httpOptionsList) > 0 {
+
+			httpOptionsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("http_options.0.destination"); ok {
+				httpOptionsPayload["destination"] = v.(string)
+			}
+			networkProbe["http-options"] = httpOptionsPayload
 		}
-		networkProbe["http-options"] = res
 	}
 
-	if _, ok := d.GetOk("icmp_options"); ok {
+	if v, ok := d.GetOk("icmp_options"); ok {
 
-		res := make(map[string]interface{})
+		icmpOptionsList := v.([]interface{})
 
-		if v, ok := d.GetOk("icmp_options.destination"); ok {
-			res["destination"] = v.(string)
+		if len(icmpOptionsList) > 0 {
+
+			icmpOptionsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("icmp_options.0.destination"); ok {
+				icmpOptionsPayload["destination"] = v.(string)
+			}
+			if v, ok := d.GetOk("icmp_options.0.source"); ok {
+				icmpOptionsPayload["source"] = v.(string)
+			}
+			networkProbe["icmp-options"] = icmpOptionsPayload
 		}
-		if v, ok := d.GetOk("icmp_options.source"); ok {
-			res["source"] = v.(string)
-		}
-		networkProbe["icmp-options"] = res
 	}
 
 	if v, ok := d.GetOk("install_on"); ok {
@@ -230,10 +242,11 @@ func readManagementNetworkProbe(d *schema.ResourceData, m interface{}) error {
 
 		httpOptionsMapToReturn := make(map[string]interface{})
 
-		if v, _ := httpOptionsMap["destination"]; v != nil {
+		if v := httpOptionsMap["destination"]; v != nil {
 			httpOptionsMapToReturn["destination"] = v
 		}
-		_ = d.Set("http_options", httpOptionsMapToReturn)
+		_ = d.Set("http_options", []interface{}{httpOptionsMapToReturn})
+
 	} else {
 		_ = d.Set("http_options", nil)
 	}
@@ -244,13 +257,14 @@ func readManagementNetworkProbe(d *schema.ResourceData, m interface{}) error {
 
 		icmpOptionsMapToReturn := make(map[string]interface{})
 
-		if v, _ := icmpOptionsMap["destination"]; v != nil {
+		if v := icmpOptionsMap["destination"]; v != nil {
 			icmpOptionsMapToReturn["destination"] = v
 		}
-		if v, _ := icmpOptionsMap["source"]; v != nil {
+		if v := icmpOptionsMap["source"]; v != nil {
 			icmpOptionsMapToReturn["source"] = v
 		}
-		_ = d.Set("icmp_options", icmpOptionsMapToReturn)
+		_ = d.Set("icmp_options", []interface{}{icmpOptionsMapToReturn})
+
 	} else {
 		_ = d.Set("icmp_options", nil)
 	}
@@ -334,30 +348,40 @@ func updateManagementNetworkProbe(d *schema.ResourceData, m interface{}) error {
 
 	if d.HasChange("http_options") {
 
-		if _, ok := d.GetOk("http_options"); ok {
+		if v, ok := d.GetOk("http_options"); ok {
 
-			res := make(map[string]interface{})
+			httpOptionsList := v.([]interface{})
 
-			if v, ok := d.GetOk("http_options.destination"); ok {
-				res["destination"] = v.(string)
+			if len(httpOptionsList) > 0 {
+
+				httpOptionsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("http_options.0.destination"); ok {
+					httpOptionsPayload["destination"] = v.(string)
+				}
+				networkProbe["http-options"] = httpOptionsPayload
 			}
-			networkProbe["http-options"] = res
 		}
 	}
 
 	if d.HasChange("icmp_options") {
 
-		if _, ok := d.GetOk("icmp_options"); ok {
+		if v, ok := d.GetOk("icmp_options"); ok {
 
-			res := make(map[string]interface{})
+			icmpOptionsList := v.([]interface{})
 
-			if v, ok := d.GetOk("icmp_options.destination"); ok {
-				res["destination"] = v.(string)
+			if len(icmpOptionsList) > 0 {
+
+				icmpOptionsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("icmp_options.0.destination"); ok {
+					icmpOptionsPayload["destination"] = v.(string)
+				}
+				if v, ok := d.GetOk("icmp_options.0.source"); ok {
+					icmpOptionsPayload["source"] = v.(string)
+				}
+				networkProbe["icmp-options"] = icmpOptionsPayload
 			}
-			if d.HasChange("icmp_options.source") {
-				res["source"] = d.Get("icmp_options.source")
-			}
-			networkProbe["icmp-options"] = res
 		}
 	}
 

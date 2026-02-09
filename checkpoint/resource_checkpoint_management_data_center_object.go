@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 	"time"
@@ -89,7 +89,6 @@ func resourceDataCenterObject() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Data Center Object",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -135,7 +134,7 @@ func resourceDataCenterObject() *schema.Resource {
 				},
 			},
 			"updated_on_data_center": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Last update time of data center",
 				Elem: &schema.Resource{
@@ -383,7 +382,7 @@ func readManagementDataCenterObject(d *schema.ResourceData, m interface{}) error
 				dataCenterObjMetaInfoState["posix"] = strconv.Itoa(int(v.(float64)))
 			}
 		}
-		_ = d.Set("updated_on_data_center", dataCenterObjMetaInfoState)
+		_ = d.Set("updated_on_data_center", []interface{}{dataCenterObjMetaInfoState})
 
 	} else {
 		_ = d.Set("updated_on_data_center", nil)

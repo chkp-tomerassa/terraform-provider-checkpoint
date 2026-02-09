@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -25,7 +25,8 @@ func resourceManagementNatSection() *schema.Resource {
 				Description: "Name of the package.",
 			},
 			"position": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Required:    true,
 				Description: "Position in the rulebase.",
 				Elem: &schema.Resource{
@@ -82,31 +83,8 @@ func createManagementNatSection(d *schema.ResourceData, m interface{}) error {
 		natSection["package"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("position"); ok {
-
-		if v, ok := d.GetOk("position.top"); ok {
-			if v.(string) == "top" {
-				natSection["position"] = "top" // entire rule-base
-			} else {
-				natSection["position"] = map[string]interface{}{"top": v.(string)} // section-name
-			}
-		}
-
-		if v, ok := d.GetOk("position.above"); ok {
-			natSection["position"] = map[string]interface{}{"above": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.below"); ok {
-			natSection["position"] = map[string]interface{}{"below": v.(string)}
-		}
-
-		if v, ok := d.GetOk("position.bottom"); ok {
-			if v.(string) == "bottom" {
-				natSection["position"] = "bottom" // entire rule-base
-			} else {
-				natSection["position"] = map[string]interface{}{"bottom": v.(string)} // section-name
-			}
-		}
+	if v, ok := d.GetOk("position"); ok {
+		natSection["position"] = v.(string)
 	}
 
 	if v, ok := d.GetOkExists("ignore_warnings"); ok {

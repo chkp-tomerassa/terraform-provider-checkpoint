@@ -3,9 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"reflect"
 )
 
 func resourceManagementServiceTcp() *schema.Resource {
@@ -29,7 +28,8 @@ func resourceManagementServiceTcp() *schema.Resource {
 				Description: "The number of the port used to provide this service. To specify a port range, place a hyphen between the lowest and highest port numbers, for example 44-55.",
 			},
 			"aggressive_aging": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "Sets short (aggressive) timeouts for idle connections.",
 				Elem: &schema.Resource{
@@ -151,23 +151,28 @@ func createManagementServiceTcp(d *schema.ResourceData, m interface{}) error {
 		serviceTcp["name"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("aggressive_aging"); ok {
+	if v, ok := d.GetOk("aggressive_aging"); ok {
 
-		res := make(map[string]interface{})
+		aggressiveAgingList := v.([]interface{})
 
-		if v, ok := d.GetOk("aggressive_aging.default_timeout"); ok {
-			res["default-timeout"] = v
+		if len(aggressiveAgingList) > 0 {
+
+			aggressiveAgingPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("aggressive_aging.0.default_timeout"); ok {
+				aggressiveAgingPayload["default-timeout"] = v.(int)
+			}
+			if v, ok := d.GetOk("aggressive_aging.0.enable"); ok {
+				aggressiveAgingPayload["enable"] = v.(bool)
+			}
+			if v, ok := d.GetOk("aggressive_aging.0.timeout"); ok {
+				aggressiveAgingPayload["timeout"] = v.(int)
+			}
+			if v, ok := d.GetOk("aggressive_aging.0.use_default_timeout"); ok {
+				aggressiveAgingPayload["use-default-timeout"] = v.(bool)
+			}
+			serviceTcp["aggressive-aging"] = aggressiveAgingPayload
 		}
-		if v, ok := d.GetOk("aggressive_aging.enable"); ok {
-			res["enable"] = v
-		}
-		if v, ok := d.GetOk("aggressive_aging.timeout"); ok {
-			res["timeout"] = v
-		}
-		if v, ok := d.GetOk("aggressive_aging.use_default_timeout"); ok {
-			res["use-default-timeout"] = v
-		}
-		serviceTcp["aggressive-aging"] = res
 	}
 
 	if val, ok := d.GetOkExists("keep_connections_open_after_policy_installation"); ok {
@@ -313,31 +318,20 @@ func readManagementServiceTcp(d *schema.ResourceData, m interface{}) error {
 
 		aggressiveAgingMapToReturn := make(map[string]interface{})
 
-		if v, _ := aggressiveAgingMap["default-timeout"]; v != nil {
+		if v := aggressiveAgingMap["default-timeout"]; v != nil {
 			aggressiveAgingMapToReturn["default_timeout"] = v
 		}
-		if v, _ := aggressiveAgingMap["enable"]; v != nil {
+		if v := aggressiveAgingMap["enable"]; v != nil {
 			aggressiveAgingMapToReturn["enable"] = v
 		}
-		if v, _ := aggressiveAgingMap["timeout"]; v != nil {
+		if v := aggressiveAgingMap["timeout"]; v != nil {
 			aggressiveAgingMapToReturn["timeout"] = v
 		}
-		if v, _ := aggressiveAgingMap["use-default-timeout"]; v != nil {
+		if v := aggressiveAgingMap["use-default-timeout"]; v != nil {
 			aggressiveAgingMapToReturn["use_default_timeout"] = v
 		}
+		_ = d.Set("aggressive_aging", []interface{}{aggressiveAgingMapToReturn})
 
-		_, aggressiveAgingInConf := d.GetOk("aggressive_aging")
-		defaultAggressiveAging := map[string]interface{}{
-			"enable":              true,
-			"timeout":             600,
-			"use_default_timeout": true,
-			"default_timeout":     0,
-		}
-		if reflect.DeepEqual(defaultAggressiveAging, aggressiveAgingMapToReturn) && !aggressiveAgingInConf {
-			_ = d.Set("aggressive_aging", map[string]interface{}{})
-		} else {
-			_ = d.Set("aggressive_aging", aggressiveAgingMapToReturn)
-		}
 	} else {
 		_ = d.Set("aggressive_aging", nil)
 	}
@@ -375,23 +369,28 @@ func updateManagementServiceTcp(d *schema.ResourceData, m interface{}) error {
 
 	if ok := d.HasChange("aggressive_aging"); ok {
 
-		if _, ok := d.GetOk("aggressive_aging"); ok {
+		if v, ok := d.GetOk("aggressive_aging"); ok {
 
-			res := make(map[string]interface{})
+			aggressiveAgingList := v.([]interface{})
 
-			if v, ok := d.GetOk("aggressive_aging.default_timeout"); ok {
-				res["default-timeout"] = v
+			if len(aggressiveAgingList) > 0 {
+
+				aggressiveAgingPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("aggressive_aging.0.default_timeout"); ok {
+					aggressiveAgingPayload["default-timeout"] = v.(int)
+				}
+				if v, ok := d.GetOkExists("aggressive_aging.0.enable"); ok {
+					aggressiveAgingPayload["enable"] = v.(bool)
+				}
+				if v, ok := d.GetOk("aggressive_aging.0.timeout"); ok {
+					aggressiveAgingPayload["timeout"] = v.(int)
+				}
+				if v, ok := d.GetOkExists("aggressive_aging.0.use_default_timeout"); ok {
+					aggressiveAgingPayload["use-default-timeout"] = v.(bool)
+				}
+				serviceTcp["aggressive-aging"] = aggressiveAgingPayload
 			}
-			if v, ok := d.GetOk("aggressive_aging.enable"); ok {
-				res["enable"] = v
-			}
-			if v, ok := d.GetOk("aggressive_aging.timeout"); ok {
-				res["timeout"] = v
-			}
-			if v, ok := d.GetOk("aggressive_aging.use_default_timeout"); ok {
-				res["use-default-timeout"] = v
-			}
-			serviceTcp["aggressive-aging"] = res
 		}
 		//else { //argument deleted - go back to defaults
 		//	defaultAggressiveAging := map[string]interface{}{

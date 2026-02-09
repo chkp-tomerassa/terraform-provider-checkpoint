@@ -3,9 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"strconv"
 )
 
 func dataSourceManagementSimpleCluster() *schema.Resource {
@@ -46,7 +45,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "N/A",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"connection_persistence": {
@@ -58,7 +56,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "SAM.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"forward_to_other_sam_servers": {
@@ -70,7 +67,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Use early versions compatibility mode.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enabled": {
@@ -90,7 +86,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Purge SAM File.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"enabled": {
@@ -134,14 +129,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "HTTPS inspection.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bypass_on_failure": {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Set to be true in order to bypass all requests (Fail-open) in case of internal system error.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"override_profile": {
@@ -161,7 +154,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Set to 'background' in order to allowed requests until categorization is complete.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"override_profile": {
@@ -181,7 +173,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Set to be true in order to drop traffic from servers with untrusted server certificate.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"override_profile": {
@@ -201,7 +192,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Set to be true in order to drop traffic from servers with revoked server certificate (validate CRL).",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"override_profile": {
@@ -221,7 +211,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Set to be true in order to drop traffic from servers with expired server certificate.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"override_profile": {
@@ -249,7 +238,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Gateway Identity Awareness settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"browser_based_authentication": {
@@ -261,14 +249,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Browser Based Authentication settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authentication_settings": {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Authentication Settings for Browser Based Authentication.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authentication_method": {
@@ -293,7 +279,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Users directories.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"external_user_profile": {
@@ -329,14 +314,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Browser Based Authentication portal settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"portal_web_settings": {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Configuration of the portal web settings.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"aliases": {
@@ -359,7 +342,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Configuration of the portal certificate settings.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"base64_certificate": {
@@ -379,7 +361,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Configuration of the portal access settings.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"allow_access_from": {
@@ -391,7 +372,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 																Type:        schema.TypeList,
 																Computed:    true,
 																Description: "Configuration of the additional portal access settings for internal interfaces only.",
-																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"undefined": {
@@ -430,7 +410,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Identity Agent settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"agents_interval_keepalive": {
@@ -447,7 +426,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Authentication Settings for Identity Agent.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"authentication_method": {
@@ -464,7 +442,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Users directories.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"external_user_profile": {
@@ -500,14 +477,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Identity Agent accessibility settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"accessibility": {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Configuration of the portal access settings.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"allow_access_from": {
@@ -519,7 +494,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 																Type:        schema.TypeList,
 																Computed:    true,
 																Description: "Configuration of the additional portal access settings for internal interfaces only.",
-																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"undefined": {
@@ -558,7 +532,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Identity Collector settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"authorized_clients": {
@@ -584,14 +557,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Authentication Settings for Identity Collector.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"users_directories": {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Users directories.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"external_user_profile": {
@@ -627,14 +598,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Identity Collector accessibility settings.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"accessibility": {
 													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "Configuration of the portal access settings.",
-													MaxItems:    1,
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"allow_access_from": {
@@ -646,7 +615,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 																Type:        schema.TypeList,
 																Computed:    true,
 																Description: "Configuration of the additional portal access settings for internal interfaces only.",
-																MaxItems:    1,
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"undefined": {
@@ -680,7 +648,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Identity sharing settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"share_with_other_gateways": {
@@ -708,7 +675,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Identity-Awareness Proxy settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"detect_using_x_forward_for": {
@@ -738,7 +704,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Description: "Hide internal networks behind the Gateway's external IP.",
 			},
 			"nat_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "NAT settings.",
 				Elem: &schema.Resource{
@@ -780,14 +746,12 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Platform portal settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"portal_web_settings": {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal web settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"aliases": {
@@ -810,7 +774,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal certificate settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"base64_certificate": {
@@ -830,7 +793,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal access settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allow_access_from": {
@@ -842,7 +804,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Configuration of the additional portal access settings for internal interfaces only.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"undefined": {
@@ -870,7 +831,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				},
 			},
 			"proxy_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Proxy Server for Gateway.",
 				Elem: &schema.Resource{
@@ -904,7 +865,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "UserCheck portal settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"enabled": {
@@ -916,7 +876,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal web settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"aliases": {
@@ -939,7 +898,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal certificate settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"base64_certificate": {
@@ -959,7 +917,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Configuration of the portal access settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allow_access_from": {
@@ -971,7 +928,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Configuration of the additional portal access settings for internal interfaces only.",
-										MaxItems:    1,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"undefined": {
@@ -1060,7 +1016,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Description: "Anti spoofing.",
 						},
 						"anti_spoofing_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Anti spoofing settings",
 							Elem: &schema.Resource{
@@ -1089,7 +1045,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Description: "Security zone.",
 						},
 						"security_zone_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Security zone settings.",
 							Elem: &schema.Resource{
@@ -1113,7 +1069,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Description: "Topology.",
 						},
 						"topology_settings": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Topology settings.",
 							Elem: &schema.Resource{
@@ -1258,7 +1214,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Description: "Firewall blade enabled.",
 			},
 			"firewall_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Firewall settings.",
 				Elem: &schema.Resource{
@@ -1305,7 +1261,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Cluster IPS settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bypass_all_under_load": {
@@ -1322,7 +1277,6 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Provides a way to reduce CPU levels on machines under load by disabling the top CPU consuming IPS protections.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"disable_period": {
@@ -1446,7 +1400,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				},
 			},
 			"logs_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Logs settings.",
 				Elem: &schema.Resource{
@@ -1630,13 +1584,13 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 				Description: "VPN blade enabled.",
 			},
 			"vpn_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Gateway VPN settings.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"authentication": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Authentication.",
 							Elem: &schema.Resource{
@@ -1653,7 +1607,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							},
 						},
 						"link_selection": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Link Selection.",
 							Elem: &schema.Resource{
@@ -1687,7 +1641,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							Description: "Maximum concurrent tunnels",
 						},
 						"office_mode": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Office Mode. Notation Wide Impact - Office Mode apply IPSec VPN Software Blade clients and to the Mobile Access Software Blade clients.",
 							Elem: &schema.Resource{
@@ -1703,7 +1657,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 										Description: "Group. Identified by name or UID. Must be set when \"office-mode-permissions\" was selected to be \"group\".",
 									},
 									"allocate_ip_address_from": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
 										Computed:    true,
 										Description: "Allocate IP address Method. Allocate IP address by sequentially trying the given methods until success.",
 										Elem: &schema.Resource{
@@ -1744,7 +1698,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 													Description: "Calculated MAC address for DHCP allocation. Must be set when \"allocate-method\" was selected to be \"automatic\".",
 												},
 												"optional_parameters": {
-													Type:        schema.TypeMap,
+													Type:        schema.TypeList,
 													Computed:    true,
 													Description: "This configuration applies to all Office Mode methods except Automatic (using DHCP) and ipassignment.conf entries which contain this data.",
 													Elem: &schema.Resource{
@@ -1844,7 +1798,7 @@ func dataSourceManagementSimpleCluster() *schema.Resource {
 							},
 						},
 						"remote_access": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Remote Access.",
 							Elem: &schema.Resource{
@@ -2275,25 +2229,27 @@ func dataSourceManagementSimpleClusterRead(d *schema.ResourceData, m interface{}
 
 		natSettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := natSettingsMap["auto-rule"]; v != nil {
-			natSettingsMapToReturn["auto_rule"] = strconv.FormatBool(v.(bool))
+		if v := natSettingsMap["auto-rule"]; v != nil {
+			natSettingsMapToReturn["auto_rule"] = v
 		}
-		if v, _ := natSettingsMap["ipv4-address"]; v != nil && v != "" {
-			natSettingsMapToReturn["ipv4_address"] = v
-		}
-		if v, _ := natSettingsMap["ipv6-address"]; v != nil && v != "" {
-			natSettingsMapToReturn["ipv6_address"] = v
-		}
-		if v, _ := natSettingsMap["hide-behind"]; v != nil {
+		if v := natSettingsMap["hide-behind"]; v != nil {
 			natSettingsMapToReturn["hide_behind"] = v
 		}
-		if v, _ := natSettingsMap["install-on"]; v != nil {
+		if v := natSettingsMap["install-on"]; v != nil {
 			natSettingsMapToReturn["install_on"] = v
 		}
-		if v, _ := natSettingsMap["method"]; v != nil {
+		if v := natSettingsMap["ipv4-address"]; v != nil {
+			natSettingsMapToReturn["ipv4_address"] = v
+		}
+		if v := natSettingsMap["ipv6-address"]; v != nil {
+			natSettingsMapToReturn["ipv6_address"] = v
+		}
+		if v := natSettingsMap["method"]; v != nil {
 			natSettingsMapToReturn["method"] = v
 		}
-		_ = d.Set("nat_settings", natSettingsMapToReturn)
+
+		_ = d.Set("nat_settings", []interface{}{natSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("nat_settings", nil)
 	}
@@ -2363,16 +2319,18 @@ func dataSourceManagementSimpleClusterRead(d *schema.ResourceData, m interface{}
 
 		proxySettingsMapToReturn := make(map[string]interface{})
 
-		if v, _ := proxySettingsMap["use-custom-proxy"]; v != nil {
-			proxySettingsMapToReturn["use_custom_proxy"] = strconv.FormatBool(v.(bool))
+		if v := proxySettingsMap["use-custom-proxy"]; v != nil {
+			proxySettingsMapToReturn["use_custom_proxy"] = v
 		}
-		if v, _ := proxySettingsMap["proxy-server"]; v != nil {
+		if v := proxySettingsMap["proxy-server"]; v != nil {
 			proxySettingsMapToReturn["proxy_server"] = v
 		}
-		if v, _ := proxySettingsMap["port"]; v != nil {
+		if v := proxySettingsMap["port"]; v != nil {
 			proxySettingsMapToReturn["port"] = v
 		}
-		_ = d.Set("proxy_settings", proxySettingsMapToReturn)
+
+		_ = d.Set("proxy_settings", []interface{}{proxySettingsMapToReturn})
+
 	} else {
 		_ = d.Set("proxy_settings", nil)
 	}
@@ -2745,314 +2703,1363 @@ func dataSourceManagementSimpleClusterRead(d *schema.ResourceData, m interface{}
 		_ = d.Set("send_logs_to_server", nil)
 	}
 
-	if v := cluster["logs-settings"]; v != nil {
-		logSettingsJson := v.(map[string]interface{})
-		logSettingsState := make(map[string]interface{})
-		if v := logSettingsJson["alert-when-free-disk-space-below"]; v != nil {
-			logSettingsState["alert_when_free_disk_space_below"] = v
+	if cluster["logs-settings"] != nil {
+
+		logsSettingsMap := cluster["logs-settings"].(map[string]interface{})
+
+		logsSettingsMapToReturn := make(map[string]interface{})
+
+		if v := logsSettingsMap["alert-when-free-disk-space-below"]; v != nil {
+			logsSettingsMapToReturn["alert_when_free_disk_space_below"] = v
 		}
-		if v := logSettingsJson["alert-when-free-disk-space-below-metrics"]; v != nil {
-			logSettingsState["alert_when_free_disk_space_below_metrics"] = v
+		if v := logsSettingsMap["alert-when-free-disk-space-below-metrics"]; v != nil {
+			logsSettingsMapToReturn["alert_when_free_disk_space_below_metrics"] = v
 		}
-		if v := logSettingsJson["alert_when_free_disk_space_below_threshold"]; v != nil {
-			logSettingsState["alert_when_free_disk_space_below_threshold"] = v
+		if v := logsSettingsMap["alert-when-free-disk-space-below-threshold"]; v != nil {
+			logsSettingsMapToReturn["alert_when_free_disk_space_below_threshold"] = v
 		}
-		if v := logSettingsJson["alert-when-free-disk-space-below-type"]; v != nil {
-			logSettingsState["alert_when_free_disk_space_below_type"] = v
+		if v := logsSettingsMap["alert-when-free-disk-space-below-type"]; v != nil {
+			logsSettingsMapToReturn["alert_when_free_disk_space_below_type"] = v
 		}
-		if v := logSettingsJson["before-delete-keep-logs-from-the-last-days"]; v != nil {
-			logSettingsState["before_delete_keep_logs_from_the_last_days"] = v
+		if v := logsSettingsMap["before-delete-keep-logs-from-the-last-days"]; v != nil {
+			logsSettingsMapToReturn["before_delete_keep_logs_from_the_last_days"] = v
 		}
-		if v := logSettingsJson["before-delete-keep-logs-from-the-last-days-threshold"]; v != nil {
-			logSettingsState["before_delete_keep_logs_from_the_last_days_threshold"] = v
+		if v := logsSettingsMap["before-delete-keep-logs-from-the-last-days-threshold"]; v != nil {
+			logsSettingsMapToReturn["before_delete_keep_logs_from_the_last_days_threshold"] = v
 		}
-		if v := logSettingsJson["before-delete-run-script"]; v != nil {
-			logSettingsState["before_delete_run_script"] = v
+		if v := logsSettingsMap["before-delete-run-script"]; v != nil {
+			logsSettingsMapToReturn["before_delete_run_script"] = v
 		}
-		if v := logSettingsJson["before-delete-run-script-command"]; v != nil {
-			logSettingsState["before_delete_run_script_command"] = v
+		if v := logsSettingsMap["before-delete-run-script-command"]; v != nil {
+			logsSettingsMapToReturn["before_delete_run_script_command"] = v
 		}
-		if v := logSettingsJson["delete-index-files-older-than-days"]; v != nil {
-			logSettingsState["delete_index_files_older_than_days"] = v
+		if v := logsSettingsMap["delete-index-files-older-than-days"]; v != nil {
+			logsSettingsMapToReturn["delete_index_files_older_than_days"] = v
 		}
-		if v := logSettingsJson["delete-index-files-older-than-days-threshold"]; v != nil {
-			logSettingsState["delete_index_files_older_than_days_threshold"] = v
+		if v := logsSettingsMap["delete-index-files-older-than-days-threshold"]; v != nil {
+			logsSettingsMapToReturn["delete_index_files_older_than_days_threshold"] = v
 		}
-		if v := logSettingsJson["delete-index-files-when-index-size-above"]; v != nil {
-			logSettingsState["delete_index_files_when_index_size_above"] = v
+		if v := logsSettingsMap["delete-index-files-when-index-size-above"]; v != nil {
+			logsSettingsMapToReturn["delete_index_files_when_index_size_above"] = v
 		}
-		if v := logSettingsJson["delete-index-files-when-index-size-above-metrics"]; v != nil {
-			logSettingsState["delete_index_files_when_index_size_above_metrics"] = v
+		if v := logsSettingsMap["delete-index-files-when-index-size-above-metrics"]; v != nil {
+			logsSettingsMapToReturn["delete_index_files_when_index_size_above_metrics"] = v
 		}
-		if v := logSettingsJson["delete-index-files-when-index-size-above-threshold"]; v != nil {
-			logSettingsState["delete_index_files_when_index_size_above_threshold"] = v
+		if v := logsSettingsMap["delete-index-files-when-index-size-above-threshold"]; v != nil {
+			logsSettingsMapToReturn["delete_index_files_when_index_size_above_threshold"] = v
 		}
-		if v := logSettingsJson["delete-when-free-disk-space-below"]; v != nil {
-			logSettingsState["delete_when_free_disk_space_below"] = v
+		if v := logsSettingsMap["delete-when-free-disk-space-below"]; v != nil {
+			logsSettingsMapToReturn["delete_when_free_disk_space_below"] = v
 		}
-		if v := logSettingsJson["delete-when-free-disk-space-below-metrics"]; v != nil {
-			logSettingsState["delete_when_free_disk_space_below_metrics"] = v
+		if v := logsSettingsMap["delete-when-free-disk-space-below-metrics"]; v != nil {
+			logsSettingsMapToReturn["delete_when_free_disk_space_below_metrics"] = v
 		}
-		if v := logSettingsJson["delete-when-free-disk-space-below-threshold"]; v != nil {
-			logSettingsState["delete_when_free_disk_space_below_threshold"] = v
+		if v := logsSettingsMap["delete-when-free-disk-space-below-threshold"]; v != nil {
+			logsSettingsMapToReturn["delete_when_free_disk_space_below_threshold"] = v
 		}
-		if v := logSettingsJson["detect-new-citrix-ica-application-names"]; v != nil {
-			logSettingsState["detect_new_citrix_ica_application_names"] = v
+		if v := logsSettingsMap["detect-new-citrix-ica-application-names"]; v != nil {
+			logsSettingsMapToReturn["detect_new_citrix_ica_application_names"] = v
 		}
-		if v := logSettingsJson["forward-logs-to-log-server"]; v != nil {
-			logSettingsState["forward_logs_to_log_server"] = v
+		if v := logsSettingsMap["distribute-logs-between-all-active-servers"]; v != nil {
+			logsSettingsMapToReturn["distribute_logs_between_all_active_servers"] = v
 		}
-		if v := logSettingsJson["forward-logs-to-log-server-name"]; v != nil {
-			logSettingsState["forward_logs_to_log_server_name"] = v
+		if v := logsSettingsMap["forward-logs-to-log-server"]; v != nil {
+			logsSettingsMapToReturn["forward_logs_to_log_server"] = v
 		}
-		if v := logSettingsJson["forward-logs-to-log-server-schedule-name"]; v != nil {
-			logSettingsState["forward_logs_to_log_server_schedule_name"] = v
+		if v := logsSettingsMap["forward-logs-to-log-server-name"]; v != nil {
+			logsSettingsMapToReturn["forward_logs_to_log_server_name"] = v
 		}
-		if v := logSettingsJson["perform-log-rotate-before-log-forwarding"]; v != nil {
-			logSettingsState["perform_log_rotate_before_log_forwarding"] = v
+		if v := logsSettingsMap["forward-logs-to-log-server-schedule-name"]; v != nil {
+			logsSettingsMapToReturn["forward_logs_to_log_server_schedule_name"] = v
 		}
-		if v := logSettingsJson["reject-connections-when-free-disk-space-below-threshold"]; v != nil {
-			logSettingsState["reject_connections_when_free_disk_space_below_threshold"] = v
+		if v := logsSettingsMap["perform-log-rotate-before-log-forwarding"]; v != nil {
+			logsSettingsMapToReturn["perform_log_rotate_before_log_forwarding"] = v
 		}
-		if v := logSettingsJson["reserve-for-packet-capture-metrics"]; v != nil {
-			logSettingsState["reserve_for_packet_capture_metrics"] = v
+		if v := logsSettingsMap["reject-connections-when-free-disk-space-below-threshold"]; v != nil {
+			logsSettingsMapToReturn["reject_connections_when_free_disk_space_below_threshold"] = v
 		}
-		if v := logSettingsJson["reserve-for-packet-capture-threshold"]; v != nil {
-			logSettingsState["reserve_for_packet_capture_threshold"] = v
+		if v := logsSettingsMap["reserve-for-packet-capture-metrics"]; v != nil {
+			logsSettingsMapToReturn["reserve_for_packet_capture_metrics"] = v
 		}
-		if v := logSettingsJson["rotate-log-by-file-size"]; v != nil {
-			logSettingsState["rotate_log_by_file_size"] = v
+		if v := logsSettingsMap["reserve-for-packet-capture-threshold"]; v != nil {
+			logsSettingsMapToReturn["reserve_for_packet_capture_threshold"] = v
 		}
-		if v := logSettingsJson["rotate-log-file-size-threshold"]; v != nil {
-			logSettingsState["rotate_log_file_size_threshold"] = v
+		if v := logsSettingsMap["rotate-log-by-file-size"]; v != nil {
+			logsSettingsMapToReturn["rotate_log_by_file_size"] = v
 		}
-		if v := logSettingsJson["rotate-log-on-schedule"]; v != nil {
-			logSettingsState["rotate_log_on_schedule"] = v
+		if v := logsSettingsMap["rotate-log-file-size-threshold"]; v != nil {
+			logsSettingsMapToReturn["rotate_log_file_size_threshold"] = v
 		}
-		if v := logSettingsJson["rotate-log-schedule-name"]; v != nil {
-			logSettingsState["rotate_log_schedule_name"] = v
+		if v := logsSettingsMap["rotate-log-on-schedule"]; v != nil {
+			logsSettingsMapToReturn["rotate_log_on_schedule"] = v
 		}
-		if v := logSettingsJson["stop-logging-when-free-disk-space-below"]; v != nil {
-			logSettingsState["stop_logging_when_free_disk_space_below"] = v
+		if v := logsSettingsMap["rotate-log-schedule-name"]; v != nil {
+			logsSettingsMapToReturn["rotate_log_schedule_name"] = v
 		}
-		if v := logSettingsJson["stop-logging-when-free-disk-space-below-metrics"]; v != nil {
-			logSettingsState["stop_logging_when_free_disk_space_below_metrics"] = v
+		if v := logsSettingsMap["stop-logging-when-free-disk-space-below"]; v != nil {
+			logsSettingsMapToReturn["stop_logging_when_free_disk_space_below"] = v
 		}
-		if v := logSettingsJson["stop-logging-when-free-disk-space-below-threshold"]; v != nil {
-			logSettingsState["stop_logging_when_free_disk_space_below_threshold"] = v
+		if v := logsSettingsMap["stop-logging-when-free-disk-space-below-metrics"]; v != nil {
+			logsSettingsMapToReturn["stop_logging_when_free_disk_space_below_metrics"] = v
 		}
-		if v := logSettingsJson["turn-on-qos-logging"]; v != nil {
-			logSettingsState["turn_on_qos_logging"] = v
+		if v := logsSettingsMap["stop-logging-when-free-disk-space-below-threshold"]; v != nil {
+			logsSettingsMapToReturn["stop_logging_when_free_disk_space_below_threshold"] = v
 		}
-		if v := logSettingsJson["update-account-log-every"]; v != nil {
-			logSettingsState["update_account_log_every"] = v
+		if v := logsSettingsMap["turn-on-qos-logging"]; v != nil {
+			logsSettingsMapToReturn["turn_on_qos_logging"] = v
 		}
-		_ = d.Set("logs_settings", logSettingsState)
+		if v := logsSettingsMap["update-account-log-every"]; v != nil {
+			logsSettingsMapToReturn["update_account_log_every"] = v
+		}
+
+		_ = d.Set("logs_settings", []interface{}{logsSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("logs_settings", nil)
 	}
 
-	if v := cluster["firewall-settings"]; v != nil {
-		firewallSettingsJson := v.(map[string]interface{})
-		firewallSettingsState := make(map[string]interface{})
-		if v := firewallSettingsJson["auto-calculate-connections-hash-table-size-and-memory-pool"]; v != nil {
-			firewallSettingsState["auto_calculate_connections_hash_table_size_and_memory_pool"] = v
+	if cluster["firewall-settings"] != nil {
+
+		firewallSettingsMap := cluster["firewall-settings"].(map[string]interface{})
+
+		firewallSettingsMapToReturn := make(map[string]interface{})
+
+		if v := firewallSettingsMap["auto-calculate-connections-hash-table-size-and-memory-pool"]; v != nil {
+			firewallSettingsMapToReturn["auto_calculate_connections_hash_table_size_and_memory_pool"] = v
 		}
-		if v := firewallSettingsJson["auto-maximum-limit-for-concurrent-connections"]; v != nil {
-			firewallSettingsState["auto_maximum_limit_for_concurrent_connections"] = v
+		if v := firewallSettingsMap["auto-maximum-limit-for-concurrent-connections"]; v != nil {
+			firewallSettingsMapToReturn["auto_maximum_limit_for_concurrent_connections"] = v
 		}
-		if v := firewallSettingsJson["connections-hash-size"]; v != nil {
-			firewallSettingsState["connections_hash_size"] = v
+		if v := firewallSettingsMap["connections-hash-size"]; v != nil {
+			firewallSettingsMapToReturn["connections_hash_size"] = v
 		}
-		if v := firewallSettingsJson["maximum-limit-for-concurrent-connections"]; v != nil {
-			firewallSettingsState["maximum_limit_for_concurrent_connections"] = v
+		if v := firewallSettingsMap["maximum-limit-for-concurrent-connections"]; v != nil {
+			firewallSettingsMapToReturn["maximum_limit_for_concurrent_connections"] = v
 		}
-		if v := firewallSettingsJson["maximum-memory-pool-size"]; v != nil {
-			firewallSettingsState["maximum_memory_pool_size"] = v
+		if v := firewallSettingsMap["maximum-memory-pool-size"]; v != nil {
+			firewallSettingsMapToReturn["maximum_memory_pool_size"] = v
 		}
-		if v := firewallSettingsJson["memory-pool-size"]; v != nil {
-			firewallSettingsState["memory_pool_size"] = v
+		if v := firewallSettingsMap["memory-pool-size"]; v != nil {
+			firewallSettingsMapToReturn["memory_pool_size"] = v
 		}
-		_ = d.Set("firewall_settings", firewallSettingsState)
+
+		_ = d.Set("firewall_settings", []interface{}{firewallSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("firewall_settings", nil)
 	}
 
-	if v := cluster["vpn-settings"]; v != nil {
-		vpnSettingsJson := v.(map[string]interface{})
-		vpnSettingsState := make(map[string]interface{})
-		if v := vpnSettingsJson["authentication"]; v != nil {
-			authenticationJson := v.(map[string]interface{})
-			authenticationState := make(map[string]interface{})
-			if v := authenticationJson["authentication-clients"]; v != nil {
-				clientsJson := v.([]interface{})
-				var clientsIds = make([]string, 0)
-				if len(clientsJson) > 0 {
-					for _, client := range clientsJson {
-						clientsIds = append(clientsIds, client.(map[string]interface{})["name"].(string))
+	if cluster["vpn-settings"] != nil {
+
+		vpnSettingsMap := cluster["vpn-settings"].(map[string]interface{})
+
+		vpnSettingsMapToReturn := make(map[string]interface{})
+
+		if v := vpnSettingsMap["interfaces"]; v != nil {
+
+			interfacesList := v.([]interface{})
+
+			if len(interfacesList) > 0 {
+
+				var interfacesListToReturn []map[string]interface{}
+
+				for i := range interfacesList {
+
+					interfacesMap := interfacesList[i].(map[string]interface{})
+
+					interfacesMapToAdd := make(map[string]interface{})
+
+					if v := interfacesMap["interface-name"]; v != nil {
+						interfacesMapToAdd["interface_name"] = v
 					}
+					if v := interfacesMap["next-hop-ip"]; v != nil {
+						interfacesMapToAdd["next_hop_ip"] = v
+					}
+					if v := interfacesMap["static-nat-ip"]; v != nil {
+						interfacesMapToAdd["static_nat_ip"] = v
+					}
+					if v := interfacesMap["priority"]; v != nil {
+						interfacesMapToAdd["priority"] = v
+					}
+					if v := interfacesMap["redundancy-mode"]; v != nil {
+						interfacesMapToAdd["redundancy_mode"] = v
+					}
+					if v := interfacesMap["ip-version"]; v != nil {
+						interfacesMapToAdd["ip_version"] = v
+					}
+
+					interfacesListToReturn = append(interfacesListToReturn, interfacesMapToAdd)
 				}
-				authenticationState["authentication_clients"] = clientsIds
+
+				vpnSettingsMapToReturn["interfaces"] = interfacesListToReturn
 			}
-			vpnSettingsState["authentication"] = authenticationState
 		}
 
-		if v := vpnSettingsJson["link-selection"]; v != nil {
-			linkSelectionJson := v.(map[string]interface{})
-			linkSelectionState := make(map[string]interface{})
-			if v := linkSelectionJson["ip-selection"]; v != nil {
-				linkSelectionState["ip_selection"] = v
+		if v := vpnSettingsMap["advanced"]; v != nil {
+
+			advancedMap := v.(map[string]interface{})
+
+			advancedMapToReturn := make(map[string]interface{})
+
+			if v := advancedMap["tunnel-sharing-mode"]; v != nil {
+				advancedMapToReturn["tunnel_sharing_mode"] = v
 			}
-			if v := linkSelectionJson["dns-resolving-hostname"]; v != nil {
-				linkSelectionState["dns_resolving_hostname"] = v
+			if v := advancedMap["shutdown-on-gateway-restart"]; v != nil {
+				advancedMapToReturn["shutdown_on_gateway_restart"] = v
 			}
-			if v := linkSelectionJson["ip-address"]; v != nil {
-				linkSelectionState["ip_address"] = v
+			if v := advancedMap["enable-wire-mode"]; v != nil {
+				advancedMapToReturn["enable_wire_mode"] = v
 			}
-			vpnSettingsState["link_selection"] = linkSelectionState
-		}
-		if v := vpnSettingsJson["maximum-concurrent-ike-negotiations"]; v != nil {
-			vpnSettingsState["maximum_concurrent_ike_negotiations"] = v
-		}
-		if v := vpnSettingsJson["maximum-concurrent-tunnels"]; v != nil {
-			vpnSettingsState["maximum_concurrent_tunnels"] = v
-		}
-		if v := vpnSettingsJson["vpn-domain-type"]; v != nil {
-			vpnSettingsState["vpn_domain_type"] = v
-		}
-		if v := vpnSettingsJson["vpn-domain"]; v != nil {
-			vpnSettingsState["vpn_domain"] = v.(map[string]interface{})["name"]
-		}
-		if v := vpnSettingsJson["vpn-domain-exclude-external-ip-addresses"]; v != nil {
-			vpnSettingsState["vpn_domain_exclude_external_ip_addresses"] = v
-		}
-		if v := vpnSettingsJson["remote-access"]; v != nil {
-			remoteAccessJson := v.(map[string]interface{})
-			remoteAccessState := make(map[string]interface{})
-			if v := remoteAccessJson["support-l2tp"]; v != nil {
-				remoteAccessState["support_l2tp"] = v
+			if v := advancedMap["wire-mode-interfaces"]; v != nil {
+
+				wireModeInterfacesList := v.([]interface{})
+
+				if len(wireModeInterfacesList) > 0 {
+
+					var wireModeInterfacesListToReturn []map[string]interface{}
+
+					for i := range wireModeInterfacesList {
+
+						wireModeInterfacesMap := wireModeInterfacesList[i].(map[string]interface{})
+
+						wireModeInterfacesMapToAdd := make(map[string]interface{})
+
+						if v := wireModeInterfacesMap["name"]; v != nil {
+							wireModeInterfacesMapToAdd["name"] = v
+						}
+						if v := wireModeInterfacesMap["ip-address"]; v != nil {
+							wireModeInterfacesMapToAdd["ip_address"] = v
+						}
+						if v := wireModeInterfacesMap["netmask"]; v != nil {
+							wireModeInterfacesMapToAdd["netmask"] = v
+						}
+
+						wireModeInterfacesListToReturn = append(wireModeInterfacesListToReturn, wireModeInterfacesMapToAdd)
+					}
+
+					advancedMapToReturn["wire_mode_interfaces"] = wireModeInterfacesListToReturn
+				}
 			}
-			if v := remoteAccessJson["l2tp-auth-method"]; v != nil {
-				remoteAccessState["l2tp_auth_method"] = v
+
+			if v := advancedMap["enable-wire-mode-log-traffic"]; v != nil {
+				advancedMapToReturn["enable_wire_mode_log_traffic"] = v
 			}
-			if v := remoteAccessJson["l2tp-certificate"]; v != nil {
-				remoteAccessState["l2tp_certificate"] = v
+			if v := advancedMap["enable-nat-traversal"]; v != nil {
+				advancedMapToReturn["enable_nat_traversal"] = v
 			}
-			if v := remoteAccessJson["allow-vpn-clients-to-route-traffic"]; v != nil {
-				remoteAccessState["allow_vpn_clients_to_route_traffic"] = v
-			}
-			if v := remoteAccessJson["support-nat-traversal-mechanism"]; v != nil {
-				remoteAccessState["support_nat_traversal_mechanism"] = v
-			}
-			if v := remoteAccessJson["nat-traversal-service"]; v != nil {
-				remoteAccessState["nat_traversal_service"] = v.(map[string]interface{})["name"]
-			}
-			if v := remoteAccessJson["support-visitor-mode"]; v != nil {
-				remoteAccessState["support_visitor_mode"] = v
-			}
-			if v := remoteAccessJson["visitor-mode-service"]; v != nil {
-				remoteAccessState["visitor_mode_service"] = v.(map[string]interface{})["name"]
-			}
-			if v := remoteAccessJson["visitor-mode-interface"]; v != nil {
-				remoteAccessState["visitor_mode_interface"] = v
-			}
-			vpnSettingsState["remote_access"] = remoteAccessState
+
+			vpnSettingsMapToReturn["advanced"] = []interface{}{advancedMapToReturn}
 		}
 
-		if v := vpnSettingsJson["office-mode"]; v != nil {
-			officeModeJson := v.(map[string]interface{})
-			officeModeState := make(map[string]interface{})
-			if v := officeModeJson["mode"]; v != nil {
-				officeModeState["mode"] = v
+		if v := vpnSettingsMap["authentication"]; v != nil {
+
+			authenticationMap := v.(map[string]interface{})
+
+			authenticationMapToReturn := make(map[string]interface{})
+
+			if v := authenticationMap["authentication-clients"]; v != nil {
+
+				authenticationClientsList := v.([]interface{})
+
+				if len(authenticationClientsList) > 0 {
+
+					var authenticationClientsListToReturn []map[string]interface{}
+
+					for i := range authenticationClientsList {
+
+						authenticationClientsMap := authenticationClientsList[i].(map[string]interface{})
+
+						authenticationClientsMapToAdd := make(map[string]interface{})
+
+						if v := authenticationClientsMap["name"]; v != nil {
+							authenticationClientsMapToAdd["name"] = v
+						}
+						if v := authenticationClientsMap["type"]; v != nil {
+							authenticationClientsMapToAdd["type"] = v
+						}
+						if v := authenticationClientsMap["color"]; v != nil {
+							authenticationClientsMapToAdd["color"] = v
+						}
+						if v := authenticationClientsMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							authenticationClientsMapToAdd["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := authenticationClientsMap["icon"]; v != nil {
+							authenticationClientsMapToAdd["icon"] = v
+						}
+						if v := authenticationClientsMap["uid"]; v != nil {
+							authenticationClientsMapToAdd["uid"] = v
+						}
+
+						authenticationClientsListToReturn = append(authenticationClientsListToReturn, authenticationClientsMapToAdd)
+					}
+
+					authenticationMapToReturn["authentication_clients"] = authenticationClientsListToReturn
+				}
 			}
-			if v := officeModeJson["group"]; v != nil {
-				officeModeState["group"] = v.(map[string]interface{})["name"]
-			}
-			if v := officeModeJson["support-multiple-interfaces"]; v != nil {
-				officeModeState["support_multiple_interfaces"] = v
-			}
-			if v := officeModeJson["perform-anti-spoofing"]; v != nil {
-				officeModeState["perform_anti_spoofing"] = v
-			}
-			if v := officeModeJson["anti-spoofing-additional-addresses"]; v != nil {
-				officeModeState["anti_spoofing_additional_addresses"] = v.(map[string]interface{})["name"]
-			}
-			if v := officeModeJson["allocate-ip-address-from"]; v != nil {
-				allocateIpAddressFromJson := v.(map[string]interface{})
-				allocateIpAddressFromState := make(map[string]interface{})
-				if v := allocateIpAddressFromJson["radius-server"]; v != nil {
-					allocateIpAddressFromState["radius_server"] = v
-				}
-				if v := allocateIpAddressFromJson["use-allocate-method"]; v != nil {
-					allocateIpAddressFromState["use_allocate_method"] = v
-				}
-				if v := allocateIpAddressFromJson["allocate-method"]; v != nil {
-					allocateIpAddressFromState["allocate_method"] = v
-				}
-				if v := allocateIpAddressFromJson["manual-network"]; v != nil {
-					allocateIpAddressFromState["manual_network"] = v.(map[string]interface{})["name"]
-				}
-				if v := allocateIpAddressFromJson["dhcp-server"]; v != nil {
-					allocateIpAddressFromState["dhcp_server"] = v.(map[string]interface{})["name"]
-				}
-				if v := allocateIpAddressFromJson["virtual-ip-address"]; v != nil {
-					allocateIpAddressFromState["virtual_ip_address"] = v
-				}
-				if v := allocateIpAddressFromJson["dhcp-mac-address"]; v != nil {
-					allocateIpAddressFromState["dhcp_mac_address"] = v
-				}
-				if v := allocateIpAddressFromJson["optional-parameters"]; v != nil {
-					optionalParametersJson := v.(map[string]interface{})
-					optionalParametersState := make(map[string]interface{})
-					if v := optionalParametersJson["use-primary-dns-server"]; v != nil {
-						optionalParametersState["use_primary_dns_server"] = v
-					}
-					if v := optionalParametersJson["primary-dns-server"]; v != nil {
-						optionalParametersState["primary-dns-server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["use-first-backup-dns-server"]; v != nil {
-						optionalParametersState["use_first_backup_dns_server"] = v
-					}
-					if v := optionalParametersJson["first-backup-dns-server"]; v != nil {
-						optionalParametersState["first_backup_dns_server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["use-second-backup-dns-server"]; v != nil {
-						optionalParametersState["use_second_backup_dns_server"] = v
-					}
-					if v := optionalParametersJson["second-backup-dns-server"]; v != nil {
-						optionalParametersState["second_backup_dns_server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["dns-suffixes"]; v != nil {
-						optionalParametersState["dns_suffixes"] = v
-					}
-					if v := optionalParametersJson["use-primary-wins-server"]; v != nil {
-						optionalParametersState["use_primary_wins_server"] = v
-					}
-					if v := optionalParametersJson["primary-wins-server"]; v != nil {
-						optionalParametersState["primary_wins_server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["use-first-backup-wins-server"]; v != nil {
-						optionalParametersState["use_first_backup_wins_server"] = v
-					}
-					if v := optionalParametersJson["first-backup-wins-server"]; v != nil {
-						optionalParametersState["first_backup_wins_server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["use-second-backup-wins-server"]; v != nil {
-						optionalParametersState["use_second_backup_wins_server"] = v
-					}
-					if v := optionalParametersJson["second-backup-wins-server"]; v != nil {
-						optionalParametersState["second_backup_wins_server"] = v.(map[string]interface{})["name"]
-					}
-					if v := optionalParametersJson["ip-lease-duration"]; v != nil {
-						optionalParametersState["ip_lease_duration"] = v
-					}
-					allocateIpAddressFromState["optional_parameters"] = optionalParametersState
-				}
-				officeModeState["allocate_ip_address_from"] = allocateIpAddressFromState
-			}
-			vpnSettingsState["office_mode"] = officeModeState
+
+			vpnSettingsMapToReturn["authentication"] = []interface{}{authenticationMapToReturn}
 		}
-		_ = d.Set("vpn_settings", vpnSettingsState)
+
+		if v := vpnSettingsMap["certificates"]; v != nil {
+
+			certificatesList := v.([]interface{})
+
+			if len(certificatesList) > 0 {
+
+				var certificatesListToReturn []map[string]interface{}
+
+				for i := range certificatesList {
+
+					certificatesMap := certificatesList[i].(map[string]interface{})
+
+					certificatesMapToAdd := make(map[string]interface{})
+
+					if v := certificatesMap["name"]; v != nil {
+						certificatesMapToAdd["name"] = v
+					}
+					if v := certificatesMap["distinguished-name"]; v != nil {
+						certificatesMapToAdd["distinguished_name"] = v
+					}
+					if v := certificatesMap["type"]; v != nil {
+						certificatesMapToAdd["type"] = v
+					}
+					if v := certificatesMap["base64-certificate"]; v != nil {
+						certificatesMapToAdd["base64_certificate"] = v
+					}
+					if v := certificatesMap["certificate-authority"]; v != nil {
+
+						certificateAuthorityMap := v.(map[string]interface{})
+
+						certificateAuthorityMapToReturn := make(map[string]interface{})
+
+						if v := certificateAuthorityMap["name"]; v != nil {
+							certificateAuthorityMapToReturn["name"] = v
+						}
+						if v := certificateAuthorityMap["type"]; v != nil {
+							certificateAuthorityMapToReturn["type"] = v
+						}
+						if v := certificateAuthorityMap["color"]; v != nil {
+							certificateAuthorityMapToReturn["color"] = v
+						}
+						if v := certificateAuthorityMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							certificateAuthorityMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := certificateAuthorityMap["icon"]; v != nil {
+							certificateAuthorityMapToReturn["icon"] = v
+						}
+						if v := certificateAuthorityMap["uid"]; v != nil {
+							certificateAuthorityMapToReturn["uid"] = v
+						}
+
+						certificatesMapToAdd["certificate_authority"] = []interface{}{certificateAuthorityMapToReturn}
+					}
+
+					if v := certificatesMap["expiration-date"]; v != nil {
+
+						expirationDateMap := v.(map[string]interface{})
+
+						expirationDateMapToReturn := make(map[string]interface{})
+
+						if v := expirationDateMap["iso-8601"]; v != nil {
+							expirationDateMapToReturn["iso_8601"] = v
+						}
+						if v := expirationDateMap["posix"]; v != nil {
+							expirationDateMapToReturn["posix"] = v
+						}
+
+						certificatesMapToAdd["expiration_date"] = []interface{}{expirationDateMapToReturn}
+					}
+
+					if v := certificatesMap["status"]; v != nil {
+						certificatesMapToAdd["status"] = v
+					}
+					if v := certificatesMap["stored-at"]; v != nil {
+						certificatesMapToAdd["stored_at"] = v
+					}
+					if v := certificatesMap["domain"]; v != nil {
+
+						domainMap := v.(map[string]interface{})
+
+						domainMapToReturn := make(map[string]interface{})
+
+						if v := domainMap["name"]; v != nil {
+							domainMapToReturn["name"] = v
+						}
+						if v := domainMap["domain-type"]; v != nil {
+							domainMapToReturn["domain_type"] = v
+						}
+						if v := domainMap["uid"]; v != nil {
+							domainMapToReturn["uid"] = v
+						}
+
+						certificatesMapToAdd["domain"] = []interface{}{domainMapToReturn}
+					}
+
+					certificatesListToReturn = append(certificatesListToReturn, certificatesMapToAdd)
+				}
+
+				vpnSettingsMapToReturn["certificates"] = certificatesListToReturn
+			}
+		}
+
+		if v := vpnSettingsMap["exported-routes"]; v != nil {
+
+			exportedRoutesMap := v.(map[string]interface{})
+
+			exportedRoutesMapToReturn := make(map[string]interface{})
+
+			if v := exportedRoutesMap["internal-interfaces"]; v != nil {
+				exportedRoutesMapToReturn["internal_interfaces"] = v
+			}
+			if v := exportedRoutesMap["static-routes"]; v != nil {
+				exportedRoutesMapToReturn["static_routes"] = v
+			}
+			if v := exportedRoutesMap["custom-routes"]; v != nil {
+				exportedRoutesMapToReturn["custom_routes"] = v
+			}
+			if v := exportedRoutesMap["custom-routes-object"]; v != nil {
+
+				customRoutesObjectMap := v.(map[string]interface{})
+
+				customRoutesObjectMapToReturn := make(map[string]interface{})
+
+				if v := customRoutesObjectMap["name"]; v != nil {
+					customRoutesObjectMapToReturn["name"] = v
+				}
+				if v := customRoutesObjectMap["type"]; v != nil {
+					customRoutesObjectMapToReturn["type"] = v
+				}
+				if v := customRoutesObjectMap["color"]; v != nil {
+					customRoutesObjectMapToReturn["color"] = v
+				}
+				if v := customRoutesObjectMap["domain"]; v != nil {
+
+					domainMap := v.(map[string]interface{})
+
+					domainMapToReturn := make(map[string]interface{})
+
+					if v := domainMap["name"]; v != nil {
+						domainMapToReturn["name"] = v
+					}
+					if v := domainMap["domain-type"]; v != nil {
+						domainMapToReturn["domain_type"] = v
+					}
+					if v := domainMap["uid"]; v != nil {
+						domainMapToReturn["uid"] = v
+					}
+
+					customRoutesObjectMapToReturn["domain"] = []interface{}{domainMapToReturn}
+				}
+
+				if v := customRoutesObjectMap["icon"]; v != nil {
+					customRoutesObjectMapToReturn["icon"] = v
+				}
+				if v := customRoutesObjectMap["uid"]; v != nil {
+					customRoutesObjectMapToReturn["uid"] = v
+				}
+
+				exportedRoutesMapToReturn["custom_routes_object"] = []interface{}{customRoutesObjectMapToReturn}
+			}
+
+			vpnSettingsMapToReturn["exported_routes"] = []interface{}{exportedRoutesMapToReturn}
+		}
+
+		if v := vpnSettingsMap["link-selection"]; v != nil {
+
+			linkSelectionMap := v.(map[string]interface{})
+
+			linkSelectionMapToReturn := make(map[string]interface{})
+
+			if v := linkSelectionMap["ip-selection"]; v != nil {
+				linkSelectionMapToReturn["ip_selection"] = v
+			}
+			if v := linkSelectionMap["ip-address"]; v != nil {
+				linkSelectionMapToReturn["ip_address"] = v
+			}
+			if v := linkSelectionMap["dns-resolving-hostname"]; v != nil {
+				linkSelectionMapToReturn["dns_resolving_hostname"] = v
+			}
+			if v := linkSelectionMap["route-selection-method"]; v != nil {
+				linkSelectionMapToReturn["route_selection_method"] = v
+			}
+			if v := linkSelectionMap["responding-traffic"]; v != nil {
+				linkSelectionMapToReturn["responding_traffic"] = v
+			}
+			if v := linkSelectionMap["source-ip-selection"]; v != nil {
+				linkSelectionMapToReturn["source_ip_selection"] = v
+			}
+			if v := linkSelectionMap["selected-ip"]; v != nil {
+				linkSelectionMapToReturn["selected_ip"] = v
+			}
+			if v := linkSelectionMap["outgoing-link-tracking"]; v != nil {
+				linkSelectionMapToReturn["outgoing_link_tracking"] = v
+			}
+
+			vpnSettingsMapToReturn["link_selection"] = []interface{}{linkSelectionMapToReturn}
+		}
+
+		if v := vpnSettingsMap["maximum-concurrent-ike-negotiations"]; v != nil {
+			vpnSettingsMapToReturn["maximum_concurrent_ike_negotiations"] = v
+		}
+		if v := vpnSettingsMap["maximum-concurrent-tunnels"]; v != nil {
+			vpnSettingsMapToReturn["maximum_concurrent_tunnels"] = v
+		}
+		if v := vpnSettingsMap["office-mode"]; v != nil {
+
+			officeModeMap := v.(map[string]interface{})
+
+			officeModeMapToReturn := make(map[string]interface{})
+
+			if v := officeModeMap["mode"]; v != nil {
+				officeModeMapToReturn["mode"] = v
+			}
+			if v := officeModeMap["group"]; v != nil {
+
+				groupMap := v.(map[string]interface{})
+
+				groupMapToReturn := make(map[string]interface{})
+
+				if v := groupMap["name"]; v != nil {
+					groupMapToReturn["name"] = v
+				}
+				if v := groupMap["type"]; v != nil {
+					groupMapToReturn["type"] = v
+				}
+				if v := groupMap["color"]; v != nil {
+					groupMapToReturn["color"] = v
+				}
+				if v := groupMap["domain"]; v != nil {
+
+					domainMap := v.(map[string]interface{})
+
+					domainMapToReturn := make(map[string]interface{})
+
+					if v := domainMap["name"]; v != nil {
+						domainMapToReturn["name"] = v
+					}
+					if v := domainMap["domain-type"]; v != nil {
+						domainMapToReturn["domain_type"] = v
+					}
+					if v := domainMap["uid"]; v != nil {
+						domainMapToReturn["uid"] = v
+					}
+
+					groupMapToReturn["domain"] = []interface{}{domainMapToReturn}
+				}
+
+				if v := groupMap["icon"]; v != nil {
+					groupMapToReturn["icon"] = v
+				}
+				if v := groupMap["uid"]; v != nil {
+					groupMapToReturn["uid"] = v
+				}
+
+				officeModeMapToReturn["group"] = []interface{}{groupMapToReturn}
+			}
+
+			if v := officeModeMap["allocate-ip-address-from"]; v != nil {
+
+				allocateIpAddressFromMap := v.(map[string]interface{})
+
+				allocateIpAddressFromMapToReturn := make(map[string]interface{})
+
+				if v := allocateIpAddressFromMap["radius-server"]; v != nil {
+					allocateIpAddressFromMapToReturn["radius_server"] = v
+				}
+				if v := allocateIpAddressFromMap["use-allocate-method"]; v != nil {
+					allocateIpAddressFromMapToReturn["use_allocate_method"] = v
+				}
+				if v := allocateIpAddressFromMap["allocate-method"]; v != nil {
+					allocateIpAddressFromMapToReturn["allocate_method"] = v
+				}
+				if v := allocateIpAddressFromMap["manual-network"]; v != nil {
+
+					manualNetworkMap := v.(map[string]interface{})
+
+					manualNetworkMapToReturn := make(map[string]interface{})
+
+					if v := manualNetworkMap["name"]; v != nil {
+						manualNetworkMapToReturn["name"] = v
+					}
+					if v := manualNetworkMap["type"]; v != nil {
+						manualNetworkMapToReturn["type"] = v
+					}
+					if v := manualNetworkMap["color"]; v != nil {
+						manualNetworkMapToReturn["color"] = v
+					}
+					if v := manualNetworkMap["domain"]; v != nil {
+
+						domainMap := v.(map[string]interface{})
+
+						domainMapToReturn := make(map[string]interface{})
+
+						if v := domainMap["name"]; v != nil {
+							domainMapToReturn["name"] = v
+						}
+						if v := domainMap["domain-type"]; v != nil {
+							domainMapToReturn["domain_type"] = v
+						}
+						if v := domainMap["uid"]; v != nil {
+							domainMapToReturn["uid"] = v
+						}
+
+						manualNetworkMapToReturn["domain"] = []interface{}{domainMapToReturn}
+					}
+
+					if v := manualNetworkMap["icon"]; v != nil {
+						manualNetworkMapToReturn["icon"] = v
+					}
+					if v := manualNetworkMap["uid"]; v != nil {
+						manualNetworkMapToReturn["uid"] = v
+					}
+
+					allocateIpAddressFromMapToReturn["manual_network"] = []interface{}{manualNetworkMapToReturn}
+				}
+
+				if v := allocateIpAddressFromMap["dhcp-server"]; v != nil {
+
+					dhcpServerMap := v.(map[string]interface{})
+
+					dhcpServerMapToReturn := make(map[string]interface{})
+
+					if v := dhcpServerMap["name"]; v != nil {
+						dhcpServerMapToReturn["name"] = v
+					}
+					if v := dhcpServerMap["type"]; v != nil {
+						dhcpServerMapToReturn["type"] = v
+					}
+					if v := dhcpServerMap["color"]; v != nil {
+						dhcpServerMapToReturn["color"] = v
+					}
+					if v := dhcpServerMap["domain"]; v != nil {
+
+						domainMap := v.(map[string]interface{})
+
+						domainMapToReturn := make(map[string]interface{})
+
+						if v := domainMap["name"]; v != nil {
+							domainMapToReturn["name"] = v
+						}
+						if v := domainMap["domain-type"]; v != nil {
+							domainMapToReturn["domain_type"] = v
+						}
+						if v := domainMap["uid"]; v != nil {
+							domainMapToReturn["uid"] = v
+						}
+
+						dhcpServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+					}
+
+					if v := dhcpServerMap["icon"]; v != nil {
+						dhcpServerMapToReturn["icon"] = v
+					}
+					if v := dhcpServerMap["uid"]; v != nil {
+						dhcpServerMapToReturn["uid"] = v
+					}
+
+					allocateIpAddressFromMapToReturn["dhcp_server"] = []interface{}{dhcpServerMapToReturn}
+				}
+
+				if v := allocateIpAddressFromMap["virtual-ip-address"]; v != nil {
+					allocateIpAddressFromMapToReturn["virtual_ip_address"] = v
+				}
+				if v := allocateIpAddressFromMap["dhcp-mac-address"]; v != nil {
+					allocateIpAddressFromMapToReturn["dhcp_mac_address"] = v
+				}
+				if v := allocateIpAddressFromMap["optional-parameters"]; v != nil {
+
+					optionalParametersMap := v.(map[string]interface{})
+
+					optionalParametersMapToReturn := make(map[string]interface{})
+
+					if v := optionalParametersMap["use-primary-dns-server"]; v != nil {
+						optionalParametersMapToReturn["use_primary_dns_server"] = v
+					}
+					if v := optionalParametersMap["primary-dns-server"]; v != nil {
+
+						primaryDnsServerMap := v.(map[string]interface{})
+
+						primaryDnsServerMapToReturn := make(map[string]interface{})
+
+						if v := primaryDnsServerMap["name"]; v != nil {
+							primaryDnsServerMapToReturn["name"] = v
+						}
+						if v := primaryDnsServerMap["type"]; v != nil {
+							primaryDnsServerMapToReturn["type"] = v
+						}
+						if v := primaryDnsServerMap["color"]; v != nil {
+							primaryDnsServerMapToReturn["color"] = v
+						}
+						if v := primaryDnsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							primaryDnsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := primaryDnsServerMap["icon"]; v != nil {
+							primaryDnsServerMapToReturn["icon"] = v
+						}
+						if v := primaryDnsServerMap["uid"]; v != nil {
+							primaryDnsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["primary_dns_server"] = []interface{}{primaryDnsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["use-first-backup-dns-server"]; v != nil {
+						optionalParametersMapToReturn["use_first_backup_dns_server"] = v
+					}
+					if v := optionalParametersMap["first-backup-dns-server"]; v != nil {
+
+						firstBackupDnsServerMap := v.(map[string]interface{})
+
+						firstBackupDnsServerMapToReturn := make(map[string]interface{})
+
+						if v := firstBackupDnsServerMap["name"]; v != nil {
+							firstBackupDnsServerMapToReturn["name"] = v
+						}
+						if v := firstBackupDnsServerMap["type"]; v != nil {
+							firstBackupDnsServerMapToReturn["type"] = v
+						}
+						if v := firstBackupDnsServerMap["color"]; v != nil {
+							firstBackupDnsServerMapToReturn["color"] = v
+						}
+						if v := firstBackupDnsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							firstBackupDnsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := firstBackupDnsServerMap["icon"]; v != nil {
+							firstBackupDnsServerMapToReturn["icon"] = v
+						}
+						if v := firstBackupDnsServerMap["uid"]; v != nil {
+							firstBackupDnsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["first_backup_dns_server"] = []interface{}{firstBackupDnsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["use-second-backup-dns-server"]; v != nil {
+						optionalParametersMapToReturn["use_second_backup_dns_server"] = v
+					}
+					if v := optionalParametersMap["second-backup-dns-server"]; v != nil {
+
+						secondBackupDnsServerMap := v.(map[string]interface{})
+
+						secondBackupDnsServerMapToReturn := make(map[string]interface{})
+
+						if v := secondBackupDnsServerMap["name"]; v != nil {
+							secondBackupDnsServerMapToReturn["name"] = v
+						}
+						if v := secondBackupDnsServerMap["type"]; v != nil {
+							secondBackupDnsServerMapToReturn["type"] = v
+						}
+						if v := secondBackupDnsServerMap["color"]; v != nil {
+							secondBackupDnsServerMapToReturn["color"] = v
+						}
+						if v := secondBackupDnsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							secondBackupDnsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := secondBackupDnsServerMap["icon"]; v != nil {
+							secondBackupDnsServerMapToReturn["icon"] = v
+						}
+						if v := secondBackupDnsServerMap["uid"]; v != nil {
+							secondBackupDnsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["second_backup_dns_server"] = []interface{}{secondBackupDnsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["dns-suffixes"]; v != nil {
+						optionalParametersMapToReturn["dns_suffixes"] = v
+					}
+					if v := optionalParametersMap["use-primary-wins-server"]; v != nil {
+						optionalParametersMapToReturn["use_primary_wins_server"] = v
+					}
+					if v := optionalParametersMap["primary-wins-server"]; v != nil {
+
+						primaryWinsServerMap := v.(map[string]interface{})
+
+						primaryWinsServerMapToReturn := make(map[string]interface{})
+
+						if v := primaryWinsServerMap["name"]; v != nil {
+							primaryWinsServerMapToReturn["name"] = v
+						}
+						if v := primaryWinsServerMap["type"]; v != nil {
+							primaryWinsServerMapToReturn["type"] = v
+						}
+						if v := primaryWinsServerMap["color"]; v != nil {
+							primaryWinsServerMapToReturn["color"] = v
+						}
+						if v := primaryWinsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							primaryWinsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := primaryWinsServerMap["icon"]; v != nil {
+							primaryWinsServerMapToReturn["icon"] = v
+						}
+						if v := primaryWinsServerMap["uid"]; v != nil {
+							primaryWinsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["primary_wins_server"] = []interface{}{primaryWinsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["use-first-backup-wins-server"]; v != nil {
+						optionalParametersMapToReturn["use_first_backup_wins_server"] = v
+					}
+					if v := optionalParametersMap["first-backup-wins-server"]; v != nil {
+
+						firstBackupWinsServerMap := v.(map[string]interface{})
+
+						firstBackupWinsServerMapToReturn := make(map[string]interface{})
+
+						if v := firstBackupWinsServerMap["name"]; v != nil {
+							firstBackupWinsServerMapToReturn["name"] = v
+						}
+						if v := firstBackupWinsServerMap["type"]; v != nil {
+							firstBackupWinsServerMapToReturn["type"] = v
+						}
+						if v := firstBackupWinsServerMap["color"]; v != nil {
+							firstBackupWinsServerMapToReturn["color"] = v
+						}
+						if v := firstBackupWinsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							firstBackupWinsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := firstBackupWinsServerMap["icon"]; v != nil {
+							firstBackupWinsServerMapToReturn["icon"] = v
+						}
+						if v := firstBackupWinsServerMap["uid"]; v != nil {
+							firstBackupWinsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["first_backup_wins_server"] = []interface{}{firstBackupWinsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["use-second-backup-wins-server"]; v != nil {
+						optionalParametersMapToReturn["use_second_backup_wins_server"] = v
+					}
+					if v := optionalParametersMap["second-backup-wins-server"]; v != nil {
+
+						secondBackupWinsServerMap := v.(map[string]interface{})
+
+						secondBackupWinsServerMapToReturn := make(map[string]interface{})
+
+						if v := secondBackupWinsServerMap["name"]; v != nil {
+							secondBackupWinsServerMapToReturn["name"] = v
+						}
+						if v := secondBackupWinsServerMap["type"]; v != nil {
+							secondBackupWinsServerMapToReturn["type"] = v
+						}
+						if v := secondBackupWinsServerMap["color"]; v != nil {
+							secondBackupWinsServerMapToReturn["color"] = v
+						}
+						if v := secondBackupWinsServerMap["domain"]; v != nil {
+
+							domainMap := v.(map[string]interface{})
+
+							domainMapToReturn := make(map[string]interface{})
+
+							if v := domainMap["name"]; v != nil {
+								domainMapToReturn["name"] = v
+							}
+							if v := domainMap["domain-type"]; v != nil {
+								domainMapToReturn["domain_type"] = v
+							}
+							if v := domainMap["uid"]; v != nil {
+								domainMapToReturn["uid"] = v
+							}
+
+							secondBackupWinsServerMapToReturn["domain"] = []interface{}{domainMapToReturn}
+						}
+
+						if v := secondBackupWinsServerMap["icon"]; v != nil {
+							secondBackupWinsServerMapToReturn["icon"] = v
+						}
+						if v := secondBackupWinsServerMap["uid"]; v != nil {
+							secondBackupWinsServerMapToReturn["uid"] = v
+						}
+
+						optionalParametersMapToReturn["second_backup_wins_server"] = []interface{}{secondBackupWinsServerMapToReturn}
+					}
+
+					if v := optionalParametersMap["ip-lease-duration"]; v != nil {
+						optionalParametersMapToReturn["ip_lease_duration"] = v
+					}
+
+					allocateIpAddressFromMapToReturn["optional_parameters"] = []interface{}{optionalParametersMapToReturn}
+				}
+
+				officeModeMapToReturn["allocate_ip_address_from"] = []interface{}{allocateIpAddressFromMapToReturn}
+			}
+
+			if v := officeModeMap["support-multiple-interfaces"]; v != nil {
+				officeModeMapToReturn["support_multiple_interfaces"] = v
+			}
+			if v := officeModeMap["perform-anti-spoofing"]; v != nil {
+				officeModeMapToReturn["perform_anti_spoofing"] = v
+			}
+			if v := officeModeMap["anti-spoofing-additional-addresses"]; v != nil {
+
+				antiSpoofingAdditionalAddressesMap := v.(map[string]interface{})
+
+				antiSpoofingAdditionalAddressesMapToReturn := make(map[string]interface{})
+
+				if v := antiSpoofingAdditionalAddressesMap["name"]; v != nil {
+					antiSpoofingAdditionalAddressesMapToReturn["name"] = v
+				}
+				if v := antiSpoofingAdditionalAddressesMap["type"]; v != nil {
+					antiSpoofingAdditionalAddressesMapToReturn["type"] = v
+				}
+				if v := antiSpoofingAdditionalAddressesMap["color"]; v != nil {
+					antiSpoofingAdditionalAddressesMapToReturn["color"] = v
+				}
+				if v := antiSpoofingAdditionalAddressesMap["domain"]; v != nil {
+
+					domainMap := v.(map[string]interface{})
+
+					domainMapToReturn := make(map[string]interface{})
+
+					if v := domainMap["name"]; v != nil {
+						domainMapToReturn["name"] = v
+					}
+					if v := domainMap["domain-type"]; v != nil {
+						domainMapToReturn["domain_type"] = v
+					}
+					if v := domainMap["uid"]; v != nil {
+						domainMapToReturn["uid"] = v
+					}
+
+					antiSpoofingAdditionalAddressesMapToReturn["domain"] = []interface{}{domainMapToReturn}
+				}
+
+				if v := antiSpoofingAdditionalAddressesMap["icon"]; v != nil {
+					antiSpoofingAdditionalAddressesMapToReturn["icon"] = v
+				}
+				if v := antiSpoofingAdditionalAddressesMap["uid"]; v != nil {
+					antiSpoofingAdditionalAddressesMapToReturn["uid"] = v
+				}
+
+				officeModeMapToReturn["anti_spoofing_additional_addresses"] = []interface{}{antiSpoofingAdditionalAddressesMapToReturn}
+			}
+
+			vpnSettingsMapToReturn["office_mode"] = []interface{}{officeModeMapToReturn}
+		}
+
+		if v := vpnSettingsMap["remote-access"]; v != nil {
+
+			remoteAccessMap := v.(map[string]interface{})
+
+			remoteAccessMapToReturn := make(map[string]interface{})
+
+			if v := remoteAccessMap["support-l2tp"]; v != nil {
+				remoteAccessMapToReturn["support_l2tp"] = v
+			}
+			if v := remoteAccessMap["l2tp-auth-method"]; v != nil {
+				remoteAccessMapToReturn["l2tp_auth_method"] = v
+			}
+			if v := remoteAccessMap["l2tp-certificate"]; v != nil {
+				remoteAccessMapToReturn["l2tp_certificate"] = v
+			}
+			if v := remoteAccessMap["allow-vpn-clients-to-route-traffic"]; v != nil {
+				remoteAccessMapToReturn["allow_vpn_clients_to_route_traffic"] = v
+			}
+			if v := remoteAccessMap["support-nat-traversal-mechanism"]; v != nil {
+				remoteAccessMapToReturn["support_nat_traversal_mechanism"] = v
+			}
+			if v := remoteAccessMap["nat-traversal-service"]; v != nil {
+
+				natTraversalServiceMap := v.(map[string]interface{})
+
+				natTraversalServiceMapToReturn := make(map[string]interface{})
+
+				if v := natTraversalServiceMap["name"]; v != nil {
+					natTraversalServiceMapToReturn["name"] = v
+				}
+				if v := natTraversalServiceMap["type"]; v != nil {
+					natTraversalServiceMapToReturn["type"] = v
+				}
+				if v := natTraversalServiceMap["color"]; v != nil {
+					natTraversalServiceMapToReturn["color"] = v
+				}
+				if v := natTraversalServiceMap["domain"]; v != nil {
+
+					domainMap := v.(map[string]interface{})
+
+					domainMapToReturn := make(map[string]interface{})
+
+					if v := domainMap["name"]; v != nil {
+						domainMapToReturn["name"] = v
+					}
+					if v := domainMap["domain-type"]; v != nil {
+						domainMapToReturn["domain_type"] = v
+					}
+					if v := domainMap["uid"]; v != nil {
+						domainMapToReturn["uid"] = v
+					}
+
+					natTraversalServiceMapToReturn["domain"] = []interface{}{domainMapToReturn}
+				}
+
+				if v := natTraversalServiceMap["icon"]; v != nil {
+					natTraversalServiceMapToReturn["icon"] = v
+				}
+				if v := natTraversalServiceMap["uid"]; v != nil {
+					natTraversalServiceMapToReturn["uid"] = v
+				}
+
+				remoteAccessMapToReturn["nat_traversal_service"] = []interface{}{natTraversalServiceMapToReturn}
+			}
+
+			if v := remoteAccessMap["support-visitor-mode"]; v != nil {
+				remoteAccessMapToReturn["support_visitor_mode"] = v
+			}
+			if v := remoteAccessMap["visitor-mode-service"]; v != nil {
+
+				visitorModeServiceMap := v.(map[string]interface{})
+
+				visitorModeServiceMapToReturn := make(map[string]interface{})
+
+				if v := visitorModeServiceMap["name"]; v != nil {
+					visitorModeServiceMapToReturn["name"] = v
+				}
+				if v := visitorModeServiceMap["type"]; v != nil {
+					visitorModeServiceMapToReturn["type"] = v
+				}
+				if v := visitorModeServiceMap["color"]; v != nil {
+					visitorModeServiceMapToReturn["color"] = v
+				}
+				if v := visitorModeServiceMap["domain"]; v != nil {
+
+					domainMap := v.(map[string]interface{})
+
+					domainMapToReturn := make(map[string]interface{})
+
+					if v := domainMap["name"]; v != nil {
+						domainMapToReturn["name"] = v
+					}
+					if v := domainMap["domain-type"]; v != nil {
+						domainMapToReturn["domain_type"] = v
+					}
+					if v := domainMap["uid"]; v != nil {
+						domainMapToReturn["uid"] = v
+					}
+
+					visitorModeServiceMapToReturn["domain"] = []interface{}{domainMapToReturn}
+				}
+
+				if v := visitorModeServiceMap["icon"]; v != nil {
+					visitorModeServiceMapToReturn["icon"] = v
+				}
+				if v := visitorModeServiceMap["uid"]; v != nil {
+					visitorModeServiceMapToReturn["uid"] = v
+				}
+
+				remoteAccessMapToReturn["visitor_mode_service"] = []interface{}{visitorModeServiceMapToReturn}
+			}
+
+			if v := remoteAccessMap["visitor-mode-interface"]; v != nil {
+				remoteAccessMapToReturn["visitor_mode_interface"] = v
+			}
+
+			vpnSettingsMapToReturn["remote_access"] = []interface{}{remoteAccessMapToReturn}
+		}
+
+		if v := vpnSettingsMap["saml-portal-settings"]; v != nil {
+
+			samlPortalSettingsMap := v.(map[string]interface{})
+
+			samlPortalSettingsMapToReturn := make(map[string]interface{})
+
+			if v := samlPortalSettingsMap["enabled"]; v != nil {
+				samlPortalSettingsMapToReturn["enabled"] = v
+			}
+			if v := samlPortalSettingsMap["portal-web-settings"]; v != nil {
+
+				portalWebSettingsMap := v.(map[string]interface{})
+
+				portalWebSettingsMapToReturn := make(map[string]interface{})
+
+				if v := portalWebSettingsMap["aliases"]; v != nil {
+					portalWebSettingsMapToReturn["aliases"] = v
+				}
+				if v := portalWebSettingsMap["ip-address"]; v != nil {
+					portalWebSettingsMapToReturn["ip_address"] = v
+				}
+				if v := portalWebSettingsMap["main-url"]; v != nil {
+					portalWebSettingsMapToReturn["main_url"] = v
+				}
+
+				samlPortalSettingsMapToReturn["portal_web_settings"] = []interface{}{portalWebSettingsMapToReturn}
+			}
+
+			if v := samlPortalSettingsMap["certificate-settings"]; v != nil {
+
+				certificateSettingsMap := v.(map[string]interface{})
+
+				certificateSettingsMapToReturn := make(map[string]interface{})
+
+				if v := certificateSettingsMap["certificate"]; v != nil {
+					certificateSettingsMapToReturn["certificate"] = v
+				}
+				if v := certificateSettingsMap["certificate-dn"]; v != nil {
+					certificateSettingsMapToReturn["certificate_dn"] = v
+				}
+				if v := certificateSettingsMap["certificate-valid-from"]; v != nil {
+					certificateSettingsMapToReturn["certificate_valid_from"] = v
+				}
+				if v := certificateSettingsMap["certificate-valid-to"]; v != nil {
+					certificateSettingsMapToReturn["certificate_valid_to"] = v
+				}
+
+				samlPortalSettingsMapToReturn["certificate_settings"] = []interface{}{certificateSettingsMapToReturn}
+			}
+
+			if v := samlPortalSettingsMap["accessibility"]; v != nil {
+
+				accessibilityMap := v.(map[string]interface{})
+
+				accessibilityMapToReturn := make(map[string]interface{})
+
+				if v := accessibilityMap["allow-access-from"]; v != nil {
+					accessibilityMapToReturn["allow_access_from"] = v
+				}
+				if v := accessibilityMap["internal-access-settings"]; v != nil {
+
+					internalAccessSettingsMap := v.(map[string]interface{})
+
+					internalAccessSettingsMapToReturn := make(map[string]interface{})
+
+					if v := internalAccessSettingsMap["undefined"]; v != nil {
+						internalAccessSettingsMapToReturn["undefined"] = v
+					}
+					if v := internalAccessSettingsMap["dmz"]; v != nil {
+						internalAccessSettingsMapToReturn["dmz"] = v
+					}
+					if v := internalAccessSettingsMap["vpn"]; v != nil {
+						internalAccessSettingsMapToReturn["vpn"] = v
+					}
+
+					accessibilityMapToReturn["internal_access_settings"] = []interface{}{internalAccessSettingsMapToReturn}
+				}
+
+				samlPortalSettingsMapToReturn["accessibility"] = []interface{}{accessibilityMapToReturn}
+			}
+
+			vpnSettingsMapToReturn["saml_portal_settings"] = []interface{}{samlPortalSettingsMapToReturn}
+		}
+
+		if v := vpnSettingsMap["vpn-clients"]; v != nil {
+
+			vpnClientsMap := v.(map[string]interface{})
+
+			vpnClientsMapToReturn := make(map[string]interface{})
+
+			if v := vpnClientsMap["enable-endpoint-security-vpn"]; v != nil {
+				vpnClientsMapToReturn["enable_endpoint_security_vpn"] = v
+			}
+			if v := vpnClientsMap["enable-cp-mobile-for-windows"]; v != nil {
+				vpnClientsMapToReturn["enable_cp_mobile_for_windows"] = v
+			}
+			if v := vpnClientsMap["enable-secu-remote"]; v != nil {
+				vpnClientsMapToReturn["enable_secu_remote"] = v
+			}
+			if v := vpnClientsMap["enable-capsule-vpn-connect"]; v != nil {
+				vpnClientsMapToReturn["enable_capsule_vpn_connect"] = v
+			}
+			if v := vpnClientsMap["enable-ssl-network-extender"]; v != nil {
+				vpnClientsMapToReturn["enable_ssl_network_extender"] = v
+			}
+			if v := vpnClientsMap["gateway-authentication-certificate"]; v != nil {
+				vpnClientsMapToReturn["gateway_authentication_certificate"] = v
+			}
+
+			vpnSettingsMapToReturn["vpn_clients"] = []interface{}{vpnClientsMapToReturn}
+		}
+
+		if v := vpnSettingsMap["vpn-domain"]; v != nil {
+
+			vpnDomainMap := v.(map[string]interface{})
+
+			vpnDomainMapToReturn := make(map[string]interface{})
+
+			if v := vpnDomainMap["name"]; v != nil {
+				vpnDomainMapToReturn["name"] = v
+			}
+			if v := vpnDomainMap["type"]; v != nil {
+				vpnDomainMapToReturn["type"] = v
+			}
+			if v := vpnDomainMap["color"]; v != nil {
+				vpnDomainMapToReturn["color"] = v
+			}
+			if v := vpnDomainMap["domain"]; v != nil {
+
+				domainMap := v.(map[string]interface{})
+
+				domainMapToReturn := make(map[string]interface{})
+
+				if v := domainMap["name"]; v != nil {
+					domainMapToReturn["name"] = v
+				}
+				if v := domainMap["domain-type"]; v != nil {
+					domainMapToReturn["domain_type"] = v
+				}
+				if v := domainMap["uid"]; v != nil {
+					domainMapToReturn["uid"] = v
+				}
+
+				vpnDomainMapToReturn["domain"] = []interface{}{domainMapToReturn}
+			}
+
+			if v := vpnDomainMap["icon"]; v != nil {
+				vpnDomainMapToReturn["icon"] = v
+			}
+			if v := vpnDomainMap["uid"]; v != nil {
+				vpnDomainMapToReturn["uid"] = v
+			}
+
+			vpnSettingsMapToReturn["vpn_domain"] = []interface{}{vpnDomainMapToReturn}
+		}
+
+		if v := vpnSettingsMap["vpn-domain-exclude-external-ip-addresses"]; v != nil {
+			vpnSettingsMapToReturn["vpn_domain_exclude_external_ip_addresses"] = v
+		}
+		if v := vpnSettingsMap["vpn-domain-type"]; v != nil {
+			vpnSettingsMapToReturn["vpn_domain_type"] = v
+		}
+		if v := vpnSettingsMap["enable-clientless-vpn"]; v != nil {
+			vpnSettingsMapToReturn["enable_clientless_vpn"] = v
+		}
+		if v := vpnSettingsMap["clientless-vpn-settings"]; v != nil {
+
+			clientlessVpnSettingsMap := v.(map[string]interface{})
+
+			clientlessVpnSettingsMapToReturn := make(map[string]interface{})
+
+			if v := clientlessVpnSettingsMap["certificate-gateway-authentication"]; v != nil {
+				clientlessVpnSettingsMapToReturn["certificate_gateway_authentication"] = v
+			}
+			if v := clientlessVpnSettingsMap["client-authentication"]; v != nil {
+				clientlessVpnSettingsMapToReturn["client_authentication"] = v
+			}
+			if v := clientlessVpnSettingsMap["concurrent-servers-or-processes"]; v != nil {
+				clientlessVpnSettingsMapToReturn["concurrent_servers_or_processes"] = v
+			}
+			if v := clientlessVpnSettingsMap["accept-only-3des"]; v != nil {
+				clientlessVpnSettingsMapToReturn["accept_only_3des"] = v
+			}
+
+			vpnSettingsMapToReturn["clientless_vpn_settings"] = []interface{}{clientlessVpnSettingsMapToReturn}
+		}
+
+		_ = d.Set("vpn_settings", []interface{}{vpnSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("vpn_settings", nil)
 	}

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 )
@@ -121,7 +121,7 @@ func dataSourceManagementShowObjects() *schema.Resource {
 							Description: "Object type.",
 						},
 						"domain": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Information about the domain that holds the Object.",
 							Elem: &schema.Resource{
@@ -286,7 +286,7 @@ func dataSourceManagementShowObjectsRead(d *schema.ResourceData, m interface{}) 
 					if v := domainMap["domain-type"]; v != nil {
 						domainMapToAdd["domain_type"] = v
 					}
-					objectMapToAdd["domain"] = domainMapToAdd
+					objectMapToAdd["domain"] = []interface{}{domainMapToAdd}
 				}
 				objectsListState = append(objectsListState, objectMapToAdd)
 			}

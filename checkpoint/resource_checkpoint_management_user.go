@@ -3,10 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
-	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -82,7 +80,8 @@ func resourceManagementUser() *schema.Resource {
 				Description: "Allow users connect until hour.",
 			},
 			"allowed_locations": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "User allowed locations.",
 				Elem: &schema.Resource{
@@ -107,7 +106,8 @@ func resourceManagementUser() *schema.Resource {
 				},
 			},
 			"encryption": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "User encryption.",
 				Elem: &schema.Resource{
@@ -229,36 +229,46 @@ func createManagementUser(d *schema.ResourceData, m interface{}) error {
 		user["to-hour"] = v.(string)
 	}
 
-	if _, ok := d.GetOk("allowed_locations"); ok {
+	if v, ok := d.GetOk("allowed_locations"); ok {
 
-		res := make(map[string]interface{})
+		allowedLocationsList := v.([]interface{})
 
-		if v, ok := d.GetOk("allowed_locations.destinations"); ok {
-			res["destinations"] = v.(*schema.Set).List()
+		if len(allowedLocationsList) > 0 {
+
+			allowedLocationsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("allowed_locations.0.destinations"); ok {
+				allowedLocationsPayload["destinations"] = v
+			}
+			if v, ok := d.GetOk("allowed_locations.0.sources"); ok {
+				allowedLocationsPayload["sources"] = v
+			}
+			user["allowed-locations"] = allowedLocationsPayload
 		}
-		if v, ok := d.GetOk("allowed_locations.sources"); ok {
-			res["sources"] = v.(*schema.Set).List()
-		}
-		user["allowed-locations"] = res
 	}
 
-	if _, ok := d.GetOk("encryption"); ok {
+	if v, ok := d.GetOk("encryption"); ok {
 
-		res := make(map[string]interface{})
+		encryptionList := v.([]interface{})
 
-		if v, ok := d.GetOk("encryption.enable_ike"); ok {
-			res["enable-ike"] = v.(bool)
+		if len(encryptionList) > 0 {
+
+			encryptionPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("encryption.0.enable_ike"); ok {
+				encryptionPayload["enable-ike"] = v.(bool)
+			}
+			if v, ok := d.GetOk("encryption.0.enable_public_key"); ok {
+				encryptionPayload["enable-public-key"] = v.(bool)
+			}
+			if v, ok := d.GetOk("encryption.0.enable_shared_secret"); ok {
+				encryptionPayload["enable-shared-secret"] = v.(bool)
+			}
+			if v, ok := d.GetOk("encryption.0.shared_secret"); ok {
+				encryptionPayload["shared-secret"] = v.(string)
+			}
+			user["encryption"] = encryptionPayload
 		}
-		if v, ok := d.GetOk("encryption.enable_public_key"); ok {
-			res["enable-public-key"] = v.(bool)
-		}
-		if v, ok := d.GetOk("encryption.enable_shared_secret"); ok {
-			res["enable-shared-secret"] = v.(bool)
-		}
-		if v, ok := d.GetOk("encryption.shared_secret"); ok {
-			res["shared-secret"] = v.(string)
-		}
-		user["encryption"] = res
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -380,20 +390,14 @@ func readManagementUser(d *schema.ResourceData, m interface{}) error {
 
 		allowedLocationsMapToReturn := make(map[string]interface{})
 
-		if v, _ := allowedLocationsMap["destinations"]; v != nil {
+		if v := allowedLocationsMap["destinations"]; v != nil {
 			allowedLocationsMapToReturn["destinations"] = v
 		}
-		if v, _ := allowedLocationsMap["sources"]; v != nil {
+		if v := allowedLocationsMap["sources"]; v != nil {
 			allowedLocationsMapToReturn["sources"] = v
 		}
+		_ = d.Set("allowed_locations", []interface{}{allowedLocationsMapToReturn})
 
-		_, allowedLocationsInConf := d.GetOk("allowed_locations")
-		defaultAllowedLocations := map[string]interface{}{"sources": "['97aeb369-9aea-11d5-bd16-0090272ccb30']", "destinations": "['97aeb369-9aea-11d5-bd16-0090272ccb30']"}
-		if reflect.DeepEqual(defaultAllowedLocations, allowedLocationsMapToReturn) && !allowedLocationsInConf {
-			_ = d.Set("allowed_locations", map[string]interface{}{})
-		} else {
-			_ = d.Set("allowed_locations", allowedLocationsMapToReturn)
-		}
 	} else {
 		_ = d.Set("allowed_locations", nil)
 	}
@@ -404,23 +408,20 @@ func readManagementUser(d *schema.ResourceData, m interface{}) error {
 
 		encryptionMapToReturn := make(map[string]interface{})
 
-		if v, _ := encryptionMap["ike"]; v != nil {
-			encryptionMapToReturn["enable_ike"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["enable-ike"]; v != nil {
+			encryptionMapToReturn["enable_ike"] = v
 		}
-		if v, _ := encryptionMap["public-key"]; v != nil {
-			encryptionMapToReturn["enable_public_key"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["enable-public-key"]; v != nil {
+			encryptionMapToReturn["enable_public_key"] = v
 		}
-		if v, _ := encryptionMap["shared-secret"]; v != nil {
-			encryptionMapToReturn["enable_shared_secret"] = strconv.FormatBool(v.(bool))
+		if v := encryptionMap["enable-shared-secret"]; v != nil {
+			encryptionMapToReturn["enable_shared_secret"] = v
 		}
+		if v := encryptionMap["shared-secret"]; v != nil {
+			encryptionMapToReturn["shared_secret"] = v
+		}
+		_ = d.Set("encryption", []interface{}{encryptionMapToReturn})
 
-		_, encryptionInConf := d.GetOk("encryption")
-		defaultEncryption := map[string]interface{}{"enable_ike": "true", "enable_public_key": "true", "enable_shared_secret": "false"}
-		if reflect.DeepEqual(defaultEncryption, encryptionMapToReturn) && !encryptionInConf {
-			_ = d.Set("encryption", map[string]interface{}{})
-		} else {
-			_ = d.Set("encryption", encryptionMapToReturn)
-		}
 	} else {
 		_ = d.Set("encryption", nil)
 	}
@@ -512,52 +513,50 @@ func updateManagementUser(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if d.HasChange("allowed_locations") {
-		defaultLocationUid := "97aeb369-9aea-11d5-bd16-0090272ccb30"
-		if _, ok := d.GetOk("allowed_locations"); ok {
 
-			res := make(map[string]interface{})
+		if v, ok := d.GetOk("allowed_locations"); ok {
 
-			if d.HasChange("allowed_locations.destinations") {
-				if v, ok := d.GetOk("allowed_locations.destinations"); ok {
-					res["destinations"] = v.(*schema.Set).List()
-				} else {
-					res["destinations"] = defaultLocationUid
+			allowedLocationsList := v.([]interface{})
+
+			if len(allowedLocationsList) > 0 {
+
+				allowedLocationsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("allowed_locations.0.destinations"); ok {
+					allowedLocationsPayload["destinations"] = v
 				}
-			}
-
-			if d.HasChange("allowed_locations.sources") {
-				if v, ok := d.GetOk("allowed_locations.destinations"); ok {
-					res["sources"] = v.(*schema.Set).List()
-				} else {
-					res["sources"] = defaultLocationUid
+				if v, ok := d.GetOk("allowed_locations.0.sources"); ok {
+					allowedLocationsPayload["sources"] = v
 				}
+				user["allowed-locations"] = allowedLocationsPayload
 			}
-
-			user["allowed-locations"] = res
-		} else {
-			user["allowed-locations"] = map[string]interface{}{"sources": defaultLocationUid, "destinations": defaultLocationUid}
 		}
 	}
 
 	if d.HasChange("encryption") {
 
-		if _, ok := d.GetOk("encryption"); ok {
+		if v, ok := d.GetOk("encryption"); ok {
 
-			res := make(map[string]interface{})
+			encryptionList := v.([]interface{})
 
-			if d.HasChange("encryption.enable_ike") {
-				res["enable-ike"] = d.Get("encryption.enable_ike")
+			if len(encryptionList) > 0 {
+
+				encryptionPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOkExists("encryption.0.enable_ike"); ok {
+					encryptionPayload["enable-ike"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("encryption.0.enable_public_key"); ok {
+					encryptionPayload["enable-public-key"] = v.(bool)
+				}
+				if v, ok := d.GetOkExists("encryption.0.enable_shared_secret"); ok {
+					encryptionPayload["enable-shared-secret"] = v.(bool)
+				}
+				if v, ok := d.GetOk("encryption.0.shared_secret"); ok {
+					encryptionPayload["shared-secret"] = v.(string)
+				}
+				user["encryption"] = encryptionPayload
 			}
-			if d.HasChange("encryption.enable_public_key") {
-				res["enable-public-key"] = d.Get("encryption.enable_public_key")
-			}
-			if d.HasChange("encryption.enable_shared_secret") {
-				res["enable-shared-secret"] = d.Get("encryption.enable_shared_secret")
-			}
-			if d.HasChange("encryption.shared_secret") {
-				res["shared-secret"] = d.Get("encryption.shared_secret")
-			}
-			user["encryption"] = res
 		}
 	}
 

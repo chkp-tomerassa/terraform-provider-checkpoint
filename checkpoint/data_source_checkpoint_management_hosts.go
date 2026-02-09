@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 )
@@ -147,7 +147,6 @@ func dataSourceManagementHosts() *schema.Resource {
 							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "NAT settings.",
-							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"auto_rule": {
@@ -185,7 +184,6 @@ func dataSourceManagementHosts() *schema.Resource {
 						},
 						"host_servers": {
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "Servers Configuration.",
 							Elem: &schema.Resource{
@@ -207,7 +205,6 @@ func dataSourceManagementHosts() *schema.Resource {
 									},
 									"web_server_config": {
 										Type:        schema.TypeList,
-										MaxItems:    1,
 										Computed:    true,
 										Description: "Web Server configuration.",
 										Elem: &schema.Resource{
@@ -272,7 +269,7 @@ func dataSourceManagementHosts() *schema.Resource {
 							},
 						},
 						"domain": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Computed:    true,
 							Description: "Information about the domain that holds the Object.",
 							Elem: &schema.Resource{
@@ -602,7 +599,7 @@ func dataSourceManagementHostsRead(d *schema.ResourceData, m interface{}) error 
 					if v := domainMap["domain-type"]; v != nil {
 						domainMapToAdd["domain_type"] = v
 					}
-					objectMapToAdd["domain"] = domainMapToAdd
+					objectMapToAdd["domain"] = []interface{}{domainMapToAdd}
 				}
 
 				if v := objectMap["color"]; v != nil {

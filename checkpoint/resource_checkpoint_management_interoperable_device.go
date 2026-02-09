@@ -2,10 +2,11 @@ package checkpoint
 
 import (
 	"fmt"
-	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"math"
+
+	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"strconv"
 )
@@ -147,7 +148,8 @@ func resourceManagementInteroperableDevice() *schema.Resource {
 				},
 			},
 			"vpn_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "VPN domain properties for the Interoperable Device.",
 				Elem: &schema.Resource{
@@ -338,20 +340,25 @@ func createManagementInteroperableDevice(d *schema.ResourceData, m interface{}) 
 			interoperableDevice["interfaces"] = interfacesListToReturn
 		}
 	}
-	if _, ok := d.GetOk("vpn_settings"); ok {
+	if v, ok := d.GetOk("vpn_settings"); ok {
 
-		res := make(map[string]interface{})
+		vpnSettingsList := v.([]interface{})
 
-		if v, ok := d.GetOk("vpn_settings.vpn_domain"); ok {
-			res["vpn-domain"] = v.(string)
+		if len(vpnSettingsList) > 0 {
+
+			vpnSettingsPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain"); ok {
+				vpnSettingsPayload["vpn-domain"] = v.(string)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain_exclude_external_ip_addresses"); ok {
+				vpnSettingsPayload["vpn-domain-exclude-external-ip-addresses"] = v.(bool)
+			}
+			if v, ok := d.GetOk("vpn_settings.0.vpn_domain_type"); ok {
+				vpnSettingsPayload["vpn-domain-type"] = v.(string)
+			}
+			interoperableDevice["vpn-settings"] = vpnSettingsPayload
 		}
-		if v, ok := d.GetOk("vpn_settings.vpn_domain_exclude_external_ip_addresses"); ok {
-			res["vpn-domain-exclude-external-ip-addresses"] = v
-		}
-		if v, ok := d.GetOk("vpn_settings.vpn_domain_type"); ok {
-			res["vpn-domain-type"] = v.(string)
-		}
-		interoperableDevice["vpn-settings"] = res
 	}
 
 	if v, ok := d.GetOk("tags"); ok {
@@ -522,21 +529,18 @@ func readManagementInteroperableDevice(d *schema.ResourceData, m interface{}) er
 		vpnSettingsMap := interoperableDevice["vpn-settings"].(map[string]interface{})
 
 		vpnSettingsMapToReturn := make(map[string]interface{})
-		defaultVpnSettings := map[string]interface{}{
-			"vpn-domain-exclude-external-ip-addresses": "false",
-			"vpn-domain-type":                          "addresses_behind_gw",
-		}
 
-		if v, _ := vpnSettingsMap["vpn-domain"]; v != nil {
+		if v := vpnSettingsMap["vpn-domain"]; v != nil {
 			vpnSettingsMapToReturn["vpn_domain"] = v
 		}
-		if v := vpnSettingsMap["vpn-domain-exclude-external-ip-addresses"]; v != nil && isArgDefault(strconv.FormatBool(v.(bool)), d, "vpn_settings.vpn_domain_exclude_external_ip_addresses", defaultVpnSettings["vpn-domain-exclude-external-ip-addresses"].(string)) {
-			vpnSettingsMapToReturn["vpn_domain_exclude_external_ip_addresses"] = strconv.FormatBool(v.(bool))
+		if v := vpnSettingsMap["vpn-domain-exclude-external-ip-addresses"]; v != nil {
+			vpnSettingsMapToReturn["vpn_domain_exclude_external_ip_addresses"] = v
 		}
-		if v, _ := vpnSettingsMap["vpn-domain-type"]; v != nil && isArgDefault(v.(string), d, "vpn_settings.vpn_domain_type", defaultVpnSettings["vpn-domain-type"].(string)) {
-			vpnSettingsMapToReturn["vpn_domain_type"] = v.(string)
+		if v := vpnSettingsMap["vpn-domain-type"]; v != nil {
+			vpnSettingsMapToReturn["vpn_domain_type"] = v
 		}
-		_ = d.Set("vpn_settings", vpnSettingsMapToReturn)
+		_ = d.Set("vpn_settings", []interface{}{vpnSettingsMapToReturn})
+
 	} else {
 		_ = d.Set("vpn_settings", nil)
 	}
@@ -730,20 +734,25 @@ func updateManagementInteroperableDevice(d *schema.ResourceData, m interface{}) 
 
 	if d.HasChange("vpn_settings") {
 
-		if _, ok := d.GetOk("vpn_settings"); ok {
+		if v, ok := d.GetOk("vpn_settings"); ok {
 
-			res := make(map[string]interface{})
+			vpnSettingsList := v.([]interface{})
 
-			if d.HasChange("vpn_settings.vpn_domain") {
-				res["vpn-domain"] = d.Get("vpn_settings.vpn_domain")
+			if len(vpnSettingsList) > 0 {
+
+				vpnSettingsPayload := make(map[string]interface{})
+
+				if v, ok := d.GetOk("vpn_settings.0.vpn_domain"); ok {
+					vpnSettingsPayload["vpn-domain"] = v.(string)
+				}
+				if v, ok := d.GetOkExists("vpn_settings.0.vpn_domain_exclude_external_ip_addresses"); ok {
+					vpnSettingsPayload["vpn-domain-exclude-external-ip-addresses"] = v.(bool)
+				}
+				if v, ok := d.GetOk("vpn_settings.0.vpn_domain_type"); ok {
+					vpnSettingsPayload["vpn-domain-type"] = v.(string)
+				}
+				interoperableDevice["vpn-settings"] = vpnSettingsPayload
 			}
-			if d.HasChange("vpn_settings.vpn_domain_exclude_external_ip_addresses") {
-				res["vpn-domain-exclude-external-ip-addresses"] = d.Get("vpn_settings.vpn_domain_exclude_external_ip_addresses")
-			}
-			if d.HasChange("vpn_settings.vpn_domain_type") {
-				res["vpn-domain-type"] = d.Get("vpn_settings.vpn_domain_type")
-			}
-			interoperableDevice["vpn-settings"] = res
 		}
 	}
 

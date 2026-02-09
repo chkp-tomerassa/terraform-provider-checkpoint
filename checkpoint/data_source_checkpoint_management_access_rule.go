@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 	"strings"
@@ -35,7 +35,7 @@ func dataSourceManagementAccessRule() *schema.Resource {
 				Description: "\"Accept\", \"Drop\", \"Ask\", \"Inform\", \"Reject\", \"User Auth\", \"Client Auth\", \"Apply Layer\".",
 			},
 			"action_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Action settings.",
 				Elem: &schema.Resource{
@@ -72,7 +72,7 @@ func dataSourceManagementAccessRule() *schema.Resource {
 				Description: "True if negate is set for data.",
 			},
 			"custom_fields": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Custom fields.",
 				Elem: &schema.Resource{
@@ -161,7 +161,7 @@ func dataSourceManagementAccessRule() *schema.Resource {
 				},
 			},
 			"track": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Track Settings.",
 				Elem: &schema.Resource{
@@ -201,7 +201,6 @@ func dataSourceManagementAccessRule() *schema.Resource {
 			},
 			"user_check": {
 				Type:        schema.TypeList,
-				MaxItems:    1,
 				Computed:    true,
 				Description: "User check settings.",
 				Elem: &schema.Resource{
@@ -213,7 +212,6 @@ func dataSourceManagementAccessRule() *schema.Resource {
 						},
 						"custom_frequency": {
 							Type:        schema.TypeList,
-							MaxItems:    1,
 							Computed:    true,
 							Description: "N/A",
 							Elem: &schema.Resource{
@@ -352,7 +350,7 @@ func dataSourceManagementAccessRuleRead(d *schema.ResourceData, m interface{}) e
 			actionSettingsMapToReturn["limit"] = v
 		}
 
-		_ = d.Set("action_settings", actionSettingsMapToReturn)
+		_ = d.Set("action_settings", []interface{}{actionSettingsMapToReturn})
 	} else {
 		_ = d.Set("action_settings", nil)
 	}
@@ -389,7 +387,7 @@ func dataSourceManagementAccessRuleRead(d *schema.ResourceData, m interface{}) e
 		if v, _ := customFieldsMap["field-3"]; v != nil {
 			customFieldsMapToReturn["field_3"] = v
 		}
-		_ = d.Set("custom_fields", customFieldsMapToReturn)
+		_ = d.Set("custom_fields", []interface{}{customFieldsMapToReturn})
 	} else {
 		_ = d.Set("custom_fields", nil)
 	}
@@ -466,7 +464,7 @@ func dataSourceManagementAccessRuleRead(d *schema.ResourceData, m interface{}) e
 		if v, _ := trackMap["type"]; v != nil {
 			trackMapToReturn["type"] = v.(map[string]interface{})["name"].(string)
 		}
-		err = d.Set("track", trackMapToReturn)
+		err = d.Set("track", []interface{}{trackMapToReturn})
 
 	} else {
 		_ = d.Set("track", nil)

@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceManagementSetAutomaticPurge() *schema.Resource {
@@ -44,7 +44,8 @@ func resourceManagementSetAutomaticPurge() *schema.Resource {
 				Description: "When \"keep-sessions-by-days = true\" this sets the number of days to keep the sessions.",
 			},
 			"scheduling": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
+				MaxItems:    1,
 				Optional:    true,
 				Description: "When to purge sessions that do not meet the \"keep\" criteria. Note: when the automatic purge feature is enabled, this field must be set.",
 				ForceNew:    true,
@@ -99,20 +100,25 @@ func createManagementSetAutomaticPurge(d *schema.ResourceData, m interface{}) er
 		payload["number-of-days-to-keep"] = v.(int)
 	}
 
-	if _, ok := d.GetOk("scheduling"); ok {
+	if v, ok := d.GetOk("scheduling"); ok {
 
-		res := make(map[string]interface{})
+		schedulingList := v.([]interface{})
 
-		if v, ok := d.GetOk("scheduling.start_date"); ok {
-			res["start-date"] = v.(string)
+		if len(schedulingList) > 0 {
+
+			schedulingPayload := make(map[string]interface{})
+
+			if v, ok := d.GetOk("scheduling.0.start_date"); ok {
+				schedulingPayload["start-date"] = v.(string)
+			}
+			if v, ok := d.GetOk("scheduling.0.time_units"); ok {
+				schedulingPayload["time-units"] = v.(string)
+			}
+			if v, ok := d.GetOk("scheduling.0.check_interval"); ok {
+				schedulingPayload["check-interval"] = v.(int)
+			}
+			payload["scheduling"] = schedulingPayload
 		}
-		if v, ok := d.GetOk("scheduling.time_units"); ok {
-			res["time-units"] = v.(string)
-		}
-		if v, ok := d.GetOk("scheduling.check_interval"); ok {
-			res["check-interval"] = v.(int)
-		}
-		payload["scheduling"] = res
 	}
 
 	SetAutomaticPurgeRes, _ := client.ApiCall("set-automatic-purge", payload, client.GetSessionID(), true, client.IsProxyUsed())

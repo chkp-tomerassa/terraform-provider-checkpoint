@@ -3,10 +3,9 @@ package checkpoint
 import (
 	"fmt"
 	"log"
-	"reflect"
 
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceManagementServiceOther() *schema.Resource {
@@ -34,7 +33,7 @@ func dataSourceManagementServiceOther() *schema.Resource {
 				Description: "Contains an INSPECT expression that defines the action to take if a rule containing this service is matched. Example: set r_mhandler &open_ssl_handler sets a handler on the connection.",
 			},
 			"aggressive_aging": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Sets short (aggressive) timeouts for idle connections.",
 				Elem: &schema.Resource{
@@ -182,31 +181,20 @@ func dataSourceManagementServiceOtherRead(d *schema.ResourceData, m interface{})
 
 		aggressiveAgingMapToReturn := make(map[string]interface{})
 
-		if v, _ := aggressiveAgingMap["default-timeout"]; v != nil {
+		if v := aggressiveAgingMap["default-timeout"]; v != nil {
 			aggressiveAgingMapToReturn["default_timeout"] = v
 		}
-		if v, _ := aggressiveAgingMap["enable"]; v != nil {
+		if v := aggressiveAgingMap["enable"]; v != nil {
 			aggressiveAgingMapToReturn["enable"] = v
 		}
-		if v, _ := aggressiveAgingMap["timeout"]; v != nil {
+		if v := aggressiveAgingMap["timeout"]; v != nil {
 			aggressiveAgingMapToReturn["timeout"] = v
 		}
-		if v, _ := aggressiveAgingMap["use-default-timeout"]; v != nil {
+		if v := aggressiveAgingMap["use-default-timeout"]; v != nil {
 			aggressiveAgingMapToReturn["use_default_timeout"] = v
 		}
 
-		_, aggressiveAgingInConf := d.GetOk("aggressive_aging")
-		defaultAggressiveAging := map[string]interface{}{
-			"enable":              true,
-			"timeout":             600,
-			"use_default_timeout": true,
-			"default_timeout":     600,
-		}
-		if reflect.DeepEqual(defaultAggressiveAging, aggressiveAgingMapToReturn) && !aggressiveAgingInConf {
-			_ = d.Set("aggressive_aging", map[string]interface{}{})
-		} else {
-			_ = d.Set("aggressive_aging", aggressiveAgingMapToReturn)
-		}
+		_ = d.Set("aggressive_aging", []interface{}{aggressiveAgingMapToReturn})
 
 	} else {
 		_ = d.Set("aggressive_aging", nil)

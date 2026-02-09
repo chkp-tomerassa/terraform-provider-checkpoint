@@ -3,8 +3,8 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strconv"
 	"strings"
@@ -61,8 +61,8 @@ func resourceManagementCMEGWConfigurationsAWS() *schema.Resource {
 				Description: "Color of the gateways objects in SmartConsole.",
 			},
 			"communication_with_servers_behind_nat": {
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:     schema.TypeString,
+				Optional: true,
 				Description: "Gateway behind NAT communications settings with the Check Point Servers" +
 					"(Management, Multi-Domain, Log Servers).",
 			},

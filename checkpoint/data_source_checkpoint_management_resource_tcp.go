@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 )
 
@@ -36,7 +36,6 @@ func dataSourceManagementResourceTcp() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "UFP settings.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"server": {
@@ -71,7 +70,6 @@ func dataSourceManagementResourceTcp() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Configure CVP inspection on mail messages.",
-				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"server": {

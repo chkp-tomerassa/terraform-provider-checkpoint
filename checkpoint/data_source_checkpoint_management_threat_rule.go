@@ -3,7 +3,7 @@ package checkpoint
 import (
 	"fmt"
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"reflect"
 )
@@ -103,7 +103,7 @@ func dataSourceManagementThreatRule() *schema.Resource {
 				Description: "Packet tracking.",
 			},
 			"track_settings": {
-				Type:        schema.TypeMap,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "Threat rule track settings.",
 				Elem: &schema.Resource{
@@ -296,7 +296,7 @@ func dataSourceManagementThreatRuleRead(d *schema.ResourceData, m interface{}) e
 		if reflect.DeepEqual(defaultTrackSettings, trackSettingsState) && !trackSettingsInConf {
 			_ = d.Set("track_settings", map[string]interface{}{})
 		} else {
-			_ = d.Set("track_settings", trackSettingsState)
+			_ = d.Set("track_settings", []interface{}{trackSettingsState})
 		}
 	}
 
