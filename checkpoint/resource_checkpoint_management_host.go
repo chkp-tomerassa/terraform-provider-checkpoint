@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	checkpoint "github.com/CheckPointSW/cp-mgmt-api-go-sdk/APIFiles"
-	"github.com/CheckPointSW/terraform-provider-checkpoint/upgraders"
+	"github.com/CheckPointSW/terraform-provider-checkpoint/v3/upgraders"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 

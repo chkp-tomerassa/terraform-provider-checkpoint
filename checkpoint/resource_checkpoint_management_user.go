@@ -2,7 +2,7 @@ package checkpoint
 
 import (
 	"fmt"
-	"github.com/CheckPointSW/terraform-provider-checkpoint/upgraders"
+	"github.com/CheckPointSW/terraform-provider-checkpoint/v3/upgraders"
 	"log"
 	"strings"
 

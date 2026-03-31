@@ -1,4 +1,4 @@
-module github.com/CheckPointSW/terraform-provider-checkpoint
+module github.com/CheckPointSW/terraform-provider-checkpoint/v3
 
 require (
 	github.com/CheckPointSW/cp-mgmt-api-go-sdk v1.9.0

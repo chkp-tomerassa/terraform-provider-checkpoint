@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/CheckPointSW/terraform-provider-checkpoint/commands"
+	"github.com/CheckPointSW/terraform-provider-checkpoint/v3/commands"
 	"os"
 )
 
