@@ -45,3 +45,4 @@ The following arguments are supported:
 * `sic_state` - State the Secure Internal Connection Trust..
 * `domains` - Collection of Domain objects identified by the name or UID.
 * `global_domains` - Collection of Global domain objects identified by the name or UID.
+* `platform` - N/A.

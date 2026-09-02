@@ -34,3 +34,5 @@ The following arguments are supported:
 * `color` - Color of the object. Should be one of existing colors. 
 * `comments` - Comments string. 
 * `groups` - Collection of group identifiers.
+* `category_id` - N/A.
+* `user_defined` - N/A.

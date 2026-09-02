@@ -527,6 +527,11 @@ func dataSourceManagementLsmClusterProfile() *schema.Resource {
 							Optional:    true,
 							Description: "NAT translation method.",
 						},
+						"apply_control_connections": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "N/A",
+						},
 					},
 				},
 			},
@@ -635,11 +640,6 @@ func dataSourceManagementLsmClusterProfile() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: "Zero Phishing blade enabled.",
-			},
-			"zero_phishing_fqdn": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "Zero Phishing gateway FQDN.",
 			},
 			"color": {
 				Type:        schema.TypeString,
@@ -777,10 +777,6 @@ func dataSourceManagementLsmClusterProfileRead(d *schema.ResourceData, m interfa
 
 	if v := lsmClusterProfile["version"]; v != nil {
 		_ = d.Set("version", v)
-	}
-
-	if v := lsmClusterProfile["zero-phishing-fqdn"]; v != nil {
-		_ = d.Set("zero_phishing_fqdn", v)
 	}
 
 	if v := lsmClusterProfile["color"]; v != nil {
@@ -1150,6 +1146,9 @@ func dataSourceManagementLsmClusterProfileRead(d *schema.ResourceData, m interfa
 			natSettingsMapToReturn["method"] = v
 		}
 
+		if v := natSettingsMap["apply-control-connections"]; v != nil {
+			natSettingsMapToReturn["apply_control_connections"] = v
+		}
 		_ = d.Set("nat_settings", []interface{}{natSettingsMapToReturn})
 
 	} else {

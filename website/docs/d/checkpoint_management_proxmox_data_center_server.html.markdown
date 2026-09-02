@@ -47,3 +47,9 @@ The following arguments are supported:
 `properties` supports the following:
 * `name`
 * `value`
+
+
+`properties` supports the following:
+
+* `name` - N/A.
+* `value` - N/A.

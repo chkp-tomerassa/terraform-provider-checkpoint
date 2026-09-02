@@ -39,6 +39,8 @@ The following arguments are supported:
 * `color` - Color of the object. Should be one of existing colors.
 * `comments` - Comments string.
 * `tags` - Collection of tag identifiers.
+* `number_of_observables` - N/A.
+* `observables_raw_data` - N/A.
 
 
 `profile_overrides` supports the following:

@@ -57,6 +57,7 @@ Example: tcp, dport = 21, direction = 0 matches incoming FTP control connections
 * `color` - Color of the object. Should be one of existing colors. 
 * `comments` - Comments string. 
 * `groups` - Collection of group identifiers.
+* `protocol` - N/A.
 
 
 `aggressive_aging` supports the following:

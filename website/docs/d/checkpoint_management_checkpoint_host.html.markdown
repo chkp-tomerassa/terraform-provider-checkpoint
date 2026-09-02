@@ -48,6 +48,8 @@ The following arguments are supported:
 * `comments` - Comments string. 
 * `sic_name` - Name of the Secure Internal Connection Trust.
 * `sic_state` - State the Secure Internal Connection Trust.
+* `dns_server` - N/A.
+* `firewall` - N/A.
 
 
 `interfaces` supports the following:
@@ -70,6 +72,9 @@ The following arguments are supported:
 * `hide_behind` - Hide behind method. This parameter is not required in case "method" parameter is "static". 
 * `install_on` - Which gateway should apply the NAT translation. 
 * `method` - NAT translation method. 
+* `automatic_nat_rules` - N/A.
+* `communication_with_this_server` - N/A.
+* `enable_address_translation` - N/A.
 
 
 `management_blades` supports the following:
@@ -113,3 +118,9 @@ The following arguments are supported:
 * `stop_logging_when_free_disk_space_below_threshold` - Stop logging when free disk space below threshold. 
 * `turn_on_qos_logging` - Enable turn on qos logging. 
 * `update_account_log_every` - Update account log in every amount of seconds.
+* `alert_when_free_disk_space_below_metrics` - N/A.
+* `delete_when_free_disk_space_below_metrics` - N/A.
+* `distribute_logs_between_all_active_servers` - N/A.
+* `include_tcp_state_information` - N/A.
+* `smart_event_intro_correlation_unit` - N/A.
+* `stop_logging_when_free_disk_space_below_metrics` - N/A.

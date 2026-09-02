@@ -39,3 +39,12 @@ The following arguments are supported:
 * `tags` - Collection of tag objects identified by the name or UID.
 * `color` - Color of the object.
 * `comments` - Comments string.
+* `automatic_refresh` - N/A.
+* `data_center_type` - N/A.
+* `properties` - Data Center properties.properties blocks are documented below.
+
+
+`properties` supports the following:
+
+* `name` - N/A.
+* `value` - N/A.

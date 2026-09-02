@@ -126,6 +126,11 @@ func dataSourceManagementServiceOther() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"protocol": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -269,6 +274,10 @@ func dataSourceManagementServiceOtherRead(d *schema.ResourceData, m interface{})
 		}
 	} else {
 		_ = d.Set("groups", nil)
+	}
+
+	if v := serviceOther["protocol"]; v != nil {
+		_ = d.Set("protocol", v)
 	}
 
 	return nil

@@ -36,3 +36,4 @@ The following arguments are supported:
 
 * `name` - (Optional) Object name.
 * `uid` - (Optional) Object unique identifier.
+* `remote_access_client` - N/A.
