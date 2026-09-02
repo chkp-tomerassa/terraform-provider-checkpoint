@@ -674,6 +674,40 @@ func dataSourceManagementBestPractice() *schema.Resource {
 				Computed:    true,
 				Description: "Comments string.",
 			},
+			"deactivation_comment": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"deactivation_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"depends_on": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"deactivation_expiration_date": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The deactivation expiration date of deactivated best practices. Appears only when the value of the 'active' parameter is set to 'false', and the value...",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"iso_8601": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Date and time represented in international ISO 8601 format.",
+						},
+						"posix": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Number of milliseconds that have elapsed since 00:00:00, 1 January 1970.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1511,6 +1545,30 @@ func dataSourceManagementBestPracticeRead(d *schema.ResourceData, m interface{})
 
 	if v := bestPractice["show-regulations"]; v != nil {
 		_ = d.Set("show_regulations", v)
+	}
+
+	if v := bestPractice["deactivation-comment"]; v != nil {
+		_ = d.Set("deactivation_comment", v)
+	}
+
+	if v := bestPractice["deactivation-mode"]; v != nil {
+		_ = d.Set("deactivation_mode", v)
+	}
+
+	if v := bestPractice["depends-on"]; v != nil {
+		_ = d.Set("depends_on", v.(map[string]interface{})["name"])
+	}
+
+	if v := bestPractice["deactivation-expiration-date"]; v != nil {
+		deactivationExpirationDateShow := v.(map[string]interface{})
+		deactivationExpirationDateState := make(map[string]interface{})
+		if v := deactivationExpirationDateShow["iso-8601"]; v != nil {
+			deactivationExpirationDateState["iso_8601"] = v
+		}
+		if v := deactivationExpirationDateShow["posix"]; v != nil {
+			deactivationExpirationDateState["posix"] = v
+		}
+		_ = d.Set("deactivation_expiration_date", []interface{}{deactivationExpirationDateState})
 	}
 
 	return nil

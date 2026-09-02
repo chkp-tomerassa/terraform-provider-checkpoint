@@ -125,6 +125,21 @@ func dataSourceManagementServiceTcp() *schema.Resource {
 				Computed:    true,
 				Description: "Comments string.",
 			},
+			"delayed_sync_value": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"enable_tcp_resource": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"use_delayed_sync": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -264,6 +279,18 @@ func dataSourceManagementServiceTcpRead(d *schema.ResourceData, m interface{}) e
 		_ = d.Set("tags", tagsIds)
 	} else {
 		_ = d.Set("tags", nil)
+	}
+
+	if v := serviceTcp["delayed-sync-value"]; v != nil {
+		_ = d.Set("delayed_sync_value", v)
+	}
+
+	if v := serviceTcp["enable-tcp-resource"]; v != nil {
+		_ = d.Set("enable_tcp_resource", v)
+	}
+
+	if v := serviceTcp["use-delayed-sync"]; v != nil {
+		_ = d.Set("use_delayed_sync", v)
 	}
 
 	return nil

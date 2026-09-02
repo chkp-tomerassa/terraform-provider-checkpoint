@@ -173,6 +173,25 @@ func dataSourceManagementDataCenterContent() *schema.Resource {
 				Computed:    true,
 				Description: "Total number of elements returned by the query.",
 			},
+			"last_successful_scan": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Last successful scan time.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"iso_8601": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Date and time represented in international ISO 8601 format.",
+						},
+						"posix": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Number of milliseconds that have elapsed since 00:00:00, 1 January 1970.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -330,5 +349,17 @@ func dataSourceManagementDataCenterContentRead(d *schema.ResourceData, m interfa
 	if v := DataCenterContent["total"]; v != nil {
 		_ = d.Set("total", int(math.Round(v.(float64))))
 	}
+	if v := DataCenterContent["last-successful-scan"]; v != nil {
+		lastSuccessfulScanShow := v.(map[string]interface{})
+		lastSuccessfulScanState := make(map[string]interface{})
+		if v := lastSuccessfulScanShow["iso-8601"]; v != nil {
+			lastSuccessfulScanState["iso_8601"] = v
+		}
+		if v := lastSuccessfulScanShow["posix"]; v != nil {
+			lastSuccessfulScanState["posix"] = v
+		}
+		_ = d.Set("last_successful_scan", []interface{}{lastSuccessfulScanState})
+	}
+
 	return nil
 }

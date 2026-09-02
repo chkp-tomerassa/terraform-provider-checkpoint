@@ -105,6 +105,11 @@ func dataSourceManagementMds() *schema.Resource {
 				Computed:    true,
 				Description: "Type of the management server.",
 			},
+			"platform": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -236,6 +241,10 @@ func dataSourceManagementMdsRead(d *schema.ResourceData, m interface{}) error {
 
 	if v := mds["server-type"]; v != nil {
 		_ = d.Set("server_type", v)
+	}
+
+	if v := mds["platform"]; v != nil {
+		_ = d.Set("platform", v.(map[string]interface{})["name"])
 	}
 
 	return nil

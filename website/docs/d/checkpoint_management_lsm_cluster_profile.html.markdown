@@ -30,3 +30,7 @@ The following arguments are supported:
 Make sure this command will be executed in the right execution order. 
 note: terraform execution is not sequential.  
 
+
+`nat_settings` supports the following:
+
+* `apply_control_connections` - N/A.

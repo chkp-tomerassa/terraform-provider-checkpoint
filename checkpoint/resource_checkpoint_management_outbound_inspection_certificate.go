@@ -85,6 +85,11 @@ func resourceManagementOutboundInspectionCertificate() *schema.Resource {
 				Description: "Apply changes ignoring errors. You won't be able to publish such a changes. If ignore-warnings flag was omitted - warnings will also be ignored.",
 				Default:     false,
 			},
+			"public_key_algorithm": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Public key algorithm and size of the outbound certificate.",
+			},
 		},
 	}
 }
@@ -140,6 +145,9 @@ func createManagementOutboundInspectionCertificate(d *schema.ResourceData, m int
 
 	log.Println("Create OutboundInspectionCertificate - Map = ", outboundInspectionCertificate)
 
+	if v, ok := d.GetOk("public_key_algorithm"); ok {
+		outboundInspectionCertificate["public-key-algorithm"] = v.(string)
+	}
 	addOutboundInspectionCertificateRes, err := client.ApiCall("add-outbound-inspection-certificate", outboundInspectionCertificate, client.GetSessionID(), true, false)
 	if err != nil || !addOutboundInspectionCertificateRes.Success {
 		if addOutboundInspectionCertificateRes.ErrorMsg != "" {
@@ -245,6 +253,10 @@ func readManagementOutboundInspectionCertificate(d *schema.ResourceData, m inter
 		_ = d.Set("ignore_errors", v)
 	}
 
+	if v := outboundInspectionCertificate["public-key-algorithm"]; v != nil {
+		_ = d.Set("public_key_algorithm", v)
+	}
+
 	return nil
 
 }
@@ -309,6 +321,9 @@ func updateManagementOutboundInspectionCertificate(d *schema.ResourceData, m int
 
 	log.Println("Update OutboundInspectionCertificate - Map = ", outboundInspectionCertificate)
 
+	if ok := d.HasChange("public_key_algorithm"); ok {
+		outboundInspectionCertificate["public-key-algorithm"] = d.Get("public_key_algorithm")
+	}
 	updateOutboundInspectionCertificateRes, err := client.ApiCall("set-outbound-inspection-certificate", outboundInspectionCertificate, client.GetSessionID(), true, false)
 	if err != nil || !updateOutboundInspectionCertificateRes.Success {
 		if updateOutboundInspectionCertificateRes.ErrorMsg != "" {

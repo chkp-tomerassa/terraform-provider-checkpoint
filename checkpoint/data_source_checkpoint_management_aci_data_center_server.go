@@ -62,6 +62,35 @@ func dataSourceManagementAciDataCenterServer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"automatic_refresh": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"data_center_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"properties": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "Data Center properties.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "N/A",
+						},
+						"value": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "N/A",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -150,6 +179,31 @@ func dataSourceAciDataCenterServerRead(d *schema.ResourceData, m interface{}) er
 
 	if v := aciDataCenterServer["ignore-errors"]; v != nil {
 		_ = d.Set("ignore_errors", v)
+	}
+
+	if v := aciDataCenterServer["automatic-refresh"]; v != nil {
+		_ = d.Set("automatic_refresh", v)
+	}
+
+	if v := aciDataCenterServer["data-center-type"]; v != nil {
+		_ = d.Set("data_center_type", v)
+	}
+
+	if v := aciDataCenterServer["properties"]; v != nil {
+		propertiesList := v.([]interface{})
+		var propertiesListState []map[string]interface{}
+		for i := range propertiesList {
+			propertiesShow := propertiesList[i].(map[string]interface{})
+			propertiesState := make(map[string]interface{})
+			if v := propertiesShow["name"]; v != nil {
+				propertiesState["name"] = v
+			}
+			if v := propertiesShow["value"]; v != nil {
+				propertiesState["value"] = v
+			}
+			propertiesListState = append(propertiesListState, propertiesState)
+		}
+		_ = d.Set("properties", propertiesListState)
 	}
 
 	return nil

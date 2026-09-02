@@ -50,6 +50,7 @@ The following arguments are supported:
 * `tags` - Collection of tag identifiers.
 * `color` - Color of the object. Should be one of existing colors. 
 * `comments` - Comments string. 
+* `server` - N/A.
 
 
 `cpmi` supports the following:

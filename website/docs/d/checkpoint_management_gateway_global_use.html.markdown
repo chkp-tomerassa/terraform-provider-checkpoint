@@ -32,6 +32,9 @@ The following arguments are supported:
 * `uid` - Object Identifier.
 * `name` - Object Name.
 * `domain` - data about doamin
+* `enable_identity_sharing` - N/A.
+* `enable_vpn` - N/A.
+* `identity_sharing_domains` - N/A.
 
 `domain` supports the following:
 

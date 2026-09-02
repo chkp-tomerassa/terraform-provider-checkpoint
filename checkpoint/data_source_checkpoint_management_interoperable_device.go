@@ -221,6 +221,11 @@ func dataSourceManagementInteroperableDevice() *schema.Resource {
 					},
 				},
 			},
+			"autonomous_system_number": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -456,6 +461,10 @@ func dataSourceManagementInteroperableDeviceRead(d *schema.ResourceData, m inter
 
 	if v := interoperableDevice["ignore-errors"]; v != nil {
 		_ = d.Set("ignore_errors", v)
+	}
+
+	if v := interoperableDevice["autonomous-system-number"]; v != nil {
+		_ = d.Set("autonomous_system_number", v)
 	}
 
 	return nil

@@ -31,6 +31,7 @@ The following arguments are supported:
 * `dereference_group_members` - Indicates whether to dereference "members" field by details level for every object in
   reply.
 * `show_membership` - Indicates whether to calculate and show "groups" field for every object in reply.
+* `objects_dictionary` - N/A.
 
 `filter_settings` supports the following:
 

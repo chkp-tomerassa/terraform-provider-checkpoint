@@ -70,8 +70,18 @@ func dataSourceManagementCloudServices() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "N/A",
+						},
 					},
 				},
+			},
+			"environment_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
 			},
 		},
 	}
@@ -148,12 +158,19 @@ func dataSourceManagementCloudServicesRead(d *schema.ResourceData, m interface{}
 			}
 			gatewaysOnboardingSettings["specific_gateways"] = specificGatewaysRes
 		}
+		if v := gatewaysOnboardingSettingsMap["enabled"]; v != nil {
+			gatewaysOnboardingSettings["enabled"] = v
+		}
 		_ = d.Set("gateways_onboarding_settings", []interface{}{gatewaysOnboardingSettings})
 	} else {
 		_ = d.Set("gateways_onboarding_settings", nil)
 	}
 
 	d.SetId("show-cloud-services-" + acctest.RandString(5))
+
+	if v := showCloudServicesRes["environment-id"]; v != nil {
+		_ = d.Set("environment_id", v)
+	}
 
 	return nil
 }

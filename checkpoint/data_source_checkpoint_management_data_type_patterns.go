@@ -58,6 +58,11 @@ func dataSourceManagementDataTypePatterns() *schema.Resource {
 				Computed:    true,
 				Description: "Comments string.",
 			},
+			"use_statistical_analysis": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -138,6 +143,10 @@ func dataSourceManagementDataTypePatternsRead(d *schema.ResourceData, m interfac
 
 	if v := dataTypePatterns["comments"]; v != nil {
 		_ = d.Set("comments", v)
+	}
+
+	if v := dataTypePatterns["use-statistical-analysis"]; v != nil {
+		_ = d.Set("use_statistical_analysis", v)
 	}
 
 	return nil

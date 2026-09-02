@@ -45,6 +45,9 @@ The following arguments are supported:
 * `comments` - Comments string.
 * `groups` - Collection of group identifiers.
 * `tags` - Collection of tag identifiers.
+* `delayed_sync_value` - N/A.
+* `enable_tcp_resource` - N/A.
+* `use_delayed_sync` - N/A.
 
 `aggressive_aging` supports the following:
 

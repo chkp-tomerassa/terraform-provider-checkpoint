@@ -33,3 +33,4 @@ The following arguments are supported:
 
 * `name` - (Optional) Object name.
 * `uid` - (Optional) Object unique identifier.
+* `using_all_data_center` - N/A.

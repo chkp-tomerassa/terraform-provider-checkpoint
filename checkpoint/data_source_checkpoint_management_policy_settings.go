@@ -43,8 +43,18 @@ func dataSourceManagementPolicySettings() *schema.Resource {
 							Computed:    true,
 							Description: "Source default value identified by name.",
 						},
+						"track": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "N/A",
+						},
 					},
 				},
+			},
+			"log_generation": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
 			},
 		},
 	}
@@ -92,9 +102,16 @@ func dataSourceManagementPolicySettingsRead(d *schema.ResourceData, m interface{
 			securityAccessDefaultsMapToReturn["source"] = v
 		}
 
+		if v := securityAccessDefaultsMap["track"]; v != nil {
+			securityAccessDefaultsMapToReturn["track"] = v
+		}
 		_ = d.Set("security_access_defaults", []interface{}{securityAccessDefaultsMapToReturn})
 	} else {
 		_ = d.Set("security_access_defaults", nil)
+	}
+
+	if v := policySettings["log-generation"]; v != nil {
+		_ = d.Set("log_generation", v)
 	}
 
 	return nil

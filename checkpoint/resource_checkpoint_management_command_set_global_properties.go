@@ -207,16 +207,6 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 										Optional:    true,
 										Description: "SMTP Welcome Message is the message to be displayed when a user begins an SMTP session.",
 									},
-									"http_next_proxy_host": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "HTTP next proxy host is the host name of the HTTP proxy behind the Check Point Security Gateway HTTP security server (if there is one). Changing the HTTP Next Proxy fields takes effect after the Security Gateway database is downloaded to the authenticating gateway, or after the security policy is re-installed. <br>These settings apply only to firewalled gateways prior to NG. For later versions, these settings should be defined in the Node Properties window.",
-									},
-									"http_next_proxy_port": {
-										Type:        schema.TypeInt,
-										Optional:    true,
-										Description: "HTTP next proxy port is the port of the HTTP proxy behind the Check Point Security Gateway HTTP security server (if there is one). Changing the HTTP Next Proxy fields takes effect after the Security Gateway database is downloaded to the authenticating gateway, or after the security policy is re-installed. <br>These settings apply only to firewalled gateways prior to NG. For later versions, these settings should be defined in the Node Properties window.",
-									},
 									"http_servers": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -483,224 +473,6 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 							Description: "configure supported Encryption and Authentication methods for Remote Access clients.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"encryption_algorithms": {
-										Type:        schema.TypeList,
-										MaxItems:    1,
-										Optional:    true,
-										Description: "Select the methods negotiated in IKE phase 2 and used in IPSec connections.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"ike": {
-													Type:        schema.TypeList,
-													MaxItems:    1,
-													Optional:    true,
-													Description: "Configure the IKE Phase 1 settings.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"support_encryption_algorithms": {
-																Type:        schema.TypeList,
-																MaxItems:    1,
-																Optional:    true,
-																Description: "Select the encryption algorithms that will be supported with remote hosts.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"aes_128": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-128 encryption algorithm will be supported with remote hosts.",
-																		},
-																		"aes_256": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-256 encryption algorithm will be supported with remote hosts.",
-																		},
-																		"des": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the DES encryption algorithm will be supported with remote hosts.",
-																		},
-																		"tdes": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the Triple DES encryption algorithm will be supported with remote hosts.",
-																		},
-																	},
-																},
-															},
-															"use_encryption_algorithm": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: "Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used.",
-															},
-															"support_data_integrity": {
-																Type:        schema.TypeList,
-																MaxItems:    1,
-																Optional:    true,
-																Description: "Select the hash algorithms that will be supported with remote hosts to ensure data integrity.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"aes_xcbc": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-XCBC hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"md5": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the MD5 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"sha1": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the SHA1 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"sha256": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the SHA256 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																	},
-																},
-															},
-															"use_data_integrity": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: "The hash algorithm chosen here will be given the highest priority if more than one choice is offered.",
-															},
-															"support_diffie_hellman_groups": {
-																Type:        schema.TypeList,
-																MaxItems:    1,
-																Optional:    true,
-																Description: "Select the Diffie-Hellman groups that will be supported with remote hosts.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"group1": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether Diffie-Hellman Group 1 (768 bit) will be supported with remote hosts.",
-																		},
-																		"group14": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether Diffie-Hellman Group 14 (2048 bit) will be supported with remote hosts.",
-																		},
-																		"group2": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether Diffie-Hellman Group 2 (1024 bit) will be supported with remote hosts.",
-																			Default:     true,
-																		},
-																		"group5": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether Diffie-Hellman Group 5 (1536 bit) will be supported with remote hosts.",
-																		},
-																	},
-																},
-															},
-															"use_diffie_hellman_group": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: "SecureClient users utilize the Diffie-Hellman group selected in this field.",
-																Default:     "Group 2",
-															},
-														},
-													},
-												},
-												"ipsec": {
-													Type:        schema.TypeList,
-													MaxItems:    1,
-													Optional:    true,
-													Description: "Configure the IPSEC Phase 2 settings.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"support_encryption_algorithms": {
-																Type:        schema.TypeList,
-																MaxItems:    1,
-																Optional:    true,
-																Description: "Select the encryption algorithms that will be supported with remote hosts.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"aes_128": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-128 encryption algorithm will be supported with remote hosts.",
-																		},
-																		"aes_256": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-256 encryption algorithm will be supported with remote hosts.",
-																		},
-																		"des": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the DES encryption algorithm will be supported with remote hosts.",
-																		},
-																		"tdes": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the Triple DES encryption algorithm will be supported with remote hosts.",
-																		},
-																	},
-																},
-															},
-															"use_encryption_algorithm": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: "Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used.",
-															},
-															"support_data_integrity": {
-																Type:        schema.TypeList,
-																MaxItems:    1,
-																Optional:    true,
-																Description: "Select the hash algorithms that will be supported with remote hosts to ensure data integrity.",
-																Elem: &schema.Resource{
-																	Schema: map[string]*schema.Schema{
-																		"aes_xcbc": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the AES-XCBC hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"md5": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the MD5 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"sha1": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the SHA1 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																		"sha256": {
-																			Type:        schema.TypeBool,
-																			Optional:    true,
-																			Description: "Select whether the SHA256 hash algorithm will be supported with remote hosts to ensure data integrity.",
-																		},
-																	},
-																},
-															},
-															"use_data_integrity": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: "The hash algorithm chosen here will be given the highest priority if more than one choice is offered.",
-															},
-															"enforce_encryption_alg_and_data_integrity_on_all_users": {
-																Type:        schema.TypeBool,
-																Optional:    true,
-																Description: "Enforce Encryption Algorithm and Data Integrity on all users.",
-															},
-														},
-													},
-												},
-											},
-										},
-									},
-									"encryption_method": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Select the encryption method.",
-										Default:     "ike_v1_only",
-									},
 									"pre_shared_secret": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -1596,6 +1368,11 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"ip_options_drop": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "IP Options drop specifies the action to take when a packet with IP Options is encountered. The Check Point Security Gateway always drops these packets...",
+						},
 						"administrative_notifications": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -1930,6 +1707,11 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 				ForceNew:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"keep_ike_sas": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Enabled: Keep ALL IKEv1 phase 1 Security Associations (SA) upon policy installation.<br>Disabled: Delete ALL IKEv1 phase 1 Security Associations (SA) ...",
+						},
 						"certs_and_pki": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
@@ -1993,6 +1775,27 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: "Apply changes ignoring errors. You won't be able to publish such a changes. If ignore-warnings flag was omitted - warnings will also be ignored.",
+			},
+			"identity_awareness": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "Configure Identity Awareness properties.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cache_mode": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "True: In case of connectivity loss from the Policy-Decision-Point (PDP), extend Identity cache up-to 'cache-mode-duration'.<br>False: Identity Cache M...",
+						},
+						"cache_mode_duration": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: "Time limit for keeping Identities in the cache.",
+						},
+					},
+				},
 			},
 		},
 	}
@@ -2291,168 +2094,6 @@ func readManagementSetGlobalProperties(d *schema.ResourceData, m interface{}) er
 
 				vpnAuthenticationAndEncryptionPayload := make(map[string]interface{})
 
-				if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms"); ok {
-
-					encryptionAlgorithmsPayload := make(map[string]interface{})
-
-					if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike"); ok {
-
-						ikePayload := make(map[string]interface{})
-
-						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms"); ok {
-
-							supportEncryptionAlgorithmsPayload := make(map[string]interface{})
-
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.aes_128"); ok {
-								supportEncryptionAlgorithmsPayload["aes-128"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.aes_256"); ok {
-								supportEncryptionAlgorithmsPayload["aes-256"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.des"); ok {
-								supportEncryptionAlgorithmsPayload["des"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.tdes"); ok {
-								supportEncryptionAlgorithmsPayload["tdes"] = strconv.FormatBool(v.(bool))
-							}
-							ikePayload["support-encryption-algorithms"] = supportEncryptionAlgorithmsPayload
-						}
-						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_encryption_algorithm"); ok {
-							ikePayload["use-encryption-algorithm"] = v.(string)
-						}
-						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity"); ok {
-
-							supportDataIntegrityPayload := make(map[string]interface{})
-
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.aes_xcbc"); ok {
-								supportDataIntegrityPayload["aes-xcbc"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.md5"); ok {
-								supportDataIntegrityPayload["md5"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha1"); ok {
-								supportDataIntegrityPayload["sha1"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha256"); ok {
-								supportDataIntegrityPayload["sha256"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha384"); ok {
-								supportDataIntegrityPayload["sha384"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha512"); ok {
-								supportDataIntegrityPayload["sha512"] = strconv.FormatBool(v.(bool))
-							}
-							ikePayload["support-data-integrity"] = supportDataIntegrityPayload
-						}
-						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_data_integrity"); ok {
-							ikePayload["use-data-integrity"] = v.(string)
-						}
-						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups"); ok {
-
-							supportDiffieHellmanGroupsPayload := make(map[string]interface{})
-
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group1"); ok {
-								supportDiffieHellmanGroupsPayload["group1"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group14"); ok {
-								supportDiffieHellmanGroupsPayload["group14"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group15"); ok {
-								supportDiffieHellmanGroupsPayload["group15"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group16"); ok {
-								supportDiffieHellmanGroupsPayload["group16"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group17"); ok {
-								supportDiffieHellmanGroupsPayload["group17"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group18"); ok {
-								supportDiffieHellmanGroupsPayload["group18"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group19"); ok {
-								supportDiffieHellmanGroupsPayload["group19"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group2"); ok {
-								supportDiffieHellmanGroupsPayload["group2"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group20"); ok {
-								supportDiffieHellmanGroupsPayload["group20"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group21"); ok {
-								supportDiffieHellmanGroupsPayload["group21"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group5"); ok {
-								supportDiffieHellmanGroupsPayload["group5"] = strconv.FormatBool(v.(bool))
-							}
-							ikePayload["support-diffie-hellman-groups"] = supportDiffieHellmanGroupsPayload
-						}
-						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_diffie_hellman_group"); ok {
-							ikePayload["use-diffie-hellman-group"] = v.(string)
-						}
-						encryptionAlgorithmsPayload["ike"] = ikePayload
-					}
-					if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec"); ok {
-
-						ipsecPayload := make(map[string]interface{})
-
-						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms"); ok {
-
-							supportEncryptionAlgorithmsPayload := make(map[string]interface{})
-
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.aes_128"); ok {
-								supportEncryptionAlgorithmsPayload["aes-128"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.aes_256"); ok {
-								supportEncryptionAlgorithmsPayload["aes-256"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.des"); ok {
-								supportEncryptionAlgorithmsPayload["des"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.tdes"); ok {
-								supportEncryptionAlgorithmsPayload["tdes"] = strconv.FormatBool(v.(bool))
-							}
-							ipsecPayload["support-encryption-algorithms"] = supportEncryptionAlgorithmsPayload
-						}
-						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.use_encryption_algorithm"); ok {
-							ipsecPayload["use-encryption-algorithm"] = v.(string)
-						}
-						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity"); ok {
-
-							supportDataIntegrityPayload := make(map[string]interface{})
-
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.aes_xcbc"); ok {
-								supportDataIntegrityPayload["aes-xcbc"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.md5"); ok {
-								supportDataIntegrityPayload["md5"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha1"); ok {
-								supportDataIntegrityPayload["sha1"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha256"); ok {
-								supportDataIntegrityPayload["sha256"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha384"); ok {
-								supportDataIntegrityPayload["sha384"] = strconv.FormatBool(v.(bool))
-							}
-							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha512"); ok {
-								supportDataIntegrityPayload["sha512"] = strconv.FormatBool(v.(bool))
-							}
-							ipsecPayload["support-data-integrity"] = supportDataIntegrityPayload
-						}
-						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.use_data_integrity"); ok {
-							ipsecPayload["use-data-integrity"] = v.(string)
-						}
-						if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.enforce_encryption_alg_and_data_integrity_on_all_users"); ok {
-							ipsecPayload["enforce-encryption-alg-and-data-integrity-on-all-users"] = strconv.FormatBool(v.(bool))
-						}
-						encryptionAlgorithmsPayload["ipsec"] = ipsecPayload
-					}
-					vpnAuthenticationAndEncryptionPayload["encryption-algorithms"] = encryptionAlgorithmsPayload
-				}
-				if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_method"); ok {
-					vpnAuthenticationAndEncryptionPayload["encryption-method"] = v.(string)
-				}
 				if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.pre_shared_secret"); ok {
 					vpnAuthenticationAndEncryptionPayload["pre-shared-secret"] = strconv.FormatBool(v.(bool))
 				}
@@ -3222,6 +2863,9 @@ func readManagementSetGlobalProperties(d *schema.ResourceData, m interface{}) er
 				}
 				advancedConfPayload["certs-and-pki"] = certsAndPkiPayload
 			}
+			if v, ok := d.GetOkExists("advanced_conf.0.keep_ike_sas"); ok {
+				advancedConfPayload["keep-ike-sas"] = v.(bool)
+			}
 			payload["advanced-conf"] = advancedConfPayload
 		}
 	}
@@ -3244,6 +2888,17 @@ func readManagementSetGlobalProperties(d *schema.ResourceData, m interface{}) er
 
 	if v, ok := d.GetOkExists("ignore_errors"); ok {
 		payload["ignore-errors"] = v.(bool)
+	}
+
+	if _, ok := d.GetOk("identity_awareness"); ok {
+		identityAwarenessPayload := make(map[string]interface{})
+		if v, ok := d.GetOkExists("identity_awareness.0.cache_mode"); ok {
+			identityAwarenessPayload["cache-mode"] = v.(bool)
+		}
+		if v, ok := d.GetOk("identity_awareness.0.cache_mode_duration"); ok {
+			identityAwarenessPayload["cache-mode-duration"] = v.(int)
+		}
+		payload["identity-awareness"] = identityAwarenessPayload
 	}
 
 	SetGlobalPropertiesRes, _ := client.ApiCall("set-global-properties", payload, client.GetSessionID(), true, client.IsProxyUsed())

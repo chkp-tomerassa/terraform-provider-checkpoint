@@ -34,12 +34,14 @@ The following arguments are supported:
 * `supported_hardware` - Supported hardware according to restrictions.
 * `supported_platforms` - Supported platforms according to restrictions.
 * `supported_versions` - Supported versions according to restrictions.
+* `supported_hardware_subtypes` - Supported hardware-subtypes according to restrictions.supported_hardware_subtypes blocks are documented below.
 
 `restrictions` supports the following: 
 
 * `hardware` -  Check Point hardware.
 * `platform` - Check Point gateway platform.
 * `version` - Gateway platform version.
+* `hardware_subtype` - N/A.
 
 `supported_blades` supports the following:
 
@@ -101,3 +103,8 @@ The following arguments are supported:
 Make sure this command will be executed in the right execution order. 
 note: terraform execution is not sequential.  
 
+
+`supported_hardware_subtypes` supports the following:
+
+* `default` - Default hardware subtype.
+* `hardware_subtypes` - List of Check Point hardware subtypes.

@@ -34,6 +34,7 @@ The following arguments are supported:
   orders blocks are documented below.
 * `uid_in_data_center` - Return result matching the unique identifier of the object on the Data Center Server.
 * `filter` - Return results matching the specified filter.
+* `last_successful_scan` - Last successful scan time.last_successful_scan blocks are documented below.
 
 `filter` supports the following:
 
@@ -45,3 +46,9 @@ The following arguments are supported:
 
 * `asc` - (Optional) Sorts results by the given field in ascending order.
 * `desc` - (Optional) Sorts results by the given field in descending order.
+
+
+`last_successful_scan` supports the following:
+
+* `iso_8601` - Date and time represented in international ISO 8601 format.
+* `posix` - Number of milliseconds that have elapsed since 00:00:00, 1 January 1970.

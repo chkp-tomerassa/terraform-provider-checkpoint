@@ -142,6 +142,16 @@ func resourceManagementUser() *schema.Resource {
 							Optional:    true,
 							Description: "IKE shared secret.",
 						},
+						"data_integrity_algorithm": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "IKE data integrity algorithm.",
+						},
+						"encryption_algorithm": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "IKE encryption algorithm.",
+						},
 					},
 				},
 			},
@@ -276,6 +286,12 @@ func createManagementUser(d *schema.ResourceData, m interface{}) error {
 			}
 			if v, ok := d.GetOk("encryption.0.shared_secret"); ok {
 				encryptionPayload["shared-secret"] = v.(string)
+			}
+			if v, ok := d.GetOk("encryption.0.data_integrity_algorithm"); ok {
+				encryptionPayload["data-integrity-algorithm"] = v.(string)
+			}
+			if v, ok := d.GetOk("encryption.0.encryption_algorithm"); ok {
+				encryptionPayload["encryption-algorithm"] = v.(string)
 			}
 			user["encryption"] = encryptionPayload
 		}
@@ -432,6 +448,12 @@ func readManagementUser(d *schema.ResourceData, m interface{}) error {
 			encryptionMapToReturn["shared_secret"] = v
 		}
 
+		if v := encryptionMap["data-integrity-algorithm"]; v != nil {
+			encryptionMapToReturn["data_integrity_algorithm"] = v
+		}
+		if v := encryptionMap["encryption-algorithm"]; v != nil {
+			encryptionMapToReturn["encryption_algorithm"] = v
+		}
 		_ = d.Set("encryption", []interface{}{encryptionMapToReturn})
 
 	} else {
@@ -566,6 +588,12 @@ func updateManagementUser(d *schema.ResourceData, m interface{}) error {
 				}
 				if v, ok := d.GetOk("encryption.0.shared_secret"); ok {
 					encryptionPayload["shared-secret"] = v.(string)
+				}
+				if v, ok := d.GetOk("encryption.0.data_integrity_algorithm"); ok {
+					encryptionPayload["data-integrity-algorithm"] = v.(string)
+				}
+				if v, ok := d.GetOk("encryption.0.encryption_algorithm"); ok {
+					encryptionPayload["encryption-algorithm"] = v.(string)
 				}
 				user["encryption"] = encryptionPayload
 			}

@@ -42,6 +42,21 @@ func dataSourceManagementServerCertificate() *schema.Resource {
 				Computed:    true,
 				Description: "Server certificate comments.",
 			},
+			"base64_certificate": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"base64_public_certificate": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
+			"issued_by": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "N/A",
+			},
 		},
 	}
 }
@@ -91,6 +106,18 @@ func dataSourceManagementServerCertificateRead(d *schema.ResourceData, m interfa
 	}
 	if v := serverCertificate["comments"]; v != nil {
 		_ = d.Set("comments", v)
+	}
+
+	if v := serverCertificate["base64-certificate"]; v != nil {
+		_ = d.Set("base64_certificate", v)
+	}
+
+	if v := serverCertificate["base64-public-certificate"]; v != nil {
+		_ = d.Set("base64_public_certificate", v)
+	}
+
+	if v := serverCertificate["issued-by"]; v != nil {
+		_ = d.Set("issued_by", v)
 	}
 
 	return nil

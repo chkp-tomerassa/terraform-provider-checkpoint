@@ -334,6 +334,14 @@ func dataSourceManagementNatRuleBase() *schema.Resource {
 					},
 				},
 			},
+			"objects_dictionary": {
+				Type:        schema.TypeSet,
+				Computed:    true,
+				Description: "N/A",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -504,6 +512,17 @@ func dataSourceManagementNatRuleBaseRead(d *schema.ResourceData, m interface{}) 
 	}
 	outputRuleBase = append(outputRuleBase, ruleBaseToReturn)
 	_ = d.Set("rulebase", outputRuleBase)
+	if v := ruleBaseJson["objects-dictionary"]; v != nil {
+		objectsdictionaryIdsList := v.([]interface{})
+		var objectsdictionaryIds = make([]string, 0)
+		if len(objectsdictionaryIdsList) > 0 {
+			for _, item := range objectsdictionaryIdsList {
+				objectsdictionaryIds = append(objectsdictionaryIds, item.(map[string]interface{})["name"].(string))
+			}
+		}
+		_ = d.Set("objects_dictionary", objectsdictionaryIds)
+	}
+
 	return nil
 }
 
