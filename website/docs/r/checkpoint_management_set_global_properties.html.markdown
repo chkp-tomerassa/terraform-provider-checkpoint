@@ -449,11 +449,6 @@ The following arguments are supported:
 * `remember_previously_detected_external_networks` - (Optional) The speed at which locations are classified as internal or external can be increased by caching (on the client side) names of networks that were previously determined to be external. 
 
 
-## How To Use
-Make sure this command will be executed in the right execution order. 
-note: terraform execution is not sequential.  
-
-
 `ike` supports the following:
 
 * `support_encryption_algorithms` - (Optional) Select the encryption algorithms that will be supported with remote hosts.support_encryption_algorithms blocks are documented below.
@@ -501,3 +496,8 @@ note: terraform execution is not sequential.
 
 * `cache_mode` - (Optional) True: In case of connectivity loss from the Policy-Decision-Point (PDP), extend Identity cache up-to 'cache-mode-duration'.<br>False: Identity Cache M...
 * `cache_mode_duration` - (Optional) Time limit for keeping Identities in the cache.
+
+
+## How To Use
+Make sure this command will be executed in the right execution order. 
+note: terraform execution is not sequential.  

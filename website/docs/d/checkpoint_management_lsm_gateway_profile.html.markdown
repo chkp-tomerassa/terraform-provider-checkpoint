@@ -26,11 +26,11 @@ The following arguments are supported:
 * `uid` - (Optional) Object unique identifier.
 * `name` - (Optional) Object name.
 
-## How To Use
-Make sure this command will be executed in the right execution order. 
-note: terraform execution is not sequential.  
-
-
 `nat_settings` supports the following:
 
 * `apply_control_connections` - This option performs NAT on VPN control connections to and from this object.
+
+
+## How To Use
+Make sure this command will be executed in the right execution order. 
+note: terraform execution is not sequential.  

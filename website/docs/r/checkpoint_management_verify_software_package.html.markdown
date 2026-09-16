@@ -32,12 +32,12 @@ The following arguments are supported:
 * `download_package_from` - (Optional) Where is the package located.
 * `operation_context` - (Optional) The operation can be: 'install' (default) or 'uninstall'.
 
-## How To Use
-Make sure this command will be executed in the right execution order. 
-note: terraform execution is not sequential.  
-
-
 `cluster_installation_settings` supports the following:
 
 * `cluster_delay` - (Optional) The delay between end of installation on one cluster members and start of installation on the next cluster member.
 * `cluster_strategy` - (Optional) The cluster installation strategy. all-members - Install the package on all members in the cluster non-active-members-and-failover - In the High Avail...
+
+
+## How To Use
+Make sure this command will be executed in the right execution order. 
+note: terraform execution is not sequential.  

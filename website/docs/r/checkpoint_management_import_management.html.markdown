@@ -45,12 +45,12 @@ The following arguments are supported:
 * `prepare_background_import` - (Optional) If 'true', the import will run in the background and 'Prepare' phase will be achieved. You can continue making changes on the Management Server during...
 
 
-## How To Use
-Make sure this command will be executed in the right execution order. 
-note: terraform execution is not sequential.  
-
-
 `change_ips` supports the following:
 
 * `new_ipv4_address` - (Optional) The new IPv4 address of the server that migrates to a new IP address.
 * `server_name` - (Optional) The object name of the server that migrates to a new IP address.
+
+
+## How To Use
+Make sure this command will be executed in the right execution order. 
+note: terraform execution is not sequential.  

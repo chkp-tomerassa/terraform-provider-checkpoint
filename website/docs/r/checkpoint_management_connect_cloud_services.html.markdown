@@ -32,11 +32,6 @@ The following arguments are supported:
 * `iso_8601` - Date and time represented in international ISO 8601 format.
 * `posix` - Number of milliseconds that have elapsed since 00:00:00, 1 January 1970.
 
-## How To Use
-Make sure this command will be executed in the right execution order. 
-note: terraform execution is not sequential.  
-
-
 `gateways_onboarding_settings` supports the following:
 
 * `connection_method` - (Optional) Indicate whether Gateways will be connected to Infinity Portal automatically or only after policy installation.
@@ -44,3 +39,8 @@ note: terraform execution is not sequential.
 * `enabled` - (Optional) Enable/Disable automatic connection of Security Gateways to Infinity Portal.
 * `participant_gateways` - (Optional) Which Gateways will be connected to Infinity Portal.
 * `specific_gateways` - (Optional) Selection of targets identified by the name or UID which will be on-boarded to the cloud. Configuration will be applied only when 'participant-gateway...
+
+
+## How To Use
+Make sure this command will be executed in the right execution order. 
+note: terraform execution is not sequential.  
