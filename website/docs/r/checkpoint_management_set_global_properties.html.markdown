@@ -310,6 +310,8 @@ The following arguments are supported:
 
 `vpn_authentication_and_encryption` supports the following:
 
+* `encryption_algorithms` - (Optional) Select the methods negotiated in IKE phase 2 and used in IPSec connections.encryption_algorithms blocks are documented below. **Deprecated** - moved to the `checkpoint_management_vpn_community_remote_access` resource under `encryption`: use `encryption.ike_phase_1` instead of `ike`, and `encryption.ike_phase_2` instead of `ipsec`.
+* `encryption_method` - (Optional) Select the encryption method. **Deprecated** - moved to the `checkpoint_management_vpn_community_remote_access` resource as `encryption.encryption_method`.
 * `pre_shared_secret` - (Optional) the user password is specified in the Authentication tab in the user's IKE properties (in the user properties window: Encryption tab > Edit). 
 * `support_legacy_auth_for_sc_l2tp_nokia_clients` - (Optional) Support Legacy Authentication for SC (hybrid mode), L2TP (PAP) and Nokia clients (CRACK). 
 * `support_legacy_eap` - (Optional) Support Legacy EAP (Extensible Authentication Protocol). 
@@ -424,6 +426,12 @@ The following arguments are supported:
 * `reauthentication` - (Optional) Specify whether users must reauthenticate when accessing a specific server. 
 
 
+`encryption_algorithms` supports the following:
+
+* `ike` - (Optional) Configure the IKE Phase 1 settings.ike blocks are documented below.
+* `ipsec` - (Optional) Configure the IPSEC Phase 2 settings.ipsec blocks are documented below.
+
+
 `exceptions` supports the following:
 
 * `hosts` - (Optional) Specify the Hosts to be excluded from SCV.hosts blocks are documented below.
@@ -444,6 +452,49 @@ The following arguments are supported:
 ## How To Use
 Make sure this command will be executed in the right execution order. 
 note: terraform execution is not sequential.  
+
+
+`ike` supports the following:
+
+* `support_encryption_algorithms` - (Optional) Select the encryption algorithms that will be supported with remote hosts.support_encryption_algorithms blocks are documented below.
+* `use_encryption_algorithm` - (Optional) Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used. 
+* `support_data_integrity` - (Optional) Select the hash algorithms that will be supported with remote hosts to ensure data integrity.support_data_integrity blocks are documented below.
+* `use_data_integrity` - (Optional) The hash algorithm chosen here will be given the highest priority if more than one choice is offered. 
+* `support_diffie_hellman_groups` - (Optional) Select the Diffie-Hellman groups that will be supported with remote hosts.support_diffie_hellman_groups blocks are documented below.
+* `use_diffie_hellman_group` - (Optional) SecureClient users utilize the Diffie-Hellman group selected in this field. 
+
+
+`ipsec` supports the following:
+
+* `support_encryption_algorithms` - (Optional) Select the encryption algorithms that will be supported with remote hosts.support_encryption_algorithms blocks are documented below.
+* `use_encryption_algorithm` - (Optional) Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used. 
+* `support_data_integrity` - (Optional) Select the hash algorithms that will be supported with remote hosts to ensure data integrity.support_data_integrity blocks are documented below.
+* `use_data_integrity` - (Optional) The hash algorithm chosen here will be given the highest priority if more than one choice is offered. 
+* `enforce_encryption_alg_and_data_integrity_on_all_users` - (Optional) Enforce Encryption Algorithm and Data Integrity on all users. 
+
+
+`support_encryption_algorithms` supports the following:
+
+* `aes_128` - (Optional) Select whether the AES-128 encryption algorithm will be supported with remote hosts. 
+* `aes_256` - (Optional) Select whether the AES-256 encryption algorithm will be supported with remote hosts. 
+* `des` - (Optional) Select whether the DES encryption algorithm will be supported with remote hosts. 
+* `tdes` - (Optional) Select whether the Triple DES encryption algorithm will be supported with remote hosts. 
+
+
+`support_data_integrity` supports the following:
+
+* `aes_xcbc` - (Optional) Select whether the AES-XCBC hash algorithm will be supported with remote hosts to ensure data integrity. 
+* `md5` - (Optional) Select whether the MD5 hash algorithm will be supported with remote hosts to ensure data integrity. 
+* `sha1` - (Optional) Select whether the SHA1 hash algorithm will be supported with remote hosts to ensure data integrity. 
+* `sha256` - (Optional) Select whether the SHA256 hash algorithm will be supported with remote hosts to ensure data integrity. 
+
+
+`support_diffie_hellman_groups` supports the following:
+
+* `group1` - (Optional) Select whether Diffie-Hellman Group 1 (768 bit) will be supported with remote hosts. 
+* `group14` - (Optional) Select whether Diffie-Hellman Group 14 (2048 bit) will be supported with remote hosts. 
+* `group2` - (Optional) Select whether Diffie-Hellman Group 2 (1024 bit) will be supported with remote hosts. 
+* `group5` - (Optional) Select whether Diffie-Hellman Group 5 (1536 bit) will be supported with remote hosts. 
 
 
 `identity_awareness` supports the following:

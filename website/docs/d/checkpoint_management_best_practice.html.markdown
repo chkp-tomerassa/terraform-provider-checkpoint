@@ -53,7 +53,7 @@ The following arguments are supported:
 * `deactivation_comment` - N/A.
 * `deactivation_expiration_date` - The deactivation expiration date of deactivated best practices. Appears only when the value of the 'active' parameter is set to 'false', and the value...deactivation_expiration_date blocks are documented below.
 * `deactivation_mode` - N/A.
-* `depends_on` - N/A.
+* `depends_on_name` - Name of the best practice that this best practice depends on.
 
 `regulations` supports the following:
 

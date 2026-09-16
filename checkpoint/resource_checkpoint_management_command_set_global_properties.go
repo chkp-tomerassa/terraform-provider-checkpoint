@@ -207,6 +207,18 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 										Optional:    true,
 										Description: "SMTP Welcome Message is the message to be displayed when a user begins an SMTP session.",
 									},
+									"http_next_proxy_host": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Deprecated:  "Deprecated - no longer sent to the Management API. Retained so existing configurations keep working.",
+										Description: "HTTP next proxy host is the host name of the HTTP proxy behind the Check Point Security Gateway HTTP security server (if there is one). Changing the HTTP Next Proxy fields takes effect after the Security Gateway database is downloaded to the authenticating gateway, or after the security policy is re-installed. <br>These settings apply only to firewalled gateways prior to NG. For later versions, these settings should be defined in the Node Properties window.",
+									},
+									"http_next_proxy_port": {
+										Type:        schema.TypeInt,
+										Optional:    true,
+										Deprecated:  "Deprecated - no longer sent to the Management API. Retained so existing configurations keep working.",
+										Description: "HTTP next proxy port is the port of the HTTP proxy behind the Check Point Security Gateway HTTP security server (if there is one). Changing the HTTP Next Proxy fields takes effect after the Security Gateway database is downloaded to the authenticating gateway, or after the security policy is re-installed. <br>These settings apply only to firewalled gateways prior to NG. For later versions, these settings should be defined in the Node Properties window.",
+									},
 									"http_servers": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -473,6 +485,226 @@ func resourceManagementSetGlobalProperties() *schema.Resource {
 							Description: "configure supported Encryption and Authentication methods for Remote Access clients.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"encryption_algorithms": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Deprecated:  "Deprecated - moved to the checkpoint_management_vpn_community_remote_access resource under encryption: use encryption.ike_phase_1 instead of ike, and encryption.ike_phase_2 instead of ipsec. No longer sent to the Management API.",
+										Description: "Select the methods negotiated in IKE phase 2 and used in IPSec connections.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"ike": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "Configure the IKE Phase 1 settings.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"support_encryption_algorithms": {
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Optional:    true,
+																Description: "Select the encryption algorithms that will be supported with remote hosts.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"aes_128": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-128 encryption algorithm will be supported with remote hosts.",
+																		},
+																		"aes_256": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-256 encryption algorithm will be supported with remote hosts.",
+																		},
+																		"des": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the DES encryption algorithm will be supported with remote hosts.",
+																		},
+																		"tdes": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the Triple DES encryption algorithm will be supported with remote hosts.",
+																		},
+																	},
+																},
+															},
+															"use_encryption_algorithm": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: "Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used.",
+															},
+															"support_data_integrity": {
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Optional:    true,
+																Description: "Select the hash algorithms that will be supported with remote hosts to ensure data integrity.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"aes_xcbc": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-XCBC hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"md5": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the MD5 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"sha1": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the SHA1 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"sha256": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the SHA256 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																	},
+																},
+															},
+															"use_data_integrity": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: "The hash algorithm chosen here will be given the highest priority if more than one choice is offered.",
+															},
+															"support_diffie_hellman_groups": {
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Optional:    true,
+																Description: "Select the Diffie-Hellman groups that will be supported with remote hosts.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"group1": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether Diffie-Hellman Group 1 (768 bit) will be supported with remote hosts.",
+																		},
+																		"group14": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether Diffie-Hellman Group 14 (2048 bit) will be supported with remote hosts.",
+																		},
+																		"group2": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether Diffie-Hellman Group 2 (1024 bit) will be supported with remote hosts.",
+																			Default:     true,
+																		},
+																		"group5": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether Diffie-Hellman Group 5 (1536 bit) will be supported with remote hosts.",
+																		},
+																	},
+																},
+															},
+															"use_diffie_hellman_group": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: "SecureClient users utilize the Diffie-Hellman group selected in this field.",
+																Default:     "Group 2",
+															},
+														},
+													},
+												},
+												"ipsec": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "Configure the IPSEC Phase 2 settings.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"support_encryption_algorithms": {
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Optional:    true,
+																Description: "Select the encryption algorithms that will be supported with remote hosts.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"aes_128": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-128 encryption algorithm will be supported with remote hosts.",
+																		},
+																		"aes_256": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-256 encryption algorithm will be supported with remote hosts.",
+																		},
+																		"des": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the DES encryption algorithm will be supported with remote hosts.",
+																		},
+																		"tdes": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the Triple DES encryption algorithm will be supported with remote hosts.",
+																		},
+																	},
+																},
+															},
+															"use_encryption_algorithm": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: "Choose the encryption algorithm that will have the highest priority of the selected algorithms. If given a choice of more that one encryption algorithm to use, the algorithm selected in this field will be used.",
+															},
+															"support_data_integrity": {
+																Type:        schema.TypeList,
+																MaxItems:    1,
+																Optional:    true,
+																Description: "Select the hash algorithms that will be supported with remote hosts to ensure data integrity.",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"aes_xcbc": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the AES-XCBC hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"md5": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the MD5 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"sha1": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the SHA1 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																		"sha256": {
+																			Type:        schema.TypeBool,
+																			Optional:    true,
+																			Description: "Select whether the SHA256 hash algorithm will be supported with remote hosts to ensure data integrity.",
+																		},
+																	},
+																},
+															},
+															"use_data_integrity": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: "The hash algorithm chosen here will be given the highest priority if more than one choice is offered.",
+															},
+															"enforce_encryption_alg_and_data_integrity_on_all_users": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Description: "Enforce Encryption Algorithm and Data Integrity on all users.",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"encryption_method": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Deprecated:  "Deprecated - moved to the checkpoint_management_vpn_community_remote_access resource as encryption.encryption_method. No longer sent to the Management API.",
+										Description: "Select the encryption method.",
+										Default:     "ike_v1_only",
+									},
 									"pre_shared_secret": {
 										Type:        schema.TypeBool,
 										Optional:    true,

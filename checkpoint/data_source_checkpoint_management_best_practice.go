@@ -684,7 +684,7 @@ func dataSourceManagementBestPractice() *schema.Resource {
 				Computed:    true,
 				Description: "N/A",
 			},
-			"depends_on": {
+			"depends_on_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "N/A",
@@ -1556,7 +1556,7 @@ func dataSourceManagementBestPracticeRead(d *schema.ResourceData, m interface{})
 	}
 
 	if v := bestPractice["depends-on"]; v != nil {
-		_ = d.Set("depends_on", v.(map[string]interface{})["name"])
+		_ = d.Set("depends_on_name", v.(map[string]interface{})["name"])
 	}
 
 	if v := bestPractice["deactivation-expiration-date"]; v != nil {

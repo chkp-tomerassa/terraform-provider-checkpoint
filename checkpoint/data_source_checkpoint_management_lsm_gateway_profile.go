@@ -525,6 +525,12 @@ func dataSourceManagementLsmGatewayProfile() *schema.Resource {
 				Computed:    true,
 				Description: "Zero Phishing blade enabled.",
 			},
+			"zero_phishing_fqdn": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Deprecated:  "Deprecated - no longer sent to the Management API. Retained so existing configurations keep working.",
+				Description: "Zero Phishing gateway FQDN.",
+			},
 			"color": {
 				Type:        schema.TypeString,
 				Computed:    true,
