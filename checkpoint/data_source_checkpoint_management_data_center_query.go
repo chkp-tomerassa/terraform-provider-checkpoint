@@ -74,11 +74,6 @@ func dataSourceManagementDataCenterQuery() *schema.Resource {
 				Computed:    true,
 				Description: "Comments string.",
 			},
-			"using_all_data_center": {
-				Type:        schema.TypeBool,
-				Computed:    true,
-				Description: "Using all Data Centers.",
-			},
 		},
 	}
 }
@@ -212,10 +207,6 @@ func dataSourceDataCenterQueryRead(d *schema.ResourceData, m interface{}) error 
 
 	if v := dataCenterQuery["ignore-errors"]; v != nil {
 		_ = d.Set("ignore_errors", v)
-	}
-
-	if v := dataCenterQuery["using-all-data-center"]; v != nil {
-		_ = d.Set("using_all_data_center", v)
 	}
 
 	return nil

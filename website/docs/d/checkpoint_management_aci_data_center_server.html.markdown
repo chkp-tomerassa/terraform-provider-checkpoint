@@ -30,12 +30,3 @@ The following arguments are supported:
 
 * `name` - (Optional) Object name.
 * `uid` - (Optional) Object unique identifier.
-* `automatic_refresh` - Indicates whether the data center server's content is automatically updated.
-* `data_center_type` - Data Center type.
-* `properties` - Data Center properties.properties blocks are documented below.
-
-
-`properties` supports the following:
-
-* `name` - N/A.
-* `value` - N/A.
