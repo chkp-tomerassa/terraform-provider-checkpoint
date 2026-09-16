@@ -630,14 +630,6 @@ func dataSourceManagementAccessRuleBase() *schema.Resource {
 					},
 				},
 			},
-			"objects_dictionary": {
-				Type:        schema.TypeSet,
-				Computed:    true,
-				Description: "Level of details in the output corresponds to the number of details for search. This table shows the level of details in the Standard level.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 		},
 	}
 }
@@ -842,17 +834,6 @@ func dataSourceManagementAccessRuleBaseRead(d *schema.ResourceData, m interface{
 	}
 	outputRuleBase = append(outputRuleBase, ruleBaseToReturn)
 	_ = d.Set("rulebase", outputRuleBase)
-	if v := ruleBaseJson["objects-dictionary"]; v != nil {
-		objectsdictionaryIdsList := v.([]interface{})
-		var objectsdictionaryIds = make([]string, 0)
-		if len(objectsdictionaryIdsList) > 0 {
-			for _, item := range objectsdictionaryIdsList {
-				objectsdictionaryIds = append(objectsdictionaryIds, item.(map[string]interface{})["name"].(string))
-			}
-		}
-		_ = d.Set("objects_dictionary", objectsdictionaryIds)
-	}
-
 	return nil
 }
 
