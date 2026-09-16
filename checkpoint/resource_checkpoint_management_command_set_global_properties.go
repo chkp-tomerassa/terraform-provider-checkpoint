@@ -2327,6 +2327,168 @@ func readManagementSetGlobalProperties(d *schema.ResourceData, m interface{}) er
 
 				vpnAuthenticationAndEncryptionPayload := make(map[string]interface{})
 
+				if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms"); ok {
+
+					encryptionAlgorithmsPayload := make(map[string]interface{})
+
+					if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike"); ok {
+
+						ikePayload := make(map[string]interface{})
+
+						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms"); ok {
+
+							supportEncryptionAlgorithmsPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.aes_128"); ok {
+								supportEncryptionAlgorithmsPayload["aes-128"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.aes_256"); ok {
+								supportEncryptionAlgorithmsPayload["aes-256"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.des"); ok {
+								supportEncryptionAlgorithmsPayload["des"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_encryption_algorithms.0.tdes"); ok {
+								supportEncryptionAlgorithmsPayload["tdes"] = strconv.FormatBool(v.(bool))
+							}
+							ikePayload["support-encryption-algorithms"] = supportEncryptionAlgorithmsPayload
+						}
+						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_encryption_algorithm"); ok {
+							ikePayload["use-encryption-algorithm"] = v.(string)
+						}
+						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity"); ok {
+
+							supportDataIntegrityPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.aes_xcbc"); ok {
+								supportDataIntegrityPayload["aes-xcbc"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.md5"); ok {
+								supportDataIntegrityPayload["md5"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha1"); ok {
+								supportDataIntegrityPayload["sha1"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha256"); ok {
+								supportDataIntegrityPayload["sha256"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha384"); ok {
+								supportDataIntegrityPayload["sha384"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_data_integrity.0.sha512"); ok {
+								supportDataIntegrityPayload["sha512"] = strconv.FormatBool(v.(bool))
+							}
+							ikePayload["support-data-integrity"] = supportDataIntegrityPayload
+						}
+						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_data_integrity"); ok {
+							ikePayload["use-data-integrity"] = v.(string)
+						}
+						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups"); ok {
+
+							supportDiffieHellmanGroupsPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group1"); ok {
+								supportDiffieHellmanGroupsPayload["group1"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group14"); ok {
+								supportDiffieHellmanGroupsPayload["group14"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group15"); ok {
+								supportDiffieHellmanGroupsPayload["group15"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group16"); ok {
+								supportDiffieHellmanGroupsPayload["group16"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group17"); ok {
+								supportDiffieHellmanGroupsPayload["group17"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group18"); ok {
+								supportDiffieHellmanGroupsPayload["group18"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group19"); ok {
+								supportDiffieHellmanGroupsPayload["group19"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group2"); ok {
+								supportDiffieHellmanGroupsPayload["group2"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group20"); ok {
+								supportDiffieHellmanGroupsPayload["group20"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group21"); ok {
+								supportDiffieHellmanGroupsPayload["group21"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.support_diffie_hellman_groups.0.group5"); ok {
+								supportDiffieHellmanGroupsPayload["group5"] = strconv.FormatBool(v.(bool))
+							}
+							ikePayload["support-diffie-hellman-groups"] = supportDiffieHellmanGroupsPayload
+						}
+						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ike.0.use_diffie_hellman_group"); ok {
+							ikePayload["use-diffie-hellman-group"] = v.(string)
+						}
+						encryptionAlgorithmsPayload["ike"] = ikePayload
+					}
+					if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec"); ok {
+
+						ipsecPayload := make(map[string]interface{})
+
+						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms"); ok {
+
+							supportEncryptionAlgorithmsPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.aes_128"); ok {
+								supportEncryptionAlgorithmsPayload["aes-128"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.aes_256"); ok {
+								supportEncryptionAlgorithmsPayload["aes-256"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.des"); ok {
+								supportEncryptionAlgorithmsPayload["des"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_encryption_algorithms.0.tdes"); ok {
+								supportEncryptionAlgorithmsPayload["tdes"] = strconv.FormatBool(v.(bool))
+							}
+							ipsecPayload["support-encryption-algorithms"] = supportEncryptionAlgorithmsPayload
+						}
+						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.use_encryption_algorithm"); ok {
+							ipsecPayload["use-encryption-algorithm"] = v.(string)
+						}
+						if _, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity"); ok {
+
+							supportDataIntegrityPayload := make(map[string]interface{})
+
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.aes_xcbc"); ok {
+								supportDataIntegrityPayload["aes-xcbc"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.md5"); ok {
+								supportDataIntegrityPayload["md5"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha1"); ok {
+								supportDataIntegrityPayload["sha1"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha256"); ok {
+								supportDataIntegrityPayload["sha256"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha384"); ok {
+								supportDataIntegrityPayload["sha384"] = strconv.FormatBool(v.(bool))
+							}
+							if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.support_data_integrity.0.sha512"); ok {
+								supportDataIntegrityPayload["sha512"] = strconv.FormatBool(v.(bool))
+							}
+							ipsecPayload["support-data-integrity"] = supportDataIntegrityPayload
+						}
+						if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.use_data_integrity"); ok {
+							ipsecPayload["use-data-integrity"] = v.(string)
+						}
+						if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.encryption_algorithms.0.ipsec.0.enforce_encryption_alg_and_data_integrity_on_all_users"); ok {
+							ipsecPayload["enforce-encryption-alg-and-data-integrity-on-all-users"] = strconv.FormatBool(v.(bool))
+						}
+						encryptionAlgorithmsPayload["ipsec"] = ipsecPayload
+					}
+					vpnAuthenticationAndEncryptionPayload["encryption-algorithms"] = encryptionAlgorithmsPayload
+				}
+				if v, ok := d.GetOk("remote_access.0.vpn_authentication_and_encryption.0.encryption_method"); ok {
+					vpnAuthenticationAndEncryptionPayload["encryption-method"] = v.(string)
+				}
 				if v, ok := d.GetOkExists("remote_access.0.vpn_authentication_and_encryption.0.pre_shared_secret"); ok {
 					vpnAuthenticationAndEncryptionPayload["pre-shared-secret"] = strconv.FormatBool(v.(bool))
 				}
